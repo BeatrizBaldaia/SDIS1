@@ -9,7 +9,7 @@ public class Parser {
 	public String messageType = null;
 	public double version = 0.0;
 	public int senderID = 0;
-	public String fileID = null;
+	public int fileID = 0;
 	public int chunkNo = 0;
 	public int replicationDeg = 0;
 	public byte[] body = null;
@@ -97,7 +97,15 @@ public class Parser {
     		System.out.println("The length of this field is 32 bytes and should be encoded as a 64 ASCII char seq.");
     		return -1;
     	}
-    	fileID = "0x" + header[3];
+    	
+    	String strFileID = "";
+    	
+    	for(int i = 0; i < 32; i++) {
+    		strFileID += "0x" + Character.toUpperCase(header[3].charAt(i)) + Character.toUpperCase(header[3].charAt(i + 1));
+    		i++;
+    	}
+    	
+    	fileID = Integer.parseInt(strFileID);
     	return 0;
     }
     
