@@ -7,6 +7,7 @@ import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.nio.file.*;
 import java.nio.file.Files;
+import java.net.InetAddress;
 
 public class ChunkBackup implements Runnable {
 	private MulticastSocket mc;//control socket
@@ -19,13 +20,15 @@ public class ChunkBackup implements Runnable {
 		this.serverID = serverID;
 	}
 
-	public void send(int chunckID, int replicationDegree, String fileName) throws IOException  {
+	public void send(int chunckID, int replicationDegree, String fileName, InetAddress mdb_ip) throws IOException  {
 		Path fileName_path = Paths.get(fileName);
 		byte[] data = Files.readAllBytes(fileName_path);
 		String request = "PUTCHUNK 1.1 "+this.serverID+" "+fileName+" 0 "+replicationDegree+ " \r\n\r\n" + data;
 		byte[] request_to_bytes = request.getBytes();
-		DatagramPacket requestPacket = new DatagramPacket(request_to_bytes, request_to_bytes.length);
-		requestPacket.setSocketAddress(mdb.getLocalSocketAddress());
+		DatagramPacket requestPacket = new DatagramPacket(request_to_bytes, request_to_bytes.length, mdb_ip,mdb.getLocalPort());
+		mdb.setTimeToLive(1);
+		//requestPacket.setSocketAddress(mdb.getLocalSocketAddress());
+		System.out.println(" "+mdb.getInetAddress()+":"+mdb.getLocalPort());
 		mdb.send(requestPacket);
 		System.out.println("SENT");
 	}

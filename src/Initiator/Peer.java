@@ -33,7 +33,7 @@ public class Peer {
 
 			ChunkBackup protocol = new ChunkBackup(mcc, mdb, peerID);
 
-			protocol.send(0, replicationDegree, fileName);
+			protocol.send(0, replicationDegree, fileName, mdb_ip);
 		}
 
 }
