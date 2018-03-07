@@ -60,7 +60,7 @@ public class Channel {
      * Block until receives the message
      */
     public void listen() {
-        new Thread(() -> {
+       /* new Thread(() -> {
             while (true) {
                 byte[] buffer = new byte[200 + 64 * 1000];//header + body
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -72,6 +72,16 @@ public class Channel {
                     return;
                 }
             }
-        }).start();
+        }).start();*/
+    	
+    	byte[] buffer = new byte[200 + 64 * 1000];//header + body
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+        try {
+            socket.receive(packet);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
     }
 }
