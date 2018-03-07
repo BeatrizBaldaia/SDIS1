@@ -1,9 +1,15 @@
 package Initiator;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+
+import Subprotocols.ChunkBackup;
+
 public class Peer {
 
-	public static void main(String[] args) {
-			if (args.length != 5) {
+	public static void main(String[] args) throws IOException {
+			if (args.length != 7) {
 				System.out.println("Usage: java Peer <id> <MCC_ip> <MCC_port> <MDB_ip> <MDB_port> <file> <replicationDegree>");
 				return;
 			}
@@ -27,7 +33,7 @@ public class Peer {
 
 			ChunkBackup protocol = new ChunkBackup(mcc, mdb, peerID);
 
-			protocol.send();
+			protocol.send(0, replicationDegree, fileName);
 		}
 
 }
