@@ -3,12 +3,9 @@ package Subprotocols;
 import Message.*;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.MulticastSocket;
 import java.nio.file.*;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.net.InetAddress;
 
 public class ChunkBackup implements Runnable {	
 	public double version = 0.0;
@@ -37,6 +34,8 @@ public class ChunkBackup implements Runnable {
 		ChannelMDB.getInstance().sendMessage(msg.getBytes());
 		System.out.println("SENT");
 	}
+	
+	@Override
 	public void run() {
 		try {
 			store();
@@ -46,6 +45,7 @@ public class ChunkBackup implements Runnable {
 		}
 		return;
 	}
+	
 	public void store() throws IOException {
 		
 		Path filePath = Paths.get(fileName);

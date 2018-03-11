@@ -37,6 +37,10 @@ public class Peer {
 			mdb.createMulticastSocket(args[5], args[6]);
 			mdr = ChannelMDR.getInstance();
 			mdr.createMulticastSocket(args[7], args[8]);
+			
+			mc.listen();
+			mdb.listen();
+			mdr.listen();
 
 			/*ChunkBackup protocol = new ChunkBackup(mcc, mdb, id);
 

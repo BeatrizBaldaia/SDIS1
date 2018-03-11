@@ -45,7 +45,18 @@ private static ChannelMDR instance = null;
 
         this.socket = socket;
     }
-
+    
+    /**
+     * 
+     * @return the address of the multicast data channel socket
+     */
+    public InetAddress getAddress() { return address; }
+    
+    /**
+     * 
+     * @return the port of the multicast data channel socket
+     */
+    public int getPort() { return port; }
     
 
     /**
@@ -79,6 +90,7 @@ private static ChannelMDR instance = null;
                 	if(parser.parseHeader() != 0) {
                 		System.out.println("Error parsing the message");
                 	}
+                	//Receber mensagem CHUNK
                 } catch (IOException e) {
                     e.printStackTrace();
                     return;

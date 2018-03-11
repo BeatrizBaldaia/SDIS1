@@ -45,6 +45,18 @@ public class ChannelMC {
 
 		this.socket = socket;
 	}
+	
+	/**
+     * 
+     * @return the address of the multicast data channel socket
+     */
+    public InetAddress getAddress() { return address; }
+    
+    /**
+     * 
+     * @return the port of the multicast data channel socket
+     */
+    public int getPort() { return port; }
 
 
 
@@ -79,6 +91,7 @@ public class ChannelMC {
 					if(parser.parseHeader() != 0) {
 						System.out.println("Error parsing the message");
 					}
+					//Receber mensagens STORED, GETCHUNK, DELETE e REMOVED
 				} catch (IOException e) {
 					e.printStackTrace();
 					return;
