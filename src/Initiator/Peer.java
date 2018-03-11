@@ -5,36 +5,42 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
+import Message.ChannelMC;
+import Message.ChannelMDB;
+import Message.ChannelMDR;
 import Subprotocols.ChunkBackup;
 
 public class Peer {
+	private static int protocolVersion;
+	private static int id;
+	private static int serviceAccessPoint;
+	
+	private static ChannelMC mc;
+	private static ChannelMDB mdb;
+	private static ChannelMDR mdr;
+	
+	
 
 	public static void main(String[] args) throws IOException {
-			if (args.length != 7) {
-				System.out.println("Usage: java Peer <id> <MCC_ip> <MCC_port> <MDB_ip> <MDB_port> <file> <replicationDegree>");
+			if (args.length != 9) {
+				System.out.println("Usage: java Initiator.Peer <protocol_version> <server_id> <service_access_point> <MC_ip> <MC_port> <MDB_ip> <MDB_port> <MDR_ip> <MDR_port>");
 				return;
 			}
 
-			int peerID = Integer.parseInt(args[0]);
+			protocolVersion = Integer.parseInt(args[0]);
+			id = Integer.parseInt(args[1]);
+			serviceAccessPoint = Integer.parseInt(args[2]);
+			
+			mc = ChannelMC.getInstance();
+			mc.createMulticastSocket(args[3], args[4]);
+			mdb = ChannelMDB.getInstance();
+			mdb.createMulticastSocket(args[5], args[6]);
+			mdr = ChannelMDR.getInstance();
+			mdr.createMulticastSocket(args[7], args[8]);
 
-			InetAddress mcc_ip = InetAddress.getByName(args[1]);
-			int mcc_port = Integer.parseInt(args[2]);
+			/*ChunkBackup protocol = new ChunkBackup(mcc, mdb, id);
 
-			InetAddress mdb_ip = InetAddress.getByName(args[3]);
-			int mdb_port = Integer.parseInt(args[4]);
-
-			MulticastSocket mcc = new MulticastSocket(mcc_port);
-			mcc.joinGroup(mcc_ip);
-
-			MulticastSocket mdb = new MulticastSocket(mdb_port);
-			mdb.joinGroup(mdb_ip);
-
-			String fileName = args[5];
-			int replicationDegree = Integer.parseInt(args[6]);
-
-			ChunkBackup protocol = new ChunkBackup(mcc, mdb, peerID);
-
-			protocol.send(0, replicationDegree, fileName, mdb_ip);
+			protocol.send(0, replicationDegree, fileName, mdb_ip);*/
 		}
 
 }

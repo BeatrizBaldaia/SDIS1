@@ -6,18 +6,25 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
-public class Channel {
+public class ChannelMDR {
+private static ChannelMDR instance = null;
 	
-	private final MulticastSocket socket;
+	private MulticastSocket socket;
     private InetAddress address;
     private int port;
 
-    public Channel(String address, String port) {
-        socket = createMulticastSocket(address, port);
+    public ChannelMDR() {
     }
 
 
-    private MulticastSocket createMulticastSocket(String addressStr, String portStr) {
+    public static ChannelMDR getInstance() {
+    	if(instance == null) {
+    		instance = new ChannelMDR();
+    	}
+    	return instance;
+    }
+    
+    public void createMulticastSocket(String addressStr, String portStr) {
         try {
             address = InetAddress.getByName(addressStr);
         } catch (UnknownHostException e) {
@@ -36,7 +43,7 @@ public class Channel {
             e.printStackTrace();
         }
 
-        return socket;
+        this.socket = socket;
     }
 
     
@@ -60,28 +67,24 @@ public class Channel {
      * Block until receives the message
      */
     public void listen() {
-       /* new Thread(() -> {
+       new Thread(() -> {
             while (true) {
                 byte[] buffer = new byte[200 + 64 * 1000];//header + body
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
                 try {
                     socket.receive(packet);
+                    byte[] msg = packet.getData();
+                    Parser parser = new Parser(msg, msg.length);
+                	if(parser.parseHeader() != 0) {
+                		System.out.println("Error parsing the message");
+                	}
                 } catch (IOException e) {
                     e.printStackTrace();
                     return;
                 }
             }
-        }).start();*/
+        }).start();
     	
-    	byte[] buffer = new byte[200 + 64 * 1000];//header + body
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-
-        try {
-            socket.receive(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
     }
 }
