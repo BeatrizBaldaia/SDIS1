@@ -2,8 +2,12 @@
 package Initiator;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import Message.ChannelMC;
 import Message.ChannelMDB;
@@ -41,10 +45,51 @@ public class Peer {
 			mc.listen();
 			mdb.listen();
 			mdr.listen();
+			
+			
 
 			/*ChunkBackup protocol = new ChunkBackup(mcc, mdb, id);
 
 			protocol.send(0, replicationDegree, fileName, mdb_ip);*/
 		}
+	
+	public byte[] getFileBody(String fileName) throws IOException {
+		String pathStr = "..//data/" + fileName;
+		Path path = Paths.get(pathStr);
+		byte[] data = Files.readAllBytes(path);
+		return data;
+	}
+	
+	/**
+	 * 
+	 * @param version of the protocol
+	 * @param senderID who is going to send the message
+	 * @param fileID ; file identifier for the backup service
+	 * @param chunkNo (chunkNo + fileID = specific chunk in a file)
+	 * @param replicationDeg ; replication degree of the chunk
+	 * @param body ; file data
+	 * @return the PUTCHUNK message to be sent
+	 * @throws UnsupportedEncodingException 
+	 */
+	public String createPutChunkMessage(double version, int senderID, int fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
+		String bodyStr = new String(body, "UTF-8"); // for UTF-8 encoding
+		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID + " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
+		return msg;
+	}
+	
+	public int sendPutChunkMessage(double version, int senderID, int fileID, int chunkNo, int replicationDeg, byte [] body) {
+		
+		String msg = null;
+		try {
+			msg = createPutChunkMessage(version, senderID, fileID, chunkNo, replicationDeg, body) ;
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
+		}
+		
+		ChannelMDB.getInstance().sendMessage(msg.getBytes());
+		return 0;
+	}
 
 }
