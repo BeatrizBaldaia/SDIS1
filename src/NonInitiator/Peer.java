@@ -28,8 +28,8 @@ public class Peer {
 		MulticastSocket mdb = new MulticastSocket(mdb_port);
 		mdb.joinGroup(mdb_ip);
 
-		ChunkBackup protocol = new ChunkBackup(mcc, mdb, peerID);
+		/*ChunkBackup protocol = new ChunkBackup(mcc, mdb, peerID);
 
-		protocol.store();
+		protocol.store();*/
 	}
 }

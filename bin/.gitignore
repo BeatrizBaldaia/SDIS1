@@ -1,6 +1,7 @@
-/SateInfo/
-/Message/
-/SingletonThreadPoolExecutor.class
+/Client/
 /Initiator/
+/Message/
 /NonInitiator/
+/SateInfo/
+/Server/
 /Subprotocols/
