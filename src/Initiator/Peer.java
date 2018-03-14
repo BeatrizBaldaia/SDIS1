@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -56,10 +57,10 @@ public class Peer implements InterfaceApp {
 			
 			 try {
 		            Peer obj = new Peer();
-		            Peer protocol = (Peer) UnicastRemoteObject.exportObject(obj, 0);
+		            InterfaceApp protocol = (InterfaceApp) UnicastRemoteObject.exportObject(obj, 0);
 
 		            // Bind the remote object's stub in the registry
-		            Registry registry = LocateRegistry.getRegistry();
+		            Registry registry = LocateRegistry.getRegistry(1099);
 		            registry.bind("PROTOCOL", protocol);
 
 		            System.out.println("Server ready");
@@ -110,7 +111,7 @@ public class Peer implements InterfaceApp {
 
 	
 	@Override
-	public void backup(String filename, Integer replicationDegree) {
+	public void backup(String filename, Integer replicationDegree) throws RemoteException {
 		// TODO Auto-generated method stub
 		System.out.println("Chamou backup");
 		

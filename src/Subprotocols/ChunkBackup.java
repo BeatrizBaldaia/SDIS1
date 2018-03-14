@@ -50,7 +50,7 @@ public class ChunkBackup implements Runnable {
 	public void store() throws IOException, InterruptedException {
 		
 		Path filePath = Paths.get(fileName);
-		if(!Files.exists(filePath)) { //O CHUNk nao Existe
+		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
 			Files.write(filePath,body);
 		}
 		sendConfirmation();

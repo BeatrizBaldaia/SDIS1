@@ -9,8 +9,8 @@ public class TestingApplication {
 	public static void main(String[] args) {
 		try {
 			
-			String filename = null;
-			Integer degree = null;
+			String filename = "teste.txt";
+			Integer degree = 1;
 	        Registry registry = LocateRegistry.getRegistry(null);
 	        InterfaceApp protocol = (InterfaceApp) registry.lookup("PROTOCOL");
 	        protocol.backup(filename, degree);
