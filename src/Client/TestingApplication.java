@@ -8,6 +8,7 @@ import Server.InterfaceApp;
 public class TestingApplication {
 	public static void main(String[] args) {
 		try {
+			
 			String filename = null;
 			Integer degree = null;
 	        Registry registry = LocateRegistry.getRegistry(null);
