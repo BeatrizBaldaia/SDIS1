@@ -1,12 +1,12 @@
-package Subprotocols;
-
-import Message.*;
+package subprotocols;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Random;
+
+import message.*;
 
 public class ChunkBackup implements Runnable {	
 	public double version = 0.0;

@@ -1,5 +1,5 @@
 
-package Initiator;
+package initiator;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -9,15 +9,16 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Arrays;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import Message.ChannelMC;
-import Message.ChannelMDB;
-import Message.ChannelMDR;
-import Server.InterfaceApp;
-import Subprotocols.ChunkBackup;
+import message.ChannelMC;
+import message.ChannelMDB;
+import message.ChannelMDR;
+import server.InterfaceApp;
+import subprotocols.ChunkBackup;
 
 public class Peer implements InterfaceApp {
 	private static int protocolVersion;
@@ -49,25 +50,19 @@ public class Peer implements InterfaceApp {
 			mdb.listen();
 			mdr.listen();
 			
-			
+			try {
+				Peer obj = new Peer();
+				InterfaceApp protocol = (InterfaceApp) UnicastRemoteObject.exportObject(obj, 0);
 
-			/*ChunkBackup protocol = new ChunkBackup(mcc, mdb, id);
+				// Bind the remote object's stub in the registry
+				Registry registry = LocateRegistry.getRegistry(1099);
+				registry.bind("PROTOCOL", protocol);
 
-			protocol.send(0, replicationDegree, fileName, mdb_ip);*/
-			
-			 try {
-		            Peer obj = new Peer();
-		            InterfaceApp protocol = (InterfaceApp) UnicastRemoteObject.exportObject(obj, 0);
-
-		            // Bind the remote object's stub in the registry
-		            Registry registry = LocateRegistry.getRegistry(1099);
-		            registry.bind("PROTOCOL", protocol);
-
-		            System.out.println("Server ready");
-		        } catch (Exception e) {
-		            System.err.println("Server exception: " + e.toString());
-		            e.printStackTrace();
-		        }
+				System.out.println("Server ready");
+			} catch (Exception e) {
+				System.err.println("Server exception: " + e.toString());
+				e.printStackTrace();
+			}
 		}
 	
 	public byte[] getFileBody(String fileName) throws IOException {
@@ -109,10 +104,17 @@ public class Peer implements InterfaceApp {
 		return 0;
 	}
 
-	
 	@Override
 	public void backup(String filename, Integer replicationDegree) throws RemoteException {
 		// TODO Auto-generated method stub
+		
+		int fileID = 0;
+		int chunkNo = 0;
+		byte[] body = new byte[1];
+		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, body)==-1) {
+			System.out.println("Couldaent");
+			return;
+		}
 		System.out.println("Chamou backup");
 		
 	}

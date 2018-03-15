@@ -1,10 +1,10 @@
-package NonInitiator;
+package nonInitiator;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
-import Subprotocols.ChunkBackup;
+import subprotocols.ChunkBackup;
 
 public class Peer {
 

@@ -1,4 +1,4 @@
-package SateInfo;
+package sateInfo;
 
 import java.util.ArrayList;
 

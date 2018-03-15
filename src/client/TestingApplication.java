@@ -1,9 +1,9 @@
-package Client;
+package client;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-import Server.InterfaceApp;
+import server.InterfaceApp;
 
 public class TestingApplication {
 	public static void main(String[] args) {

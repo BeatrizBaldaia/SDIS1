@@ -1,4 +1,4 @@
-package Message;
+package message;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -6,24 +6,31 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
-public class ChannelMDR {
-private static ChannelMDR instance = null;
+import subprotocols.ChunkBackup;
+
+public class ChannelMDB {
+	private static ChannelMDB instance = null;
 	
 	private MulticastSocket socket;
     private InetAddress address;
     private int port;
 
-    public ChannelMDR() {
+    public ChannelMDB() {
     }
 
 
-    public static ChannelMDR getInstance() {
+    public static ChannelMDB getInstance() {
     	if(instance == null) {
-    		instance = new ChannelMDR();
+    		instance = new ChannelMDB();
     	}
     	return instance;
     }
     
+    /**
+     * Creates the multicast data channel socket
+     * @param addressStr
+     * @param portStr
+     */
     public void createMulticastSocket(String addressStr, String portStr) {
         try {
             address = InetAddress.getByName(addressStr);
@@ -90,7 +97,10 @@ private static ChannelMDR instance = null;
                 	if(parser.parseHeader() != 0) {
                 		System.out.println("Error parsing the message");
                 	}
-                	//Receber mensagem CHUNK
+                	if(parser.messageType.equals("PUTCHUNK")) {
+                		ChunkBackup subprotocol = new ChunkBackup(parser);
+                		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+                	}
                 } catch (IOException e) {
                     e.printStackTrace();
                     return;
