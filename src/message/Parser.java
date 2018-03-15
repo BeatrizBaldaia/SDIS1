@@ -94,19 +94,19 @@ public class Parser {
 	 * @return -1 if error
 	 */
 	public int getFileID() {
-		if(header[3].length() != 64) {
-			System.out.println("The length of this field is 32 bytes and should be encoded as a 64 ASCII char seq.");
-			return -1;
-		}
-
-		String strFileID = "";
-
-		for(int i = 0; i < 32; i++) {
-			strFileID += "0x" + Character.toUpperCase(header[3].charAt(i)) + Character.toUpperCase(header[3].charAt(i + 1));
-			i++;
-		}
+//		if(header[3].length() != 64) {
+//			System.out.println("The length of this field is 32 bytes and should be encoded as a 64 ASCII char seq.");
+//			return -1;
+//		}
+//
+//		String strFileID = "";
+//
+//		for(int i = 0; i < 32; i++) {
+//			strFileID += "0x" + Character.toUpperCase(header[3].charAt(i)) + Character.toUpperCase(header[3].charAt(i + 1));
+//			i++;
+//		}
 		fileName = header[3];
-		fileID = Integer.parseInt(strFileID);
+//		fileID = Integer.parseInt(strFileID);
 		return 0;
 	}
 

@@ -11,7 +11,7 @@ import message.*;
 public class ChunkBackup implements Runnable {	
 	public double version = 0.0;
 	public int senderID = 0;
-	public int fileID = 0;
+	public String fileID = null;
 	public String fileName = null;
 	public int chunkNo = 0;
 	public int replicationDeg = 0;
@@ -21,7 +21,7 @@ public class ChunkBackup implements Runnable {
 	public ChunkBackup (Parser parser) {
 		version = parser.version;
 		senderID = parser.senderID;
-		fileID = parser.fileID;
+		fileID = parser.fileName;
 		fileName = new String(parser.fileName);
 		chunkNo = parser.chunkNo;
 		replicationDeg = parser.replicationDeg;
@@ -51,6 +51,8 @@ public class ChunkBackup implements Runnable {
 		
 		Path filePath = Paths.get(fileName);
 		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
+			System.out.println(filePath);
+			Files.createFile(filePath);
 			Files.write(filePath,body);
 		}
 		sendConfirmation();

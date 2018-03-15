@@ -9,10 +9,15 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Base64;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 
 import message.ChannelMC;
 import message.ChannelMDB;
@@ -84,14 +89,13 @@ public class Peer implements InterfaceApp {
 	 * @return the PUTCHUNK message to be sent
 	 * @throws UnsupportedEncodingException 
 	 */
-	public String createPutChunkMessage(double version, int senderID, int fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
+	public String createPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
 		String bodyStr = new String(body, "UTF-8"); // for UTF-8 encoding
-		String fileID_string =Integer.toHexString(fileID);
-		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID_string + " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
+		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID+ " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
 		return msg;
 	}
 	
-	public int sendPutChunkMessage(double version, int senderID, int fileID, int chunkNo, int replicationDeg, byte [] body) {
+	public int sendPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) {
 		
 		String msg = null;
 		try {
@@ -107,7 +111,7 @@ public class Peer implements InterfaceApp {
 	}
 
 	@Override
-	public void backup(String filename, Integer replicationDegree) throws RemoteException {
+	public void backup(String filename, Integer replicationDegree) throws NoSuchAlgorithmException, IOException {
 		// TODO Auto-generated method stub
 		Path filePath = Paths.get(filename);
 		if(!Files.exists(filePath)) { //NOTE: O ficheiro nao existe
@@ -124,8 +128,13 @@ public class Peer implements InterfaceApp {
 			e.printStackTrace();
 			return;
 		}
-		int fileID = file.getFileID();
-		fileID = 1;
+		BasicFileAttributes attr = Files.readAttributes(filePath, BasicFileAttributes.class);
+		System.out.println("lastModifiedTime: " + attr.lastModifiedTime());
+//		MessageDigest digest = MessageDigest.getInstance("SHA-256");
+//		byte[] hash = digest.digest((filename+attr.lastModifiedTime()).getBytes(StandardCharsets.UTF_8));
+//		String fileID = Base64.getEncoder().encodeToString(hash);
+		String fileID = "Anabela.txt";
+		System.out.println("FileID: "+fileID);
 		int chunkNo = 0;
 		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, body)==-1) {
 			System.out.println("Couldn't send putchunk!");
