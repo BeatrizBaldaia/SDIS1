@@ -46,4 +46,12 @@ public class BackupFile {
 	public void addChunk(Chunk chunk) {
 		chunks.add(chunk);
 	}
+	
+	/**
+	 * 
+	 * @return the fileID generated
+	 */
+	public int getFileID() { //TODO: Create file ID
+		return 0x7FFFFFFF;
+	}
 }

@@ -11,13 +11,13 @@ public class TestingApplication {
 			
 			String filename = "teste.txt";
 			Integer degree = 1;
-	        Registry registry = LocateRegistry.getRegistry(null);
-	        InterfaceApp protocol = (InterfaceApp) registry.lookup("PROTOCOL");
-	        protocol.backup(filename, degree);
-	        System.out.println("Returned");
-	    } catch (Exception e) {
-	        System.err.println("Client exception: " + e.toString());
-	        e.printStackTrace();
-	    }
+			Registry registry = LocateRegistry.getRegistry(null);
+			InterfaceApp protocol = (InterfaceApp) registry.lookup("PROTOCOL");
+			protocol.backup(filename, degree);
+			System.out.println("Returned");
+		} catch (Exception e) {
+			System.err.println("Client exception: " + e.toString());
+			e.printStackTrace();
+		}
 	}
 }

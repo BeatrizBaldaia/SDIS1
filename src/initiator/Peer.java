@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import message.ChannelMC;
 import message.ChannelMDB;
 import message.ChannelMDR;
+import sateInfo.BackupFile;
 import server.InterfaceApp;
 import subprotocols.ChunkBackup;
 
@@ -56,7 +57,7 @@ public class Peer implements InterfaceApp {
 
 				// Bind the remote object's stub in the registry
 				Registry registry = LocateRegistry.getRegistry(1099);
-				registry.bind("PROTOCOL", protocol);
+				registry.rebind("PROTOCOL", protocol); //TODO: see diference bind/rebind
 
 				System.out.println("Server ready");
 			} catch (Exception e) {
@@ -85,7 +86,8 @@ public class Peer implements InterfaceApp {
 	 */
 	public String createPutChunkMessage(double version, int senderID, int fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
 		String bodyStr = new String(body, "UTF-8"); // for UTF-8 encoding
-		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID + " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
+		String fileID_string =Integer.toHexString(fileID);
+		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID_string + " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
 		return msg;
 	}
 	
@@ -107,16 +109,30 @@ public class Peer implements InterfaceApp {
 	@Override
 	public void backup(String filename, Integer replicationDegree) throws RemoteException {
 		// TODO Auto-generated method stub
-		
-		int fileID = 0;
+		Path filePath = Paths.get(filename);
+		if(!Files.exists(filePath)) { //NOTE: O ficheiro nao existe
+			System.out.println("File does not exist: "+ filename);
+			return;
+		}
+		BackupFile file = new BackupFile(filename, Peer.id, replicationDegree);
+		byte[] body;
+		try {
+			body = Files.readAllBytes(filePath);
+			System.out.println("Body"+ new String(body));
+		} catch (IOException e) {
+			System.out.println("Couldn't read from file!");
+			e.printStackTrace();
+			return;
+		}
+		int fileID = file.getFileID();
+		fileID = 1;
 		int chunkNo = 0;
-		byte[] body = new byte[1];
 		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, body)==-1) {
-			System.out.println("Couldaent");
+			System.out.println("Couldn't send putchunk!");
 			return;
 		}
 		System.out.println("Chamou backup");
-		
+		return;
 	}
 
 }
