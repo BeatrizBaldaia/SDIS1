@@ -1,4 +1,4 @@
-package SateInfo;
+package sateInfo;
 
 public class Chunk {
 	private int id = 0;

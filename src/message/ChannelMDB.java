@@ -1,4 +1,4 @@
-package Message;
+package message;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -6,7 +6,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
-import Subprotocols.ChunkBackup;
+import subprotocols.ChunkBackup;
 
 public class ChannelMDB {
 	private static ChannelMDB instance = null;
@@ -103,6 +103,7 @@ public class ChannelMDB {
                 	}
                 } catch (IOException e) {
                     e.printStackTrace();
+                    return;
                 }
             }
         }).start();

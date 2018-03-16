@@ -1,10 +1,10 @@
-package NonInitiator;
+package nonInitiator;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
-import Subprotocols.ChunkBackup;
+import subprotocols.ChunkBackup;
 
 public class Peer {
 
@@ -28,8 +28,8 @@ public class Peer {
 		MulticastSocket mdb = new MulticastSocket(mdb_port);
 		mdb.joinGroup(mdb_ip);
 
-		ChunkBackup protocol = new ChunkBackup(mcc, mdb, peerID);
+		/*ChunkBackup protocol = new ChunkBackup(mcc, mdb, peerID);
 
-		protocol.store();
+		protocol.store();*/
 	}
 }

@@ -1,16 +1,17 @@
-package Subprotocols;
-
-import Message.*;
+package subprotocols;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Random;
+
+import message.*;
 
 public class ChunkBackup implements Runnable {	
 	public double version = 0.0;
 	public int senderID = 0;
-	public int fileID = 0;
+	public String fileID = null;
 	public String fileName = null;
 	public int chunkNo = 0;
 	public int replicationDeg = 0;
@@ -20,43 +21,40 @@ public class ChunkBackup implements Runnable {
 	public ChunkBackup (Parser parser) {
 		version = parser.version;
 		senderID = parser.senderID;
-		fileID = parser.fileID;
+		fileID = parser.fileName;
 		fileName = new String(parser.fileName);
 		chunkNo = parser.chunkNo;
 		replicationDeg = parser.replicationDeg;
 		body = Arrays.copyOf(parser.body, parser.body.length);
 	}
 
-	public void sendConfirmation ()  {
-		/*Path fileName_path = Paths.get(fileName);
-		byte[] data = Files.readAllBytes(fileName_path);*/
+	public void sendConfirmation () throws InterruptedException  {
+		Random r = new Random();
+		Thread.sleep(r.nextInt(400));
 		String msg = "STORED "+ this.version + " " + this.senderID + " " + this.fileID + " " + this.chunkNo + " \r\n\r\n";
-		ChannelMDB.getInstance().sendMessage(msg.getBytes());
-		System.out.println("SENT");
+		ChannelMC.getInstance().sendMessage(msg.getBytes());
+		System.out.println("SENT --> "+ msg);
 	}
 	
 	@Override
 	public void run() {
 		try {
 			store();
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return;
 	}
 	
-	public void store() throws IOException {
+	public void store() throws IOException, InterruptedException {
 		
 		Path filePath = Paths.get(fileName);
-		if(!Files.exists(filePath)) { //O CHUNk nao Existe
+		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
+			System.out.println(filePath);
+			Files.createFile(filePath);
 			Files.write(filePath,body);
 		}
-		
 		sendConfirmation();
-		//Fazer o parse de buf; ler ate ao primeiro CRLF para o header
-		// String msg = new String(receivedPacket.getData());
-		// msg = msg.trim();
-		// String[] parts = msg.split(" ");
 	}
 }
