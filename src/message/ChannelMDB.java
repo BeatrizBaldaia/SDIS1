@@ -93,7 +93,7 @@ public class ChannelMDB {
                 try {
                     socket.receive(packet);
                     byte[] msg = packet.getData();
-                    Parser parser = new Parser(msg, msg.length);
+                    Parser parser = new Parser(msg, packet.getLength());
                 	if(parser.parseHeader() != 0) {
                 		System.out.println("Error parsing the message");
                 	}

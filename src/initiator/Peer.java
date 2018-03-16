@@ -3,15 +3,11 @@ package initiator;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Base64;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -24,7 +20,6 @@ import message.ChannelMDB;
 import message.ChannelMDR;
 import sateInfo.BackupFile;
 import server.InterfaceApp;
-import subprotocols.ChunkBackup;
 
 public class Peer implements InterfaceApp {
 	private static int protocolVersion;
@@ -130,10 +125,10 @@ public class Peer implements InterfaceApp {
 		}
 		BasicFileAttributes attr = Files.readAttributes(filePath, BasicFileAttributes.class);
 		System.out.println("lastModifiedTime: " + attr.lastModifiedTime());
-//		MessageDigest digest = MessageDigest.getInstance("SHA-256");
-//		byte[] hash = digest.digest((filename+attr.lastModifiedTime()).getBytes(StandardCharsets.UTF_8));
-//		String fileID = Base64.getEncoder().encodeToString(hash);
-		String fileID = "Anabela.txt";
+		MessageDigest digest = MessageDigest.getInstance("SHA-256");
+		byte[] hash = digest.digest((filename+attr.lastModifiedTime()).getBytes(StandardCharsets.UTF_8));
+		String fileID = Base64.getEncoder().encodeToString(hash);
+		//String fileID = "Anabela.txt";
 		System.out.println("FileID: "+fileID);
 		int chunkNo = 0;
 		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, body)==-1) {
