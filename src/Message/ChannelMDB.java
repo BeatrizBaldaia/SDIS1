@@ -103,7 +103,6 @@ public class ChannelMDB {
                 	}
                 } catch (IOException e) {
                     e.printStackTrace();
-                    return;
                 }
             }
         }).start();
