@@ -126,13 +126,10 @@ public class Peer implements InterfaceApp {
 			e.printStackTrace();
 			return;
 		}
-		BasicFileAttributes attr = Files.readAttributes(filePath, BasicFileAttributes.class);
-		System.out.println("lastModifiedTime: " + attr.lastModifiedTime());
-		MessageDigest digest = MessageDigest.getInstance("SHA-256");
-		byte[] hash = digest.digest((filename+attr.lastModifiedTime()).getBytes(StandardCharsets.UTF_8));
-		String fileID = DatatypeConverter.printHexBinary(hash);
+		String fileID = this.getFileID(filename);
 		System.out.println("FileID: "+fileID);
 		int chunkNo = 0;
+		//TODO: Separete in chunks
 		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, body)==-1) {
 			System.out.println("Couldn't send putchunk!");
 			return;
@@ -141,5 +138,24 @@ public class Peer implements InterfaceApp {
 		//TODO: Wait for responses.
 		return;
 	}
+	/**
+	 * Generate a file ID
+	 * @param filename - the filename
+	 * @return Hexadecimal SHA-256 encoded fileID
+	 * @throws IOException, NoSuchAlgorithmException
+	 * */
+	public String getFileID(String filename) throws IOException, NoSuchAlgorithmException {
+		Path filePath = Paths.get(filename);
+		BasicFileAttributes attr = Files.readAttributes(filePath, BasicFileAttributes.class);
+		System.out.println("lastModifiedTime: " + attr.lastModifiedTime());
+		MessageDigest digest = MessageDigest.getInstance("SHA-256");
+		byte[] hash = digest.digest((filename + attr.lastModifiedTime()).getBytes(StandardCharsets.UTF_8));
+		return DatatypeConverter.printHexBinary(hash);
+	}
 
+	@Override
+	public void delete(String filename, Integer degree) throws NoSuchAlgorithmException, IOException {
+		String fileID = getFileID(filename);
+		//TODO: send request to delete
+	}
 }

@@ -17,7 +17,6 @@ public class ChunkBackup implements Runnable {
 	public int replicationDeg = 0;
 	public byte[] body = null;
 	
-
 	public ChunkBackup (Parser parser) {
 		version = parser.version;
 		senderID = parser.senderID;
@@ -57,4 +56,5 @@ public class ChunkBackup implements Runnable {
 		}
 		sendConfirmation();
 	}
+
 }

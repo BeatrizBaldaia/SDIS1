@@ -6,6 +6,10 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
+import subprotocols.ChunkBackup;
+import subprotocols.Deletion;
+import subprotocols.Stored;
+
 public class ChannelMC {
 	private static ChannelMC instance = null;
 
@@ -13,9 +17,7 @@ public class ChannelMC {
 	private InetAddress address;
 	private int port;
 
-	public ChannelMC() {
-	}
-
+	public ChannelMC() {}
 
 	public static ChannelMC getInstance() {
 		if(instance == null) {
@@ -58,8 +60,6 @@ public class ChannelMC {
      */
     public int getPort() { return port; }
 
-
-
 	/**
 	 * Sends message.
 	 *
@@ -67,7 +67,6 @@ public class ChannelMC {
 	 */
 	public void sendMessage(byte[] message) {
 		DatagramPacket packet = new DatagramPacket(message, message.length, address, port);
-
 		try {
 			socket.send(packet);
 		} catch (IOException ignored) {
@@ -92,6 +91,15 @@ public class ChannelMC {
 						System.out.println("Error parsing the message");
 					}
 					//Receber mensagens STORED, GETCHUNK, DELETE e REMOVED
+					if(parser.messageType.equals("STORED")) {
+						Stored subprotocol = new Stored(parser);
+						SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+					} else if(parser.messageType.equals("DELETE")) {
+						Deletion subprotocol = new Deletion(parser);
+						SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+					} else {
+						System.out.println("Nao reconhece o tipo stored");
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 					return;

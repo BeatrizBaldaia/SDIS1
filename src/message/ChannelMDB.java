@@ -18,7 +18,6 @@ public class ChannelMDB {
     public ChannelMDB() {
     }
 
-
     public static ChannelMDB getInstance() {
     	if(instance == null) {
     		instance = new ChannelMDB();

@@ -3,7 +3,7 @@ package sateInfo;
 import java.util.ArrayList;
 
 public class BackupFile {
-	
+
 	private String pathName = null;
 	private int serviceID = 0;
 	private int replicationDeg = 0;
@@ -46,12 +46,5 @@ public class BackupFile {
 	public void addChunk(Chunk chunk) {
 		chunks.add(chunk);
 	}
-	
-	/**
-	 * 
-	 * @return the fileID generated
-	 */
-	public int getFileID() { //TODO: Create file ID
-		return 0x7FFFFFFF;
-	}
+
 }
