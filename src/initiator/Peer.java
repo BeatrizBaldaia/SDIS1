@@ -105,6 +105,7 @@ public class Peer implements InterfaceApp {
 		}
 		
 		ChannelMDB.getInstance().sendMessage(msg.getBytes());
+		System.out.println("SENT --> "+msg);
 		return 0;
 	}
 
@@ -129,16 +130,15 @@ public class Peer implements InterfaceApp {
 		System.out.println("lastModifiedTime: " + attr.lastModifiedTime());
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
 		byte[] hash = digest.digest((filename+attr.lastModifiedTime()).getBytes(StandardCharsets.UTF_8));
-		String fileID = DatatypeConverter.printHexBinary(hash);//new String(hash);//Base64.getEncoder().encodeToString(hash);
-		//String fileID = "Anabela.txt";
+		String fileID = DatatypeConverter.printHexBinary(hash);
 		System.out.println("FileID: "+fileID);
-		//System.out.println(hash.length);
 		int chunkNo = 0;
 		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, body)==-1) {
 			System.out.println("Couldn't send putchunk!");
 			return;
 		}
 		System.out.println("Chamou backup");
+		//TODO: Wait for responses.
 		return;
 	}
 
