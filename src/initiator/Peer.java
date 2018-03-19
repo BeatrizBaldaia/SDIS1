@@ -9,6 +9,9 @@ import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+
+import javax.xml.bind.DatatypeConverter;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -107,7 +110,6 @@ public class Peer implements InterfaceApp {
 
 	@Override
 	public void backup(String filename, Integer replicationDegree) throws NoSuchAlgorithmException, IOException {
-		// TODO Auto-generated method stub
 		Path filePath = Paths.get(filename);
 		if(!Files.exists(filePath)) { //NOTE: O ficheiro nao existe
 			System.out.println("File does not exist: "+ filename);
@@ -127,9 +129,10 @@ public class Peer implements InterfaceApp {
 		System.out.println("lastModifiedTime: " + attr.lastModifiedTime());
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
 		byte[] hash = digest.digest((filename+attr.lastModifiedTime()).getBytes(StandardCharsets.UTF_8));
-		String fileID = Base64.getEncoder().encodeToString(hash);
+		String fileID = DatatypeConverter.printHexBinary(hash);//new String(hash);//Base64.getEncoder().encodeToString(hash);
 		//String fileID = "Anabela.txt";
 		System.out.println("FileID: "+fileID);
+		//System.out.println(hash.length);
 		int chunkNo = 0;
 		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, body)==-1) {
 			System.out.println("Couldn't send putchunk!");
