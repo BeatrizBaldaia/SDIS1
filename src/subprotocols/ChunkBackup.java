@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import message.*;
+import sateInfo.Chunk;
 
 public class ChunkBackup implements Runnable {	
 	public double version = 0.0;
@@ -54,6 +55,10 @@ public class ChunkBackup implements Runnable {
 			Files.createFile(filePath);
 			Files.write(filePath,body);
 		}
+		
+		Chunk chunk = new Chunk(chunkNo, replicationDeg, body.length);
+		
+		
 		sendConfirmation();
 	}
 

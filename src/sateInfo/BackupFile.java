@@ -1,13 +1,16 @@
 package sateInfo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BackupFile {
 
 	private String pathName = null;
 	private int serviceID = 0;
 	private int replicationDeg = 0;
-	private ArrayList<Chunk> chunks = new ArrayList<Chunk>();
+	private Map<Integer,Chunk> chunks = new ConcurrentHashMap<Integer, Chunk>();
 	
 	public BackupFile(String pathName, int serviceID, int replicationDeg) {
 		this.pathName = pathName;
@@ -44,7 +47,7 @@ public class BackupFile {
 	 * @param chunk
 	 */
 	public void addChunk(Chunk chunk) {
-		chunks.add(chunk);
+		chunks.putIfAbsent(chunk.getID(), chunk);
 	}
 
 }
