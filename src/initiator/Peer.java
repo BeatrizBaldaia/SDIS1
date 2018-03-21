@@ -170,4 +170,24 @@ public class Peer implements InterfaceApp {
 		String msg = "DELETE "+ Peer.protocolVersion + " " + Peer.id + " " + fileID+ " \r\n\r\n";
 		return msg;
 	}
+
+	@Override
+	public void getFile(String filename) throws NoSuchAlgorithmException, IOException {
+		String fileID = getFileID(filename);
+		Integer chunkNo = 0; //TODO: implement chunks
+		sendGetChunk(fileID, chunkNo);
+		System.err.println(this.toString());
+	}
+
+	private void sendGetChunk(String fileID, Integer chunkNo) {
+		String msg = null;
+		msg = createGetChunkMessage(fileID, chunkNo) ;
+		ChannelMC.getInstance().sendMessage(msg.getBytes());
+		System.out.println("SENT --> "+msg);
+	}
+
+	private String createGetChunkMessage(String fileID, Integer chunkNo) {
+		String msg = "GETCHUNK "+ Peer.protocolVersion + " " + Peer.id + " " + fileID+ " " + chunkNo + " \r\n\r\n";
+		return msg;
+	}
 }
