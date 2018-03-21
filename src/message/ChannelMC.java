@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
+import subprotocols.Chunk;
 import subprotocols.ChunkBackup;
 import subprotocols.Deletion;
 import subprotocols.Stored;
@@ -97,8 +98,11 @@ public class ChannelMC {
 					} else if(parser.messageType.equals("DELETE")) {
 						Deletion subprotocol = new Deletion(parser);
 						SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+					} else if(parser.messageType.equals("GETCHUNK")) {
+						Chunk subprotocol = new Chunk(parser);
+						SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
 					} else {
-						System.out.println("Nao reconhece o tipo stored");
+						System.err.println("Nãso reconhece o tipo da mensagem!");
 					}
 				} catch (IOException e) {
 					e.printStackTrace();

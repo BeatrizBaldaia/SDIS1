@@ -11,7 +11,7 @@ public class SingletonThreadPoolExecutor {
 	protected SingletonThreadPoolExecutor() {
 		/* ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) */
 		BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(10);
-		thread = new ThreadPoolExecutor(10, 20, 10L, TimeUnit.MILLISECONDS, workQueue);
+		thread = new ThreadPoolExecutor(10, 20, 10L, TimeUnit.MILLISECONDS, workQueue);//TODO: ver arguement
 	}
 	
 	public static SingletonThreadPoolExecutor getInstance() {

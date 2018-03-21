@@ -29,15 +29,30 @@ public class TestingApplication {
 		case 1:{
 			try {
 				String filename = "teste.txt";
-				Integer degree = 2;
+				//Integer degree = 2;
 				Registry registry = LocateRegistry.getRegistry(null);
 				InterfaceApp protocol = (InterfaceApp) registry.lookup("PROTOCOL");
-				protocol.delete(filename, degree);
+				protocol.delete(filename);
 				System.out.println("Returned");
 			} catch (Exception e) {
 				System.err.println("Client exception: " + e.toString());
 				e.printStackTrace();
 			}break;
+		}
+		case 2:{
+			try {
+				String filename = "teste.txt";
+				Registry registry = LocateRegistry.getRegistry(null);
+				InterfaceApp protocol = (InterfaceApp) registry.lookup("PROTOCOL");
+				protocol.getFile(filename);
+				System.out.println("Returned");
+			} catch (Exception e) {
+				System.err.println("Client exception: " + e.toString());
+				e.printStackTrace();
+			}break;
+		}
+		default: {
+			System.err.println("Não usa um protocolo viavel");
 		}
 		}
 

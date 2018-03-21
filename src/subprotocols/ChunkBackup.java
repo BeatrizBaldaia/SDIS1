@@ -48,10 +48,10 @@ public class ChunkBackup implements Runnable {
 	}
 	
 	public void store() throws IOException, InterruptedException {
-		
+		//TODO: DO NOT STORE IN THE SAME SERVER
 		Path filePath = Paths.get(fileName + "_" + chunkNo);
 		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
-			System.out.println("Criar ficheiro"+filePath);
+			System.out.println("Criar ficheiro: "+filePath);
 			Files.createFile(filePath);
 			Files.write(filePath,body);
 		}

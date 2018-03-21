@@ -25,7 +25,7 @@ import sateInfo.BackupFile;
 import server.InterfaceApp;
 
 public class Peer implements InterfaceApp {
-	private static int protocolVersion;
+	private static double protocolVersion;
 	private static int id;
 	private static int serviceAccessPoint;
 	
@@ -147,15 +147,47 @@ public class Peer implements InterfaceApp {
 	public String getFileID(String filename) throws IOException, NoSuchAlgorithmException {
 		Path filePath = Paths.get(filename);
 		BasicFileAttributes attr = Files.readAttributes(filePath, BasicFileAttributes.class);
-		System.out.println("lastModifiedTime: " + attr.lastModifiedTime());
+		//System.out.println("lastModifiedTime: " + attr.lastModifiedTime());
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
 		byte[] hash = digest.digest((filename + attr.lastModifiedTime()).getBytes(StandardCharsets.UTF_8));
 		return DatatypeConverter.printHexBinary(hash);
 	}
 
 	@Override
-	public void delete(String filename, Integer degree) throws NoSuchAlgorithmException, IOException {
+	public void delete(String filename) throws NoSuchAlgorithmException, IOException {
 		String fileID = getFileID(filename);
-		//TODO: send request to delete
+		sendDeleteMessage(fileID);
+	}
+	public int sendDeleteMessage(String fileID) {
+		String msg = null;
+		msg = createDeleteMessage(fileID) ;
+		ChannelMC.getInstance().sendMessage(msg.getBytes());
+		System.out.println("SENT --> "+msg);
+		return 0;
+	}
+
+	private String createDeleteMessage(String fileID) {
+		String msg = "DELETE "+ Peer.protocolVersion + " " + Peer.id + " " + fileID+ " \r\n\r\n";
+		return msg;
+	}
+
+	@Override
+	public void getFile(String filename) throws NoSuchAlgorithmException, IOException {
+		String fileID = getFileID(filename);
+		Integer chunkNo = 0; //TODO: implement chunks
+		sendGetChunk(fileID, chunkNo);
+		System.err.println(this.toString());
+	}
+
+	private void sendGetChunk(String fileID, Integer chunkNo) {
+		String msg = null;
+		msg = createGetChunkMessage(fileID, chunkNo) ;
+		ChannelMC.getInstance().sendMessage(msg.getBytes());
+		System.out.println("SENT --> "+msg);
+	}
+
+	private String createGetChunkMessage(String fileID, Integer chunkNo) {
+		String msg = "GETCHUNK "+ Peer.protocolVersion + " " + Peer.id + " " + fileID+ " " + chunkNo + " \r\n\r\n";
+		return msg;
 	}
 }
