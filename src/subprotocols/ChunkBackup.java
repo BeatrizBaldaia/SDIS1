@@ -50,7 +50,7 @@ public class ChunkBackup implements Runnable {
 		
 		Path filePath = Paths.get(fileName + "_" + chunkNo);
 		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
-			System.out.println("Criar ficheiro"+filePath);
+			System.out.println("Criar ficheiro: "+filePath);
 			Files.createFile(filePath);
 			Files.write(filePath,body);
 		}
