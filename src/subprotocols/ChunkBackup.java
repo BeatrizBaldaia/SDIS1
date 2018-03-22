@@ -8,6 +8,7 @@ import java.util.Random;
 
 import message.*;
 import sateInfo.Chunk;
+import server.Utils;
 
 public class ChunkBackup implements Runnable {	
 	public double version = 0.0;
@@ -29,8 +30,7 @@ public class ChunkBackup implements Runnable {
 	}
 
 	public void sendConfirmation () throws InterruptedException  {
-		Random r = new Random();
-		Thread.sleep(r.nextInt(400));
+		Utils.randonSleep(Utils.TIME_MAX_TO_SLEEP);
 		String msg = "STORED "+ this.version + " " + this.senderID + " " + this.fileID + " " + this.chunkNo + " \r\n\r\n";
 		ChannelMC.getInstance().sendMessage(msg.getBytes());
 		System.out.println("SENT --> "+ msg);
