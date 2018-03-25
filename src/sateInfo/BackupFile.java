@@ -10,7 +10,7 @@ public class BackupFile {
 	private String pathName = null;
 	private int serviceID = 0;
 	private int replicationDeg = 0;
-	private int currReplication = 0;
+	private int currReplicationDeg = 0;
 	private Map<Integer,Chunk> chunks = new ConcurrentHashMap<Integer, Chunk>();
 	
 	public BackupFile(String pathName, int serviceID, int replicationDeg) {
@@ -48,11 +48,26 @@ public class BackupFile {
 	 * @param chunk
 	 */
 	public BackupFile addChunk(Chunk chunk) {
-		if(chunks.computeIfPresent(chunk.getID(), (k,v) -> v.increaseReplicationDeg()) == null) {
-			chunks.computeIfAbsent(chunk.getID(), k -> chunk.increaseReplicationDeg());
+		if(chunks.computeIfAbsent(chunk.getID(), k -> chunk.increaseReplicationDeg()) != null) {
+			this.currReplicationDeg++;
+			LocalState.getInstance().setUsedStorage(chunk.getSize());
+			return this;
 		}
-		return this;
 		
+		return null;
+		
+	}
+	
+	/**
+	 * verifies if  the actual replication degree of a chunk is different from the one that is desired
+	 * @return
+	 */
+	public boolean desireReplicationDeg() {
+		return this.replicationDeg == this.currReplicationDeg;
+	}
+	
+	public boolean updateReplicationInfo(int chunkID, int senderID) {
+		return chunks.get(chunkID).isNewPeerStoring(senderID);
 	}
 
 }

@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
+import sateInfo.LocalState;
 import subprotocols.Chunk;
 import subprotocols.ChunkBackup;
 import subprotocols.Deletion;
@@ -17,6 +18,7 @@ public class ChannelMC {
 	private MulticastSocket socket;
 	private InetAddress address;
 	private int port;
+	private int myID;
 
 	public ChannelMC() {}
 
@@ -27,13 +29,15 @@ public class ChannelMC {
 		return instance;
 	}
 
-	public void createMulticastSocket(String addressStr, String portStr) {
+	public void createMulticastSocket(String addressStr, String portStr, int myID) {
+		this.myID = myID;
 		try {
 			address = InetAddress.getByName(addressStr);
 		} catch (UnknownHostException e) {
 			System.err.println("Error parsing address: " + addressStr);
 			e.printStackTrace();
 		}
+		
 
 		port = Integer.parseInt(portStr);
 
@@ -91,18 +95,21 @@ public class ChannelMC {
 					if(parser.parseHeader() != 0) {
 						System.out.println("Error parsing the message");
 					}
-					//Receber mensagens STORED, GETCHUNK, DELETE e REMOVED
-					if(parser.messageType.equals("STORED")) {
-						Stored subprotocol = new Stored(parser);
-						SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
-					} else if(parser.messageType.equals("DELETE")) {
-						Deletion subprotocol = new Deletion(parser);
-						SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
-					} else if(parser.messageType.equals("GETCHUNK")) {
-						Chunk subprotocol = new Chunk(parser);
-						SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
-					} else {
-						System.err.println("Nãso reconhece o tipo da mensagem!");
+					if(parser.senderID != myID) {
+						//Receber mensagens STORED, GETCHUNK, DELETE e REMOVED
+						if(parser.messageType.equals("STORED")) {
+							LocalState.getInstance().updateReplicationInfo(parser.senderID, parser.fileName, parser.chunkNo);//TODO: estamos a trocar o fileID com o fileName...
+							//Stored subprotocol = new Stored(parser);
+							//SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+						} else if(parser.messageType.equals("DELETE")) {
+							Deletion subprotocol = new Deletion(parser);
+							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+						} else if(parser.messageType.equals("GETCHUNK")) {
+							Chunk subprotocol = new Chunk(parser);
+							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+						} else {
+							System.err.println("Nãso reconhece o tipo da mensagem!");
+						}
 					}
 				} catch (IOException e) {
 					e.printStackTrace();

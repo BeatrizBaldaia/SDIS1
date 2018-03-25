@@ -44,11 +44,11 @@ public class Peer implements InterfaceApp {
 			serviceAccessPoint = Integer.parseInt(args[2]);
 			
 			mc = ChannelMC.getInstance();
-			mc.createMulticastSocket(args[3], args[4]);
+			mc.createMulticastSocket(args[3], args[4], id);
 			mdb = ChannelMDB.getInstance();
-			mdb.createMulticastSocket(args[5], args[6]);
+			mdb.createMulticastSocket(args[5], args[6], id);
 			mdr = ChannelMDR.getInstance();
-			mdr.createMulticastSocket(args[7], args[8]);
+			mdr.createMulticastSocket(args[7], args[8], id);
 			
 			mc.listen();
 			mdb.listen();

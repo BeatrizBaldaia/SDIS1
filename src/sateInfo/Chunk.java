@@ -1,10 +1,14 @@
 package sateInfo;
 
+import java.util.ArrayList;
+
 public class Chunk {
 	private int id = 0;
 	private int replicationDeg = 0;
 	private int currReplicationDeg = 0;
 	private int size = 0;
+	
+	private ArrayList<Integer> peersStoring = new ArrayList();
 	
 	public Chunk(int id, int replicationDeg, int size) {
 		this.id = id;
@@ -41,7 +45,7 @@ public class Chunk {
 	 * @return this chunk
 	 */
 	public Chunk increaseReplicationDeg() {
-		this.replicationDeg++;
+		this.currReplicationDeg++;
 		return this;
 	}
 	
@@ -50,7 +54,7 @@ public class Chunk {
 	 * @return this chunk
 	 */
 	public Chunk decreaseReplicationDeg() {
-		this.replicationDeg--;
+		this.currReplicationDeg--;
 		return this;
 	}
 	
@@ -60,5 +64,14 @@ public class Chunk {
 	 */
 	public boolean desireReplicationDeg() {
 		return this.replicationDeg == this.currReplicationDeg;
+	}
+	
+	public boolean isNewPeerStoring(int peerID) {
+		if(!peersStoring.contains(peerID)) {
+			peersStoring.add(peerID);
+			currReplicationDeg++;
+			return true;
+		}
+		return false;
 	}
 }

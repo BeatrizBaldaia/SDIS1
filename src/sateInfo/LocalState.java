@@ -32,11 +32,51 @@ public class LocalState {
 		return instance;
 	}
 	
-	public void saveChunk(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
-		
-		if(backupFiles.computeIfPresent(fileID, (k,v) -> v.addChunk(chunk)) == null) {
-			backupFiles.computeIfAbsent(fileID, k -> new BackupFile(pathName, serviceID, replicationDeg).addChunk(chunk));
+	/**
+	 * 
+	 * @return the storage capacity
+	 */
+	public int getStorageCapacity() {
+		return storageCapacity;
+	}
+	
+	/**
+	 * 
+	 * @return the used storage amount
+	 */
+	public int getUsedStorage() {
+		return usedStorage;
+	}
+	
+	/**
+	 * Updates the used storage info after saving one more chunk
+	 * @param size of the chunk saved
+	 */
+	public void setUsedStorage(int size) {
+		usedStorage += size;
+	}
+	
+	/**
+	 * Saves the new chunk
+	 * @param fileID
+	 * @param pathName
+	 * @param serviceID
+	 * @param replicationDeg
+	 * @param chunk
+	 * @return false if the chunk already exists
+	 */
+	public boolean saveChunk(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
+		 
+		if(backupFiles.computeIfAbsent(fileID, k -> new BackupFile(pathName, serviceID, replicationDeg).addChunk(chunk)) == null) {
+			if(backupFiles.get(fileID).addChunk(chunk) == null) {//ja tinhamos o chunk guardado
+				return false;
+			}
 		}
+		return true;
+	}
+	
+	public boolean updateReplicationInfo(int senderID, String fileID, int chunkID) {
+		return backupFiles.get(fileID).updateReplicationInfo(chunkID, senderID);
 	}
 
 }

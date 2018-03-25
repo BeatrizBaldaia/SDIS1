@@ -8,6 +8,7 @@ import java.util.Random;
 
 import message.*;
 import sateInfo.Chunk;
+import sateInfo.LocalState;
 import server.Utils;
 
 public class ChunkBackup implements Runnable {	
@@ -39,7 +40,10 @@ public class ChunkBackup implements Runnable {
 	@Override
 	public void run() {
 		try {
-			store();
+			if((body.length + LocalState.getInstance().getUsedStorage()) <= LocalState.getInstance().getStorageCapacity()) {
+				store();
+			}
+			
 		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -49,17 +53,20 @@ public class ChunkBackup implements Runnable {
 	
 	public void store() throws IOException, InterruptedException {
 		//TODO: DO NOT STORE IN THE SAME SERVER
-		Path filePath = Paths.get(fileName + "_" + chunkNo);
-		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
-			System.out.println("Criar ficheiro: "+filePath);
-			Files.createFile(filePath);
-			Files.write(filePath,body);
-		}
 		
 		Chunk chunk = new Chunk(chunkNo, replicationDeg, body.length);
+		if(LocalState.getInstance().saveChunk(fileID, fileName + "_" + chunkNo, senderID, replicationDeg, chunk)) {
+			Path filePath = Paths.get(fileName + "_" + chunkNo);
+			if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
+				System.out.println("Criar ficheiro: "+filePath);
+				Files.createFile(filePath);
+				Files.write(filePath,body);
+			}
+		}
 		
-		
-		sendConfirmation();
+		Random r = new Random();
+		Thread.sleep(r.nextInt(400));
+		sendConfirmation();//enviar sempre a mensagem store mesmo quando ja tinhamos este chunk guardado
 	}
 
 }

@@ -14,6 +14,7 @@ public class ChannelMDB {
 	private MulticastSocket socket;
     private InetAddress address;
     private int port;
+    private int myID;
 
     public ChannelMDB() {
     }
@@ -30,7 +31,8 @@ public class ChannelMDB {
      * @param addressStr
      * @param portStr
      */
-    public void createMulticastSocket(String addressStr, String portStr) {
+    public void createMulticastSocket(String addressStr, String portStr, int myID) {
+    	this.myID = myID;
         try {
             address = InetAddress.getByName(addressStr);
         } catch (UnknownHostException e) {
@@ -96,9 +98,11 @@ public class ChannelMDB {
                 	if(parser.parseHeader() != 0) {
                 		System.out.println("Error parsing the message");
                 	}
-                	if(parser.messageType.equals("PUTCHUNK")) {
-                		ChunkBackup subprotocol = new ChunkBackup(parser);
-                		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+                	if(parser.senderID != myID) {
+	                	if(parser.messageType.equals("PUTCHUNK")) {
+	                		ChunkBackup subprotocol = new ChunkBackup(parser);
+	                		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+	                	}
                 	}
                 } catch (IOException e) {
                     e.printStackTrace();

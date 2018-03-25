@@ -12,6 +12,7 @@ private static ChannelMDR instance = null;
 	private MulticastSocket socket;
     private InetAddress address;
     private int port;
+    private int myID;
 
     public ChannelMDR() {
     }
@@ -24,7 +25,8 @@ private static ChannelMDR instance = null;
     	return instance;
     }
     
-    public void createMulticastSocket(String addressStr, String portStr) {
+    public void createMulticastSocket(String addressStr, String portStr, int myID) {
+    	this.myID = myID;
         try {
             address = InetAddress.getByName(addressStr);
         } catch (UnknownHostException e) {
@@ -90,7 +92,10 @@ private static ChannelMDR instance = null;
                 	if(parser.parseHeader() != 0) {
                 		System.out.println("Error parsing the message");
                 	}
-                	//Receber mensagem CHUNK
+                	if(parser.senderID != myID) {
+                		//Receber mensagem CHUNK
+                	}
+                	
                 } catch (IOException e) {
                     e.printStackTrace();
                     return;
