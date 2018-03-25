@@ -32,10 +32,11 @@ public class LocalState {
 		return instance;
 	}
 	
-	public void saveChunk(String fileID, Chunk chunk) {
-		/*backupFiles.computeIfPresent(fileID, )
-		BackupFile file = backupFiles.get(fileID);
-		file.addChunk(chunk);*/
+	public void saveChunk(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
+		
+		if(backupFiles.computeIfPresent(fileID, (k,v) -> v.addChunk(chunk)) == null) {
+			backupFiles.computeIfAbsent(fileID, k -> new BackupFile(pathName, serviceID, replicationDeg).addChunk(chunk));
+		}
 	}
 
 }

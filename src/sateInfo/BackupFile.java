@@ -10,6 +10,7 @@ public class BackupFile {
 	private String pathName = null;
 	private int serviceID = 0;
 	private int replicationDeg = 0;
+	private int currReplication = 0;
 	private Map<Integer,Chunk> chunks = new ConcurrentHashMap<Integer, Chunk>();
 	
 	public BackupFile(String pathName, int serviceID, int replicationDeg) {
@@ -46,8 +47,12 @@ public class BackupFile {
 	 * stores the info of one chunk of this file
 	 * @param chunk
 	 */
-	public void addChunk(Chunk chunk) {
-		chunks.putIfAbsent(chunk.getID(), chunk);
+	public BackupFile addChunk(Chunk chunk) {
+		if(chunks.computeIfPresent(chunk.getID(), (k,v) -> v.increaseReplicationDeg()) == null) {
+			chunks.computeIfAbsent(chunk.getID(), k -> chunk.increaseReplicationDeg());
+		}
+		return this;
+		
 	}
 
 }
