@@ -22,6 +22,8 @@ import message.ChannelMC;
 import message.ChannelMDB;
 import message.ChannelMDR;
 import sateInfo.BackupFile;
+import sateInfo.Chunk;
+import sateInfo.LocalState;
 import server.InterfaceApp;
 
 public class Peer implements InterfaceApp {
@@ -116,7 +118,7 @@ public class Peer implements InterfaceApp {
 			System.out.println("File does not exist: "+ filename);
 			return;
 		}
-		BackupFile file = new BackupFile(filename, Peer.id, replicationDegree);
+		//BackupFile file = new BackupFile(filename, Peer.id, replicationDegree);
 		byte[] body;
 		try {
 			body = Files.readAllBytes(filePath);
@@ -130,6 +132,9 @@ public class Peer implements InterfaceApp {
 		System.out.println("FileID: "+fileID);
 		int chunkNo = 0;
 		//TODO: Separete in chunks
+		Chunk chunk = new Chunk(chunkNo, replicationDegree, 64);//estou a assumir que este chunk e de tamanho 64
+		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
+		//TODO: se ao fim de um segundo nao receber n (sendo n = replicationDeg) o peer volta a enviar; passadas 5 tentativas, caga-se
 		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, body)==-1) {
 			System.out.println("Couldn't send putchunk!");
 			return;
