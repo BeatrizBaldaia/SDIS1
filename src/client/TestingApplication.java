@@ -52,7 +52,7 @@ public class TestingApplication {
 			}break;
 		}
 		default: {
-			System.err.println("Error: Not a reconizavel protocol.");//TODO: spelling
+			System.err.println("Error: Not a recognizable protocol.");
 		}
 		}
 

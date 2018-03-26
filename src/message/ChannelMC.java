@@ -110,7 +110,7 @@ public class ChannelMC {
 							LocalState.getInstance().returnToFalse(parser.fileName, parser.chunkNo);
 							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
 						} else {
-							System.err.println("Error: Does not reconize type of message");//TODO: spelling
+							System.err.println("Error: Does not recognize type of message.");
 						}
 					}
 				} catch (IOException e) {
