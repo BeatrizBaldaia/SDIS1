@@ -62,10 +62,10 @@ public class BackupFile {
 	 * verifies if  the actual replication degree of a chunk is different from the one that is desired
 	 * @return
 	 */
-	public boolean desireReplicationDeg() {
-		return this.replicationDeg == this.currReplicationDeg;
+	public boolean desireReplicationDeg(int chunkID) {
+		return chunks.get(chunkID).desireReplicationDeg();
 	}
-	
+
 	public boolean updateReplicationInfo(int chunkID, int senderID) {
 		return chunks.get(chunkID).isNewPeerStoring(senderID);
 	}

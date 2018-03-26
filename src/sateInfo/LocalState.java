@@ -16,7 +16,7 @@ public class LocalState {
 	 * the amount of storage (in KBytes) used to backup the chunks
 	 */
 	private int usedStorage;
-	
+
 	private Map<String, BackupFile> backupFiles = new ConcurrentHashMap<String, BackupFile>();
 	
 	public LocalState(int storageCapacity, int usedStorage) {
@@ -67,23 +67,34 @@ public class LocalState {
 	 */
 	public boolean saveChunk(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
 		
-		if(backupFiles.computeIfAbsent(fileID, k -> new BackupFile(pathName, serviceID, replicationDeg).addChunk(chunk)) == null) {
-			if(backupFiles.get(fileID).addChunk(chunk) == null) {//ja tinhamos o chunk guardado
+		if(getBackupFiles().computeIfAbsent(fileID, k -> new BackupFile(pathName, serviceID, replicationDeg).addChunk(chunk)) == null) {
+			if(getBackupFiles().get(fileID).addChunk(chunk) == null) {//ja tinhamos o chunk guardado
 				return false;
 			}
 		}
 		return true;
 	}
 	public boolean updateReplicationInfo(int senderID, String fileID, int chunkID) {
-		return backupFiles.get(fileID).updateReplicationInfo(chunkID, senderID);
+		System.out.println("Recebeu fileID = " + fileID + ", mas so temos guardadas as chaves:");
+		for (String key : backupFiles.keySet()) {
+		    System.out.println(key + " " + backupFiles.get(key));
+		}
+		return getBackupFiles().get(fileID).updateReplicationInfo(chunkID, senderID);
 	}
 	
 	public boolean seeIfAlreadySent(String fileID, int chunkID) {
-		return backupFiles.get(fileID).seeIfAlreadySent(chunkID);
+		return getBackupFiles().get(fileID).seeIfAlreadySent(chunkID);
 	}
 
 	public void notifyThatItWasSent(String fileID, int chunkNo) {
-		backupFiles.get(fileID).notifyThatItWasSent(chunkNo);		
+		getBackupFiles().get(fileID).notifyThatItWasSent(chunkNo);		
+	}
+
+	/**
+	 * @return the backupFiles
+	 */
+	public Map<String, BackupFile> getBackupFiles() {
+		return backupFiles;
 	}
 	
 	public void decreaseReplicationDegree(String fileID, int chunkID) {

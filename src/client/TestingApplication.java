@@ -15,7 +15,7 @@ public class TestingApplication {
 		switch (protocol_ID) {
 		case 0:{
 			try {
-				String filename = "teste.txt";
+				String filename = "testeBiigerThan64.txt";
 				Integer degree = 2;
 				Registry registry = LocateRegistry.getRegistry(null);
 				InterfaceApp protocol = (InterfaceApp) registry.lookup("PROTOCOL");
