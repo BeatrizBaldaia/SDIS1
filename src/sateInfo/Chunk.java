@@ -68,7 +68,7 @@ public class Chunk {
 		System.err.println(replicationDeg + "==" + this.currReplicationDeg);
 		return this.replicationDeg == this.currReplicationDeg;
 	}
-	
+
 	public boolean isNewPeerStoring(int peerID) {
 		if(!peersStoring.contains(peerID)) {
 			peersStoring.add(peerID);

@@ -40,7 +40,7 @@ public class Peer implements InterfaceApp {
 				System.out.println("Usage: java Initiator.Peer <protocol_version> <server_id> <service_access_point> <MC_ip> <MC_port> <MDB_ip> <MDB_port> <MDR_ip> <MDR_port>");
 				return;
 			}
-			
+
 			protocolVersion = Integer.parseInt(args[0]);
 			id = Integer.parseInt(args[1]);
 			serviceAccessPoint = Integer.parseInt(args[2]);
@@ -107,7 +107,8 @@ public class Peer implements InterfaceApp {
 		}
 		
 		ChannelMDB.getInstance().sendMessage(msg.getBytes());
-		System.out.println("SENT --> "+msg);
+		//System.out.println("SENT --> "+msg);
+		System.out.println("SENT --> PUTCHUN");
 		return 0;
 	}
 
@@ -140,9 +141,9 @@ public class Peer implements InterfaceApp {
 	}
 	
 	public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename) throws InterruptedException {
+		System.err.println("Going to backUp cunkN= "+chunkNo);
 		Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length);
 		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
-
 		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID());
 		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk) == -1) {
 			System.err.println("Error: Could not send PUTCHUNK message.");

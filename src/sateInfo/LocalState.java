@@ -18,7 +18,7 @@ public class LocalState {
 	private int usedStorage;
 
 	private Map<String, BackupFile> backupFiles = new ConcurrentHashMap<String, BackupFile>();
-	
+
 	public LocalState(int storageCapacity, int usedStorage) {
 		this.storageCapacity = storageCapacity;
 		this.usedStorage = usedStorage;
@@ -64,22 +64,37 @@ public class LocalState {
 	 * @param chunk
 	 * @return false if the chunk already exists
 	 */
+//	public boolean saveChunk(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
+//		System.err.println(fileID+"-->"+chunk.getID());
+//		//System.err.println("saveChunk Before: "+getBackupFiles().get(fileID).getChunks().size());
+//		if(getBackupFiles().computeIfAbsent(fileID, k -> createNewBackupFile(pathName, serviceID, replicationDeg, chunk)) == null) {
+//			if(getBackupFiles().get(fileID).addChunk(chunk) == null) {//ja tinhamos o chunk guardado
+//				System.err.println("saveChunk false: "+getBackupFiles().get(fileID).getChunks().size());
+//				return false;
+//			}
+//			System.err.println("Primeio null segundo nao null");
+//		}
+//		System.err.println("saveChunk True: "+getBackupFiles().get(fileID).getChunks().size());
+//		return true;
+//	}
+	
 	public boolean saveChunk(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
-		System.err.println(fileID+"-->"+chunk.getID());
-		//System.err.println("saveChunk Before: "+getBackupFiles().get(fileID).getChunks().size());
-		if(getBackupFiles().computeIfAbsent(fileID, k -> new BackupFile(pathName, serviceID, replicationDeg).addChunk(chunk)) == null) {
-			if(getBackupFiles().get(fileID).addChunk(chunk) == null) {//ja tinhamos o chunk guardado
-				System.err.println("saveChunk false: "+getBackupFiles().get(fileID).getChunks().size());
-				return false;
-			}
-		}
-		System.err.println("saveChunk True: "+getBackupFiles().get(fileID).getChunks().size());
+		//TODO: return false;
+		if(getBackupFiles().computeIfPresent(fileID, (k,v) -> v.addChunk(chunk)) == null) {
+			getBackupFiles().put(fileID, createNewBackupFile(fileID,pathName, serviceID, replicationDeg, chunk));
+			return true;
+		};	
 		return true;
+	}
+	public BackupFile createNewBackupFile(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
+		BackupFile file = new BackupFile(pathName, serviceID, replicationDeg);
+		file.addChunk(chunk);
+		return file;
 	}
 	public boolean updateReplicationInfo(int senderID, String fileID, int chunkID) {
 		System.out.println("Recebeu fileID = " + fileID + ", mas so temos guardadas as chaves:");
 		for (String key : backupFiles.keySet()) {
-		    System.out.println(key + " " + backupFiles.get(key));
+		    System.out.println(key + " " + backupFiles.get(key).getChunks().size());
 		}
 		return getBackupFiles().get(fileID).updateReplicationInfo(chunkID, senderID);
 	}
