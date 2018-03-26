@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Random;
 
+import initiator.Peer;
 import message.ChannelMC;
 import message.ChannelMDR;
 import message.Parser;
@@ -52,7 +53,7 @@ public class Chunk implements Runnable {
 	}
 
 	private String createChunkMessage() throws UnsupportedEncodingException {
-		Path filePath = Paths.get(this.fileID+"_"+this.chunkNo);
+		Path filePath = Peer.getP().resolve(this.fileID+"_"+this.chunkNo);
 		try {
 			this.body = Files.readAllBytes(filePath);
 		} catch (IOException e) {

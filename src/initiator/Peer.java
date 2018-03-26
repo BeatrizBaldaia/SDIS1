@@ -30,6 +30,7 @@ public class Peer implements InterfaceApp {
 	private static double protocolVersion;
 	public static int id;
 	private static int serviceAccessPoint;
+	private static Path p;
 	
 	private static ChannelMC mc;
 	private static ChannelMDB mdb;
@@ -44,6 +45,10 @@ public class Peer implements InterfaceApp {
 			protocolVersion = Integer.parseInt(args[0]);
 			id = Integer.parseInt(args[1]);
 			serviceAccessPoint = Integer.parseInt(args[2]);
+			
+			setP(Paths.get("peer_"+id));
+			if(!Files.exists(getP()))
+				Files.createDirectory(getP());
 			
 			mc = ChannelMC.getInstance();
 			mc.createMulticastSocket(args[3], args[4], id);
@@ -71,7 +76,7 @@ public class Peer implements InterfaceApp {
 			}
 		}
 	
-	public byte[] getFileBody(String fileName) throws IOException {
+	public byte[] getFileBody(String fileName) throws IOException { //Deprecated
 		String pathStr = "..//data/" + fileName;
 		Path path = Paths.get(pathStr);
 		byte[] data = Files.readAllBytes(path);
@@ -113,7 +118,7 @@ public class Peer implements InterfaceApp {
 
 	@Override
 	public void backup(String filename, Integer replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
-		Path filePath = Paths.get(filename);
+		Path filePath = Paths.get(filename); //The file to backup, not fileID
 		if(!Files.exists(filePath)) { //NOTE: O ficheiro nao existe
 			System.out.println("File does not exist: "+ filename);
 			return;
@@ -167,7 +172,7 @@ public class Peer implements InterfaceApp {
 	 * @throws IOException, NoSuchAlgorithmException
 	 * */
 	public String getFileID(String filename) throws IOException, NoSuchAlgorithmException {
-		Path filePath = Paths.get(filename);
+		Path filePath = Paths.get(filename); //The filename, not FileID
 		BasicFileAttributes attr = Files.readAttributes(filePath, BasicFileAttributes.class);
 		//System.out.println("lastModifiedTime: " + attr.lastModifiedTime());
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -211,5 +216,19 @@ public class Peer implements InterfaceApp {
 	private String createGetChunkMessage(String fileID, Integer chunkNo) {
 		String msg = "GETCHUNK "+ Peer.protocolVersion + " " + Peer.id + " " + fileID+ " " + chunkNo + " \r\n\r\n";
 		return msg;
+	}
+
+	/**
+	 * @return the p
+	 */
+	public static Path getP() {
+		return p;
+	}
+
+	/**
+	 * @param p the p to set
+	 */
+	public static void setP(Path p) {
+		Peer.p = p;
 	}
 }

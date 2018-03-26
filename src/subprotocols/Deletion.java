@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 
+import initiator.Peer;
 import message.Parser;
 
 public class Deletion implements Runnable {
@@ -25,7 +26,7 @@ public class Deletion implements Runnable {
 		File[] files = directory.listFiles();
 		for(int i = 0; i<files.length; i++) {
 			String filename = files[i].getName();
-			Path name = Paths.get(filename);
+			Path name = Peer.getP().resolve(filename);
 			if (name != null && matcher.matches(name)) {
 				try {
 					Files.delete(name);
