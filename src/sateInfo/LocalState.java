@@ -1,5 +1,12 @@
 package sateInfo;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,22 +69,7 @@ public class LocalState {
 	 * @param serviceID
 	 * @param replicationDeg
 	 * @param chunk
-	 * @return false if the chunk already exists
 	 */
-//	public boolean saveChunk(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
-//		System.err.println(fileID+"-->"+chunk.getID());
-//		//System.err.println("saveChunk Before: "+getBackupFiles().get(fileID).getChunks().size());
-//		if(getBackupFiles().computeIfAbsent(fileID, k -> createNewBackupFile(pathName, serviceID, replicationDeg, chunk)) == null) {
-//			if(getBackupFiles().get(fileID).addChunk(chunk) == null) {//ja tinhamos o chunk guardado
-//				System.err.println("saveChunk false: "+getBackupFiles().get(fileID).getChunks().size());
-//				return false;
-//			}
-//			System.err.println("Primeio null segundo nao null");
-//		}
-//		System.err.println("saveChunk True: "+getBackupFiles().get(fileID).getChunks().size());
-//		return true;
-//	}
-	
 	public void saveChunk(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
 		if(getBackupFiles().computeIfPresent(fileID, (k,v) -> v.addChunk(chunk)) == null) {
 			getBackupFiles().put(fileID, createNewBackupFile(fileID,pathName, serviceID, replicationDeg, chunk));
@@ -85,17 +77,63 @@ public class LocalState {
 		};	
 		return;
 	}
+	/**
+	 * Creates a new BackupFile object to be saved in the hashmap
+	 * @param fileID
+	 * @param pathName
+	 * @param serviceID
+	 * @param replicationDeg
+	 * @param chunk
+	 * @return
+	 */
 	public BackupFile createNewBackupFile(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
 		BackupFile file = new BackupFile(pathName, serviceID, replicationDeg);
 		file.addChunk(chunk);
 		return file;
 	}
+	/**
+	 * Updates the current replication degree related to a file
+	 * @param senderID
+	 * @param fileID
+	 * @param chunkID
+	 * @return
+	 */
 	public boolean updateReplicationInfo(int senderID, String fileID, int chunkID) {
 		System.out.println("Recebeu fileID = " + fileID + ", mas so temos guardadas as chaves:");
 		for (String key : backupFiles.keySet()) {
 		    System.out.println(key + " " + backupFiles.get(key).getChunks().size());
 		}
 		return getBackupFiles().get(fileID).updateReplicationInfo(chunkID, senderID);
+	}
+	
+	public boolean deleteFileChunks(String fileID) {
+		BackupFile file = null; 
+		if((file = backupFiles.get(fileID)) != null) {
+			int recoveredSpace = file.deleteChunks();
+			if(recoveredSpace > 0) {
+				this.usedStorage -= recoveredSpace;
+				File directory = new File(".");
+				String pattern = fileID + "*";
+				PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
+				File[] files = directory.listFiles();
+				for(int i = 0; i<files.length; i++) {
+					String filename = files[i].getName();
+					Path name = Paths.get(filename);
+					if (name != null && matcher.matches(name)) {
+						try {
+							Files.delete(name);
+						} catch (IOException e) {
+							System.err.println("Error: Could not delete file: "+name);
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+			backupFiles.remove(fileID);
+			return true;
+		}
+		
+		return false;
 	}
 	
 	public boolean seeIfAlreadySent(String fileID, int chunkID) {

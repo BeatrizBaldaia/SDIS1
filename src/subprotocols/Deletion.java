@@ -20,7 +20,7 @@ public class Deletion implements Runnable {
 	@Override
 	public void run() {
 		File directory = new File(".");
-		String pattern = fileID+"*";
+		String pattern = fileID + "*";
 		PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
 		File[] files = directory.listFiles();
 		for(int i = 0; i<files.length; i++) {

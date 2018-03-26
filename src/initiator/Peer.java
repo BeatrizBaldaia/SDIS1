@@ -95,6 +95,29 @@ public class Peer implements InterfaceApp {
 		return msg;
 	}
 	
+	/**
+	 * 
+	 * @param version of the protocol
+	 * @param senderID who is going to send the message
+	 * @param fileID ; file identifier for the backup service
+	 * @return the PUTCHUNK message to be sent
+	 * @throws UnsupportedEncodingException 
+	 */
+	public String createDeleteMessage(double version, int senderID, String fileID) throws UnsupportedEncodingException {
+		String msg = "DELETE "+ version + " " + senderID + " " + fileID + " \r\n\r\n";
+		return msg;
+	}
+	
+	/**
+	 * sends the PUTCHUNK message to the MDB channel
+	 * @param version
+	 * @param senderID
+	 * @param fileID
+	 * @param chunkNo
+	 * @param replicationDeg
+	 * @param body
+	 * @return different of 0 when error 
+	 */
 	public int sendPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) {
 		
 		String msg = null;
@@ -107,40 +130,62 @@ public class Peer implements InterfaceApp {
 		
 		ChannelMDB.getInstance().sendMessage(msg.getBytes());
 		//System.out.println("SENT --> "+msg);
-		System.out.println("SENT --> PUTCHUN");
+		System.out.println("SENT --> PUTCHUNK");
 		return 0;
 	}
 
-	@Override
-	public void backup(String filename, Integer replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
-		Path filePath = Paths.get(filename);
-		if(!Files.exists(filePath)) { //NOTE: O ficheiro nao existe
-			System.out.println("File does not exist: "+ filename);
-			return;
-		}
-		byte[] body;
+/**
+ * sends the DELETE message to the MC channel
+ * @param version
+ * @param senderID
+ * @param fileID
+ * @return
+ */
+public int sendDeleteMessage(double version, int senderID, String fileID) {
+		
+		String msg = null;
 		try {
-			body = Files.readAllBytes(filePath);
-		} catch (IOException e) {
-			System.out.println("Couldn't read from file!");
+			msg = createDeleteMessage(version, senderID, fileID) ;
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-			return;
+			return -1;
 		}
-		String fileID = this.getFileID(filename);
-		System.out.println("FileID: "+fileID);
-		int chunkNo = 0;
-		while(body.length>(64000*(chunkNo+1))) {
-			byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, (chunkNo+1)*64000);
-			
-			backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename);
-			chunkNo++;
-		}
-		byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, body.length);
-		backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename);
-		//TODO: Enhancement backup
+		
+		ChannelMC.getInstance().sendMessage(msg.getBytes());
+		System.out.println("SENT --> DELETE");
+		return 0;
 	}
-	
-	public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename) throws InterruptedException {
+
+@Override
+public void backupFile(String filename, Integer replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
+	Path filePath = Paths.get(filename);
+	if(!Files.exists(filePath)) { //NOTE: O ficheiro nao existe
+		System.out.println("File does not exist: "+ filename);
+		return;
+	}
+	byte[] body;
+	try {
+		body = Files.readAllBytes(filePath);
+	} catch (IOException e) {
+		System.out.println("Couldn't read from file!");
+		e.printStackTrace();
+		return;
+	}
+	String fileID = this.getFileID(filename);
+	System.out.println("FileID: "+fileID);
+	int chunkNo = 0;
+	while(body.length>(64000*(chunkNo+1))) {
+		byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, (chunkNo+1)*64000);
+
+		backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename);
+		chunkNo++;
+	}
+	byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, body.length);
+	backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename);
+	//TODO: Enhancement backup
+}
+
+public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename) throws InterruptedException {
 		System.err.println("Going to backUp cunkN= "+chunkNo);
 		Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length);
 		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
@@ -161,6 +206,14 @@ public class Peer implements InterfaceApp {
 		return;
 	}
 	
+@Override
+public void deleteFile(String filename) throws NoSuchAlgorithmException, IOException {
+	String fileID = getFileID(filename);
+	if(sendDeleteMessage(Peer.protocolVersion, Peer.id, fileID) == -1) {
+		System.err.println("Error: Could not send DELETE message.");
+		return;
+	}
+}	
 	/**
 	 * Generate a file ID
 	 * @param filename - the filename
@@ -176,23 +229,6 @@ public class Peer implements InterfaceApp {
 		return DatatypeConverter.printHexBinary(hash);
 	}
 
-	@Override
-	public void delete(String filename) throws NoSuchAlgorithmException, IOException {
-		String fileID = getFileID(filename);
-		sendDeleteMessage(fileID);
-	}
-	public int sendDeleteMessage(String fileID) {
-		String msg = null;
-		msg = createDeleteMessage(fileID) ;
-		ChannelMC.getInstance().sendMessage(msg.getBytes());
-		System.out.println("SENT --> "+msg);
-		return 0;
-	}
-
-	private String createDeleteMessage(String fileID) {
-		String msg = "DELETE "+ Peer.protocolVersion + " " + Peer.id + " " + fileID+ " \r\n\r\n";
-		return msg;
-	}
 
 	@Override
 	public void getFile(String filename) throws NoSuchAlgorithmException, IOException {

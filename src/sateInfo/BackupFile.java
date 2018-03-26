@@ -2,8 +2,10 @@ package sateInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 public class BackupFile {
 
@@ -114,6 +116,17 @@ public class BackupFile {
 		this.currReplicationDeg--;
 		System.err.println("decreaseReplicationDegree chunkID="+chunkID);
 		chunks.get(chunkID).decreaseReplicationDeg();
+	}
+	
+	public int deleteChunks() {
+		int totalSpace = 0;
+
+		for (ConcurrentHashMap.Entry<Integer, Chunk> entry : chunks.entrySet()) {
+		    Chunk value = entry.getValue();
+		    totalSpace += value.getSize();
+		}
+		
+		return totalSpace;
 	}
 
 }
