@@ -77,6 +77,10 @@ public class LocalState {
 		return true;
 	}
 	public boolean updateReplicationInfo(int senderID, String fileID, int chunkID) {
+		System.out.println("Recebeu fileID = " + fileID + ", mas so temos guardadas as chaves:");
+		for (String key : backupFiles.keySet()) {
+		    System.out.println(key + " " + backupFiles.get(key));
+		}
 		return getBackupFiles().get(fileID).updateReplicationInfo(chunkID, senderID);
 	}
 	
@@ -93,6 +97,13 @@ public class LocalState {
 	 */
 	public Map<String, BackupFile> getBackupFiles() {
 		return backupFiles;
+	}
+	
+	public void decreaseReplicationDegree(String fileID, int chunkID) {
+		backupFiles.get(fileID).decreaseReplicationDegree(chunkID);
+	}
+	public void increaseReplicationDegree(String fileID, int chunkID) {
+		backupFiles.get(fileID).increaseReplicationDegree(chunkID);
 	}
 
 	public void returnToFalse(int fileID, int chunkNo) {

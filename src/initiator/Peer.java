@@ -142,13 +142,15 @@ public class Peer implements InterfaceApp {
 	public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename) throws InterruptedException {
 		Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length);
 		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
-		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk)==-1) {
+
+		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID());
+		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk) == -1) {
 			System.err.println("Error: Could not send PUTCHUNK message.");
 			return;
 		}
 		for(int i = 1; i <= 5; i++) {
 			Thread.sleep(1000*i);
-			if(LocalState.getInstance().getBackupFiles().get(fileID).desireReplicationDeg()) return;
+			if(LocalState.getInstance().getBackupFiles().get(fileID).desireReplicationDeg(chunk.getID())) return;
 			if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk) == -1) {
 				System.err.println("Error: Could not send PUTCHUNK message.");
 				return;

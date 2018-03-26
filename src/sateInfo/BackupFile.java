@@ -62,9 +62,8 @@ public class BackupFile {
 	 * verifies if  the actual replication degree of a chunk is different from the one that is desired
 	 * @return
 	 */
-	public boolean desireReplicationDeg() {
-		System.err.println(replicationDeg + "==" + this.currReplicationDeg);
-		return this.replicationDeg == this.currReplicationDeg;
+	public boolean desireReplicationDeg(int chunkID) {
+		return chunks.get(chunkID).desireReplicationDeg();
 	}
 
 	public boolean updateReplicationInfo(int chunkID, int senderID) {
@@ -97,6 +96,22 @@ public class BackupFile {
 	 */
 	public void setChunks(Map<Integer,Chunk> chunks) {
 		this.chunks = chunks;
+	}
+	/**
+	 * increases by one the current replication degree
+	 * @param chunkID
+	 */
+	public void increaseReplicationDegree(int chunkID) {
+		this.currReplicationDeg++;
+		chunks.get(chunkID).increaseReplicationDeg();
+	}
+	/**
+	 * decreases by one the current replication degree
+	 * @param chunkID
+	 */
+	public void decreaseReplicationDegree(int chunkID) {
+		this.currReplicationDeg--;
+		chunks.get(chunkID).decreaseReplicationDeg();
 	}
 
 }
