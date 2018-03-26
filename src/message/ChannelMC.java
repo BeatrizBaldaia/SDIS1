@@ -85,12 +85,12 @@ public class ChannelMC {
 		new Thread(() -> {
 			while (true) {
 				byte[] buffer = new byte[200 + 64 * 1000];//header + body
-				DatagramPacket packet = new DatagramPacket(buffer, packet.getLength());
+				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
 				try {
 					socket.receive(packet);
 					byte[] msg = packet.getData();
-					Parser parser = new Parser(msg, msg.length);
+					Parser parser = new Parser(msg, packet.getLength());
 					if(parser.parseHeader() != 0) {
 						System.out.println("Error parsing the message");
 					}
