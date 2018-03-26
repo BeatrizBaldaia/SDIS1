@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import initiator.Peer;
+
 public class LocalState {
 	private static LocalState instance = null;
 	
@@ -112,13 +114,15 @@ public class LocalState {
 			int recoveredSpace = file.deleteChunks();
 			if(recoveredSpace > 0) {
 				this.usedStorage -= recoveredSpace;
-				File directory = new File(".");
+				//File directory = new File(".");
+				Path dir = Peer.getP();
+				File directory = dir.toFile();
 				String pattern = fileID + "*";
 				PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
 				File[] files = directory.listFiles();
 				for(int i = 0; i<files.length; i++) {
 					String filename = files[i].getName();
-					Path name = Paths.get(filename);
+					Path name = Peer.getP().resolve(filename);
 					if (name != null && matcher.matches(name)) {
 						try {
 							Files.delete(name);
