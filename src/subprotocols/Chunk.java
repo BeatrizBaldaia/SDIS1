@@ -62,7 +62,7 @@ public class Chunk implements Runnable {
 			return null;
 		}
 		String bodyStr = new String(this.body, "UTF-8"); // for UTF-8 encoding
-		String msg = "CHUNK "+ this.version + " " + this.senderID + " " + this.fileID+ " " + chunkNo + " \r\n\r\n" + bodyStr;
+		String msg = "CHUNK "+ this.version + " " + Peer.id + " " + this.fileID+ " " + chunkNo + " \r\n\r\n" + bodyStr;
 		return msg;
 	}
 }

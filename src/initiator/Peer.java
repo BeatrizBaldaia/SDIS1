@@ -16,11 +16,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
 import message.ChannelMC;
 import message.ChannelMDB;
 import message.ChannelMDR;
+import message.Parser;
 import sateInfo.BackupFile;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
@@ -200,21 +202,26 @@ public class Peer implements InterfaceApp {
 
 	@Override
 	public void getFile(String filename) throws NoSuchAlgorithmException, IOException {
+		
 		String fileID = getFileID(filename);
 		Integer chunkNo = 0; //TODO: implement chunks
 		sendGetChunk(fileID, chunkNo);
+		Path filepath = Peer.getP().resolve("restoreFile");
+		Files.deleteIfExists(filepath);
+		Files.createFile(filepath);
+		
 		//TODO: guardar em file
 		//TODO: Enhancement getFile
 	}
 
-	private void sendGetChunk(String fileID, Integer chunkNo) {
+	private static void sendGetChunk(String fileID, Integer chunkNo) {
 		String msg = null;
 		msg = createGetChunkMessage(fileID, chunkNo) ;
 		ChannelMC.getInstance().sendMessage(msg.getBytes());
 		System.out.println("SENT --> "+msg);
 	}
 	
-	private String createGetChunkMessage(String fileID, Integer chunkNo) {
+	private static String createGetChunkMessage(String fileID, Integer chunkNo) {
 		String msg = "GETCHUNK "+ Peer.protocolVersion + " " + Peer.id + " " + fileID+ " " + chunkNo + " \r\n\r\n";
 		return msg;
 	}
@@ -231,5 +238,15 @@ public class Peer implements InterfaceApp {
 	 */
 	public static void setP(Path p) {
 		Peer.p = p;
+	}
+
+	public static void restoreChunk(Parser parser) throws IOException {
+		System.err.println("Restore");
+		Path filepath = Peer.getP().resolve("restoreFile");
+		Files.write(filepath, parser.body, StandardOpenOption.APPEND);
+		//TODO: if two send the chunk?
+		System.err.println("Chunk length: "+parser.body.length);
+		if(parser.body.length>=64000)
+			sendGetChunk(parser.fileName, parser.chunkNo+1);
 	}
 }

@@ -169,6 +169,9 @@ public class Parser {
 		if(messageType.equals("PUTCHUNK") || messageType.equals("CHUNK")) {
 			body = new byte[stream.available()];
 			stream.read(body, 0, body.length);
+			if(body.length>64000) {
+				System.err.println("Bigger than 64000");
+			}
 		}
 
 		return error;

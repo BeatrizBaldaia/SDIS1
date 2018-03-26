@@ -85,7 +85,7 @@ public class ChannelMC {
 		new Thread(() -> {
 			while (true) {
 				byte[] buffer = new byte[200 + 64 * 1000];//header + body
-				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+				DatagramPacket packet = new DatagramPacket(buffer, packet.getLength());
 
 				try {
 					socket.receive(packet);
