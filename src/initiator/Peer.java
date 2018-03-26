@@ -203,6 +203,7 @@ public class Peer implements InterfaceApp {
 		String fileID = getFileID(filename);
 		Integer chunkNo = 0; //TODO: implement chunks
 		sendGetChunk(fileID, chunkNo);
+		//TODO: guardar em file
 		//TODO: Enhancement getFile
 	}
 
