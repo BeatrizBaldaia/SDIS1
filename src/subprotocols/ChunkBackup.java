@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Random;
 
+import initiator.Peer;
 import message.*;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
@@ -33,7 +34,7 @@ public class ChunkBackup implements Runnable {
 
 	public void sendConfirmation () throws InterruptedException  {
 		Utils.randonSleep(Utils.TIME_MAX_TO_SLEEP);
-		String msg = "STORED "+ this.version + " " + this.senderID + " " + this.fileID + " " + this.chunkNo + " \r\n\r\n";
+		String msg = "STORED "+ this.version + " " + Peer.id + " " + this.fileID + " " + this.chunkNo + " \r\n\r\n";
 		ChannelMC.getInstance().sendMessage(msg.getBytes());
 		System.out.println("SENT --> "+ msg);
 	}
@@ -52,14 +53,14 @@ public class ChunkBackup implements Runnable {
 	
 	public void store() throws IOException, InterruptedException {
 		Chunk chunk = new Chunk(chunkNo, replicationDeg, body.length);
-		if(LocalState.getInstance().saveChunk(fileID, fileName + "_" + chunkNo, senderID, replicationDeg, chunk)) {
+		LocalState.getInstance().saveChunk(fileID, fileName + "_" + chunkNo, senderID, replicationDeg, chunk);
 			Path filePath = Paths.get(fileName + "_" + chunkNo);
 			if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
 				System.out.println("Criar ficheiro: "+filePath);
 				Files.createFile(filePath);
 				Files.write(filePath,body);
 			}
-		}
+		
 		
 		Random r = new Random();
 		Thread.sleep(r.nextInt(400));

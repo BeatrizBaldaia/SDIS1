@@ -28,7 +28,7 @@ import server.InterfaceApp;
 
 public class Peer implements InterfaceApp {
 	private static double protocolVersion;
-	private static int id;
+	public static int id;
 	private static int serviceAccessPoint;
 	
 	private static ChannelMC mc;

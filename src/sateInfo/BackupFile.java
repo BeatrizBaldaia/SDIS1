@@ -51,7 +51,7 @@ public class BackupFile {
 		if(getChunks().computeIfAbsent(chunk.getID(), k -> chunk.increaseReplicationDeg()) != null) {
 			this.currReplicationDeg++;
 			LocalState.getInstance().setUsedStorage(chunk.getSize());
-			System.err.println("Guardamos o chunkNO: "+chunk.getID());
+			System.err.println("Guardamos o chunkNO: "+chunk.getID()+ " Number of chunks"+ chunks.size());
 			return this;
 		}
 		System.err.println("Nao guardou o chunkNO: "+chunk.getID());

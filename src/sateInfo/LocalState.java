@@ -78,13 +78,12 @@ public class LocalState {
 //		return true;
 //	}
 	
-	public boolean saveChunk(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
-		//TODO: return false;
+	public void saveChunk(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
 		if(getBackupFiles().computeIfPresent(fileID, (k,v) -> v.addChunk(chunk)) == null) {
 			getBackupFiles().put(fileID, createNewBackupFile(fileID,pathName, serviceID, replicationDeg, chunk));
-			return true;
+			return;
 		};	
-		return true;
+		return;
 	}
 	public BackupFile createNewBackupFile(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
 		BackupFile file = new BackupFile(pathName, serviceID, replicationDeg);
