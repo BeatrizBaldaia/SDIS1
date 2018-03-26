@@ -37,7 +37,6 @@ public class Chunk implements Runnable {
 		}
 		if(LocalState.getInstance().seeIfAlreadySent(fileID, chunkNo)) return;
 		try {
-			System.err.println("SEND CHUNK");
 			sendChunkMessage();
 			LocalState.getInstance().notifyThatItWasSent(fileID, chunkNo);
 		} catch (UnsupportedEncodingException e) {

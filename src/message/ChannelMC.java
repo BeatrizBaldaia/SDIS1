@@ -97,20 +97,20 @@ public class ChannelMC {
 					if(parser.senderID != myID) {
 						//Receber mensagens STORED, GETCHUNK, DELETE e REMOVED
 						if(parser.messageType.equals("STORED")) {
-							System.out.println("Recebeu mensagem STORE -- Fazer update do Replication Degree!");
+							//System.out.println("Recebeu mensagem STORE -- Fazer update do Replication Degree!");
 							LocalState.getInstance().updateReplicationInfo(parser.senderID, parser.fileName, parser.chunkNo);
 							//TODO: estamos a trocar o fileID com o fileName...
-							System.out.println("Filename: "+parser.fileName);
-							System.out.println("FileID: "+parser.fileID);
+							//System.out.println("Filename: "+parser.fileName);
+							//System.out.println("FileID: "+parser.fileID);
 						} else if(parser.messageType.equals("DELETE")) {
 							Deletion subprotocol = new Deletion(parser);
 							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
 						} else if(parser.messageType.equals("GETCHUNK")) {
 							Chunk subprotocol = new Chunk(parser);
-							LocalState.getInstance().returnToFalse(parser.fileID, parser.chunkNo);
+							LocalState.getInstance().returnToFalse(parser.fileName, parser.chunkNo);
 							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
 						} else {
-							System.err.println("Nãso reconhece o tipo da mensagem!");
+							System.err.println("Error: Does not reconize type of message");//TODO: spelling
 						}
 					}
 				} catch (IOException e) {

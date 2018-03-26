@@ -141,7 +141,6 @@ public class Peer implements InterfaceApp {
 	}
 	
 	public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename) throws InterruptedException {
-		System.err.println("Going to backUp cunkN= "+chunkNo);
 		Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length);
 		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
 		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID());
@@ -199,7 +198,7 @@ public class Peer implements InterfaceApp {
 		String fileID = getFileID(filename);
 		Integer chunkNo = 0; //TODO: implement chunks
 		sendGetChunk(fileID, chunkNo);
-		System.err.println("Sent getFile");
+		//TODO: Enhancement getFile
 	}
 
 	private void sendGetChunk(String fileID, Integer chunkNo) {

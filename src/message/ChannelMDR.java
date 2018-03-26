@@ -6,6 +6,8 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
+import sateInfo.LocalState;
+
 public class ChannelMDR {
 private static ChannelMDR instance = null;
 	
@@ -93,8 +95,11 @@ private static ChannelMDR instance = null;
                 		System.out.println("Error parsing the message");
                 	}
                 	if(parser.senderID != myID) {
-                		//Receber mensagem CHUNK
-                		//TODO: see if someone send before me!
+                		//System.err.println("Channel MDR: "+new String(msg));
+                		if(parser.messageType.equals("CHUNK")) {
+                			System.out.println("Recived CHUNK message");
+                			LocalState.getInstance().notifyThatItWasSent(parser.fileName, parser.chunkNo);
+                		}
                 	}
                 	
                 } catch (IOException e) {

@@ -65,8 +65,7 @@ public class Chunk {
 	 * @return
 	 */
 	public boolean desireReplicationDeg() {
-		System.err.println(replicationDeg + "==" + this.currReplicationDeg);
-		return this.replicationDeg == this.currReplicationDeg;
+		return this.replicationDeg <= this.currReplicationDeg;
 	}
 
 	public boolean isNewPeerStoring(int peerID) {
