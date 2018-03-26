@@ -70,4 +70,12 @@ public class BackupFile {
 		return chunks.get(chunkID).isNewPeerStoring(senderID);
 	}
 
+	public boolean seeIfAlreadySent(int chunkID) {
+		return chunks.get(chunkID).seeIfAlreadySent();
+	}
+
+	public void notifyThatItWasSent(int chunkNo) {
+		chunks.get(chunkNo).notifyThatItWasSent();		
+	}
+
 }

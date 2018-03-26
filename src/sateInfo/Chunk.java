@@ -8,6 +8,8 @@ public class Chunk {
 	private int currReplicationDeg = 0;
 	private int size = 0;
 	
+	private boolean sentWithGetChunk =false;
+	
 	private ArrayList<Integer> peersStoring = new ArrayList();
 	
 	public Chunk(int id, int replicationDeg, int size) {
@@ -73,5 +75,13 @@ public class Chunk {
 			return true;
 		}
 		return false;
+	}
+
+	public boolean seeIfAlreadySent() {
+		return sentWithGetChunk;
+	}
+
+	public void notifyThatItWasSent() {
+		sentWithGetChunk = true;
 	}
 }

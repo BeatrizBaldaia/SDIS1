@@ -94,6 +94,7 @@ private static ChannelMDR instance = null;
                 	}
                 	if(parser.senderID != myID) {
                 		//Receber mensagem CHUNK
+                		//TODO: see if someone send before me!
                 	}
                 	
                 } catch (IOException e) {

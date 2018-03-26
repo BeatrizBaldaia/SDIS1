@@ -66,7 +66,7 @@ public class LocalState {
 	 * @return false if the chunk already exists
 	 */
 	public boolean saveChunk(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
-		 
+		
 		if(backupFiles.computeIfAbsent(fileID, k -> new BackupFile(pathName, serviceID, replicationDeg).addChunk(chunk)) == null) {
 			if(backupFiles.get(fileID).addChunk(chunk) == null) {//ja tinhamos o chunk guardado
 				return false;
@@ -74,9 +74,16 @@ public class LocalState {
 		}
 		return true;
 	}
-	
 	public boolean updateReplicationInfo(int senderID, String fileID, int chunkID) {
 		return backupFiles.get(fileID).updateReplicationInfo(chunkID, senderID);
+	}
+	
+	public boolean seeIfAlreadySent(String fileID, int chunkID) {
+		return backupFiles.get(fileID).seeIfAlreadySent(chunkID);
+	}
+
+	public void notifyThatItWasSent(String fileID, int chunkNo) {
+		backupFiles.get(fileID).notifyThatItWasSent(chunkNo);		
 	}
 
 }

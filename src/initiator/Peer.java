@@ -112,12 +112,13 @@ public class Peer implements InterfaceApp {
 	}
 
 	@Override
-	public void backup(String filename, Integer replicationDegree) throws NoSuchAlgorithmException, IOException {
+	public void backup(String filename, Integer replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
 		Path filePath = Paths.get(filename);
 		if(!Files.exists(filePath)) { //NOTE: O ficheiro nao existe
 			System.out.println("File does not exist: "+ filename);
 			return;
 		}
+		//TODO: whay not send this one in LOCALSTATE?
 		//BackupFile file = new BackupFile(filename, Peer.id, replicationDegree);
 		byte[] body;
 		try {
@@ -140,7 +141,16 @@ public class Peer implements InterfaceApp {
 			System.out.println("Couldn't send putchunk!");
 			return;
 		}
-		System.out.println("Chamou backup");
+//		for(int i = 1; i <= 5; i++) {
+//			Thread.sleep(1000*i);
+//			//TODO: descomment  See previous todos
+//			//if(BackupFile.desireReplicationDeg()) return;
+//			if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, body) == -1) {
+//				System.err.println("Error: Could not send PUTCHUNK message.");
+//				return;
+//			}
+//		}
+		
 		//TODO: Wait for responses.
 		return;
 	}
@@ -182,7 +192,7 @@ public class Peer implements InterfaceApp {
 		String fileID = getFileID(filename);
 		Integer chunkNo = 0; //TODO: implement chunks
 		sendGetChunk(fileID, chunkNo);
-		System.err.println(this.toString());
+		System.err.println("Sent getFile");
 	}
 
 	private void sendGetChunk(String fileID, Integer chunkNo) {

@@ -11,6 +11,7 @@ import java.util.Random;
 import message.ChannelMC;
 import message.ChannelMDR;
 import message.Parser;
+import sateInfo.LocalState;
 import server.Utils;
 
 public class Chunk implements Runnable {
@@ -33,15 +34,14 @@ public class Chunk implements Runnable {
 		try {
 			Utils.randonSleep(Utils.TIME_MAX_TO_SLEEP);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//TODO: test if someone already send!
-		//
+		if(LocalState.getInstance().seeIfAlreadySent(fileID, chunkNo)) return;
 		try {
+			System.err.println("SEND CHUNK");
 			sendChunkMessage();
+			LocalState.getInstance().notifyThatItWasSent(fileID, chunkNo);
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -54,7 +54,6 @@ public class Chunk implements Runnable {
 	}
 
 	private String createChunkMessage() throws UnsupportedEncodingException {
-		//TODO: get BOdy
 		Path filePath = Paths.get(this.fileID+"_"+this.chunkNo);
 		try {
 			this.body = Files.readAllBytes(filePath);
