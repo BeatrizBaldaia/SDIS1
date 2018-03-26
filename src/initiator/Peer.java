@@ -135,6 +135,7 @@ public class Peer implements InterfaceApp {
 		//TODO: Separete in chunks
 		Chunk chunk = new Chunk(chunkNo, replicationDegree, 64);//estou a assumir que este chunk e de tamanho 64
 		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
+		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID());
 		//TODO: se ao fim de um segundo nao receber n (sendo n = replicationDeg) o peer volta a enviar; passadas 5 tentativas, caga-se
 		//se ao fim de 1 segundo o BackupFile.desireReplicationDeg() for false, reenvia
 		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, body)==-1) {

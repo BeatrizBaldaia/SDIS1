@@ -85,5 +85,12 @@ public class LocalState {
 	public void notifyThatItWasSent(String fileID, int chunkNo) {
 		backupFiles.get(fileID).notifyThatItWasSent(chunkNo);		
 	}
+	
+	public void decreaseReplicationDegree(String fileID, int chunkID) {
+		backupFiles.get(fileID).decreaseReplicationDegree(chunkID);
+	}
+	public void increaseReplicationDegree(String fileID, int chunkID) {
+		backupFiles.get(fileID).increaseReplicationDegree(chunkID);
+	}
 
 }

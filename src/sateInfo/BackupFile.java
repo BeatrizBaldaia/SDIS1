@@ -77,5 +77,21 @@ public class BackupFile {
 	public void notifyThatItWasSent(int chunkNo) {
 		chunks.get(chunkNo).notifyThatItWasSent();		
 	}
+	/**
+	 * increases by one the current replication degree
+	 * @param chunkID
+	 */
+	public void increaseReplicationDegree(int chunkID) {
+		this.currReplicationDeg++;
+		chunks.get(chunkID).increaseReplicationDeg();
+	}
+	/**
+	 * decreases by one the current replication degree
+	 * @param chunkID
+	 */
+	public void decreaseReplicationDegree(int chunkID) {
+		this.currReplicationDeg--;
+		chunks.get(chunkID).decreaseReplicationDeg();
+	}
 
 }
