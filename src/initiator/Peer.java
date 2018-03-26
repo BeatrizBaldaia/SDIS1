@@ -40,7 +40,7 @@ public class Peer implements InterfaceApp {
 				System.out.println("Usage: java Initiator.Peer <protocol_version> <server_id> <service_access_point> <MC_ip> <MC_port> <MDB_ip> <MDB_port> <MDR_ip> <MDR_port>");
 				return;
 			}
-
+			
 			protocolVersion = Integer.parseInt(args[0]);
 			id = Integer.parseInt(args[1]);
 			serviceAccessPoint = Integer.parseInt(args[2]);

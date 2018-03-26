@@ -28,7 +28,6 @@ public class ChannelMC {
 		}
 		return instance;
 	}
-
 	public void createMulticastSocket(String addressStr, String portStr, int myID) {
 		this.myID = myID;
 		try {
@@ -106,6 +105,7 @@ public class ChannelMC {
 							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
 						} else if(parser.messageType.equals("GETCHUNK")) {
 							Chunk subprotocol = new Chunk(parser);
+							LocalState.getInstance().returnToFalse(parser.fileID, parser.chunkNo);
 							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
 						} else {
 							System.err.println("Nãso reconhece o tipo da mensagem!");

@@ -12,6 +12,7 @@ import sateInfo.LocalState;
 import server.Utils;
 
 public class ChunkBackup implements Runnable {	
+
 	public double version = 0.0;
 	public int senderID = 0;
 	public String fileID = null;

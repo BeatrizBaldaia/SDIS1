@@ -28,7 +28,6 @@ public class Chunk implements Runnable {
 		fileID = parser.fileName;
 		chunkNo = parser.chunkNo;
 	}
-
 	@Override
 	public void run() {
 		try {

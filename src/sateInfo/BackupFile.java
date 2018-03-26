@@ -48,7 +48,7 @@ public class BackupFile {
 	 * @param chunk
 	 */
 	public BackupFile addChunk(Chunk chunk) {
-		if(chunks.computeIfAbsent(chunk.getID(), k -> chunk.increaseReplicationDeg()) != null) {
+		if(getChunks().computeIfAbsent(chunk.getID(), k -> chunk.increaseReplicationDeg()) != null) {
 			this.currReplicationDeg++;
 			LocalState.getInstance().setUsedStorage(chunk.getSize());
 			return this;
@@ -68,15 +68,35 @@ public class BackupFile {
 	}
 
 	public boolean updateReplicationInfo(int chunkID, int senderID) {
-		return chunks.get(chunkID).isNewPeerStoring(senderID);
+		System.err.println(getChunks().size());
+		return getChunks().get(chunkID).isNewPeerStoring(senderID);
 	}
 
 	public boolean seeIfAlreadySent(int chunkID) {
-		return chunks.get(chunkID).seeIfAlreadySent();
+		return getChunks().get(chunkID).seeIfAlreadySent();
 	}
 
 	public void notifyThatItWasSent(int chunkNo) {
-		chunks.get(chunkNo).notifyThatItWasSent();		
+		getChunks().get(chunkNo).notifyThatItWasSent();		
+	}
+
+	public void returnToFalse(int chunkNo) {
+		getChunks().get(chunkNo).returnToFalse();		
+		
+	}
+
+	/**
+	 * @return the chunks
+	 */
+	public Map<Integer,Chunk> getChunks() {
+		return chunks;
+	}
+
+	/**
+	 * @param chunks the chunks to set
+	 */
+	public void setChunks(Map<Integer,Chunk> chunks) {
+		this.chunks = chunks;
 	}
 
 }

@@ -84,4 +84,8 @@ public class Chunk {
 	public void notifyThatItWasSent() {
 		sentWithGetChunk = true;
 	}
+
+	public void returnToFalse() {
+		sentWithGetChunk = false;
+	}
 }

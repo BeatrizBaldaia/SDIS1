@@ -22,7 +22,6 @@ public class LocalState {
 	public LocalState(int storageCapacity, int usedStorage) {
 		this.storageCapacity = storageCapacity;
 		this.usedStorage = usedStorage;
-		
 	}
 	
 	public static LocalState getInstance() {
@@ -66,12 +65,15 @@ public class LocalState {
 	 * @return false if the chunk already exists
 	 */
 	public boolean saveChunk(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
-		
+		System.err.println(fileID+"-->"+chunk.getID());
+		//System.err.println("saveChunk Before: "+getBackupFiles().get(fileID).getChunks().size());
 		if(getBackupFiles().computeIfAbsent(fileID, k -> new BackupFile(pathName, serviceID, replicationDeg).addChunk(chunk)) == null) {
 			if(getBackupFiles().get(fileID).addChunk(chunk) == null) {//ja tinhamos o chunk guardado
+				System.err.println("saveChunk false: "+getBackupFiles().get(fileID).getChunks().size());
 				return false;
 			}
 		}
+		System.err.println("saveChunk True: "+getBackupFiles().get(fileID).getChunks().size());
 		return true;
 	}
 	public boolean updateReplicationInfo(int senderID, String fileID, int chunkID) {
@@ -91,6 +93,10 @@ public class LocalState {
 	 */
 	public Map<String, BackupFile> getBackupFiles() {
 		return backupFiles;
+	}
+
+	public void returnToFalse(int fileID, int chunkNo) {
+		getBackupFiles().get(fileID).returnToFalse(chunkNo);		
 	}
 
 }
