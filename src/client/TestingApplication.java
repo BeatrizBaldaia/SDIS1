@@ -16,7 +16,7 @@ public class TestingApplication {
 		case 0:{
 			try {
 				String filename = "testeBiigerThan64.txt";
-				Integer degree = 1;
+				Integer degree = 2;
 				Registry registry = LocateRegistry.getRegistry(null);
 				InterfaceApp protocol = (InterfaceApp) registry.lookup("PROTOCOL");
 				protocol.backup(filename, degree);

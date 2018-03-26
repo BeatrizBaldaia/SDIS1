@@ -101,7 +101,6 @@ public class Peer implements InterfaceApp {
 		try {
 			msg = createPutChunkMessage(version, senderID, fileID, chunkNo, replicationDeg, body) ;
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return -1;
 		}
@@ -138,6 +137,7 @@ public class Peer implements InterfaceApp {
 		}
 		byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, body.length);
 		backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename);
+		//TODO: Enhancement backup
 	}
 	
 	public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename) throws InterruptedException {

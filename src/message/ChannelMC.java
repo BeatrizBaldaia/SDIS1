@@ -100,8 +100,8 @@ public class ChannelMC {
 							System.out.println("Recebeu mensagem STORE -- Fazer update do Replication Degree!");
 							LocalState.getInstance().updateReplicationInfo(parser.senderID, parser.fileName, parser.chunkNo);
 							//TODO: estamos a trocar o fileID com o fileName...
-							//Stored subprotocol = new Stored(parser);
-							//SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+							System.out.println("Filename: "+parser.fileName);
+							System.out.println("FileID: "+parser.fileID);
 						} else if(parser.messageType.equals("DELETE")) {
 							Deletion subprotocol = new Deletion(parser);
 							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);

@@ -12,9 +12,7 @@ import message.Parser;
 
 public class Deletion implements Runnable {
 	public String fileID = null;
-	
-	//TODO: Enhancement
-	
+		
 	public Deletion(Parser parser) {
 		fileID = parser.fileName;
 	}
@@ -28,17 +26,16 @@ public class Deletion implements Runnable {
 		for(int i = 0; i<files.length; i++) {
 			String filename = files[i].getName();
 			Path name = Paths.get(filename);
-			//System.out.println("Nome: "+name +"-->"+ matcher.matches(name));
 			if (name != null && matcher.matches(name)) {
 				try {
 					Files.delete(name);
-					//System.out.println("  Ficheiro Pertence");
 				} catch (IOException e) {
-					System.out.println("Couldn't delete file: "+name);
+					System.err.println("Error: Could not delete file: "+name);
 					e.printStackTrace();
 				}
 			}
 		}
+		//TODO: Enhancement delete
 	}
 
 }
