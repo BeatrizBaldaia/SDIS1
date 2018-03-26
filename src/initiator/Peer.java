@@ -97,7 +97,9 @@ public class Peer implements InterfaceApp {
 	 * @throws UnsupportedEncodingException 
 	 */
 	public String createPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
-		String bodyStr = new String(body, "UTF-8"); // for UTF-8 encoding
+		String bodyStr = new String(body, "ISO-8859-1"); // for ISO-8859-1 encoding
+		System.err.println("bodyStr.lenght:"+bodyStr.length());
+		System.err.println("bodyStr.getBytes.size:"+bodyStr.getBytes("ISO-8859-1").length);
 		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID+ " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
 		return msg;
 	}
@@ -124,8 +126,9 @@ public class Peer implements InterfaceApp {
 	 * @param replicationDeg
 	 * @param body
 	 * @return different of 0 when error 
+	 * @throws UnsupportedEncodingException 
 	 */
-	public int sendPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) {
+	public int sendPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
 		
 		String msg = null;
 		try {
@@ -135,7 +138,7 @@ public class Peer implements InterfaceApp {
 			return -1;
 		}
 		
-		ChannelMDB.getInstance().sendMessage(msg.getBytes());
+		ChannelMDB.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
 		//System.out.println("SENT --> "+msg);
 		System.out.println("SENT --> PUTCHUNK");
 		return 0;
@@ -148,8 +151,9 @@ public class Peer implements InterfaceApp {
  * @param senderID
  * @param fileID
  * @return
+ * @throws UnsupportedEncodingException 
  */
-public int sendDeleteMessage(double version, int senderID, String fileID) {
+public int sendDeleteMessage(double version, int senderID, String fileID) throws UnsupportedEncodingException {
 		
 		String msg = null;
 		try {
@@ -159,7 +163,7 @@ public int sendDeleteMessage(double version, int senderID, String fileID) {
 			return -1;
 		}
 		
-		ChannelMC.getInstance().sendMessage(msg.getBytes());
+		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
 		System.out.println("SENT --> DELETE");
 		return 0;
 	}
@@ -193,7 +197,7 @@ public void backupFile(String filename, Integer replicationDegree) throws NoSuch
 	//TODO: Enhancement backup
 }
 
-public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename) throws InterruptedException {
+public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename) throws InterruptedException, UnsupportedEncodingException {
 		System.err.println("Going to backUp cunkN= "+chunkNo);
 
 		Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length);
@@ -203,6 +207,7 @@ public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChun
 			System.err.println("Error: Could not send PUTCHUNK message.");
 			return;
 		}
+		System.err.println("bodyOfTheChunk.length: "+bodyOfTheChunk.length);
 		for(int i = 1; i <= 5; i++) {
 			Thread.sleep(1000*i);
 			if(LocalState.getInstance().getBackupFiles().get(fileID).desireReplicationDeg(chunk.getID())) return;
@@ -253,10 +258,10 @@ public void deleteFile(String filename) throws NoSuchAlgorithmException, IOExcep
 		//TODO: Enhancement getFile
 	}
 
-	private static void sendGetChunk(String fileID, Integer chunkNo) {
+	private static void sendGetChunk(String fileID, Integer chunkNo) throws UnsupportedEncodingException {
 		String msg = null;
 		msg = createGetChunkMessage(fileID, chunkNo) ;
-		ChannelMC.getInstance().sendMessage(msg.getBytes());
+		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
 		System.out.println("SENT --> "+msg);
 	}
 	

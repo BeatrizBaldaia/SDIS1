@@ -33,7 +33,7 @@ public class LocalState {
 	
 	public static LocalState getInstance() {
 		if(instance == null) {
-			instance = new LocalState(65000, 0);
+			instance = new LocalState(65000000, 0);
 		}
 		return instance;
 	}

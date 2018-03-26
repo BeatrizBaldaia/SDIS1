@@ -15,7 +15,7 @@ public class TestingApplication {
 		switch (protocol_ID) {
 		case 0:{
 			try {
-				String filename = "testeBiigerThan64.txt";
+				String filename = "a.png";
 				Integer degree = 1;
 				Registry registry = LocateRegistry.getRegistry(null);
 				InterfaceApp protocol = (InterfaceApp) registry.lookup("PROTOCOL");
@@ -41,7 +41,7 @@ public class TestingApplication {
 		}
 		case 2:{
 			try {
-				String filename = "testeBiigerThan64.txt";
+				String filename = "a.png";
 				Registry registry = LocateRegistry.getRegistry(null);
 				InterfaceApp protocol = (InterfaceApp) registry.lookup("PROTOCOL");
 				protocol.getFile(filename);

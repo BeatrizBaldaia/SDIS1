@@ -1,6 +1,7 @@
 package subprotocols;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.*;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -32,10 +33,10 @@ public class ChunkBackup implements Runnable {
 		body = Arrays.copyOf(parser.body, parser.body.length);
 	}
 
-	public void sendConfirmation () throws InterruptedException  {
+	public void sendConfirmation () throws InterruptedException, UnsupportedEncodingException  {
 		Utils.randonSleep(Utils.TIME_MAX_TO_SLEEP);
 		String msg = "STORED "+ this.version + " " + Peer.id + " " + this.fileID + " " + this.chunkNo + " \r\n\r\n";
-		ChannelMC.getInstance().sendMessage(msg.getBytes());
+		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
 		System.out.println("SENT --> "+ msg);
 	}
 	
