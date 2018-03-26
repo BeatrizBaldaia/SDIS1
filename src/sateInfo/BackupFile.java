@@ -53,10 +53,8 @@ public class BackupFile {
 		if(getChunks().computeIfAbsent(chunk.getID(), k -> chunk.increaseReplicationDeg()) != null) {
 			this.currReplicationDeg++;
 			LocalState.getInstance().setUsedStorage(chunk.getSize());
-			System.err.println("Guardamos o chunkNO: "+chunk.getID()+ " Number of chunks"+ chunks.size());
 			return this;
 		}
-		System.err.println("Nao guardou o chunkNO: "+chunk.getID());
 		return null;
 		
 	}
@@ -70,7 +68,6 @@ public class BackupFile {
 	}
 
 	public boolean updateReplicationInfo(int chunkID, int senderID) {
-		System.err.println("GetChunksSize in updateReplicationInfo, of chunkid="+chunkID+" "+getChunks().size());
 		return getChunks().get(chunkID).isNewPeerStoring(senderID);
 	}
 
@@ -114,7 +111,6 @@ public class BackupFile {
 	 */
 	public void decreaseReplicationDegree(int chunkID) {
 		this.currReplicationDeg--;
-		System.err.println("decreaseReplicationDegree chunkID="+chunkID);
 		chunks.get(chunkID).decreaseReplicationDeg();
 	}
 	

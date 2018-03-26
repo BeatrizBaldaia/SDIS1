@@ -158,8 +158,8 @@ public class LocalState {
 		backupFiles.get(fileID).increaseReplicationDegree(chunkID);
 	}
 
-	public void returnToFalse(int fileID, int chunkNo) {
-		getBackupFiles().get(fileID).returnToFalse(chunkNo);		
+	public void returnToFalse(String fileName, int chunkNo) {
+		getBackupFiles().get(fileName).returnToFalse(chunkNo);		
 	}
 
 }

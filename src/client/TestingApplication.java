@@ -16,10 +16,10 @@ public class TestingApplication {
 		case 0:{
 			try {
 				String filename = "testeBiigerThan64.txt";
-				Integer degree = 2;
+				Integer degree = 1;
 				Registry registry = LocateRegistry.getRegistry(null);
 				InterfaceApp protocol = (InterfaceApp) registry.lookup("PROTOCOL");
-				protocol.backup(filename, degree);
+				protocol.backupFile(filename, degree);
 				System.out.println("Returned");
 			} catch (Exception e) {
 				System.err.println("Client exception: " + e.toString());
@@ -32,7 +32,7 @@ public class TestingApplication {
 				//Integer degree = 2;
 				Registry registry = LocateRegistry.getRegistry(null);
 				InterfaceApp protocol = (InterfaceApp) registry.lookup("PROTOCOL");
-				protocol.delete(filename);
+				protocol.deleteFile(filename);
 				System.out.println("Returned");
 			} catch (Exception e) {
 				System.err.println("Client exception: " + e.toString());
@@ -52,7 +52,7 @@ public class TestingApplication {
 			}break;
 		}
 		default: {
-			System.err.println("Não usa um protocolo viavel");
+			System.err.println("Error: Not a recognizable protocol.");
 		}
 		}
 

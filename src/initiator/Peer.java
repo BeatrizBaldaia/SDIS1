@@ -16,11 +16,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
 import message.ChannelMC;
 import message.ChannelMDB;
 import message.ChannelMDR;
+import message.Parser;
 import sateInfo.BackupFile;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
@@ -30,6 +32,7 @@ public class Peer implements InterfaceApp {
 	private static double protocolVersion;
 	public static int id;
 	private static int serviceAccessPoint;
+	private static Path p;
 	
 	private static ChannelMC mc;
 	private static ChannelMDB mdb;
@@ -44,6 +47,10 @@ public class Peer implements InterfaceApp {
 			protocolVersion = Integer.parseInt(args[0]);
 			id = Integer.parseInt(args[1]);
 			serviceAccessPoint = Integer.parseInt(args[2]);
+			
+			setP(Paths.get("peer_"+id));
+			if(!Files.exists(getP()))
+				Files.createDirectory(getP());
 			
 			mc = ChannelMC.getInstance();
 			mc.createMulticastSocket(args[3], args[4], id);
@@ -71,7 +78,7 @@ public class Peer implements InterfaceApp {
 			}
 		}
 	
-	public byte[] getFileBody(String fileName) throws IOException {
+	public byte[] getFileBody(String fileName) throws IOException { //Deprecated
 		String pathStr = "..//data/" + fileName;
 		Path path = Paths.get(pathStr);
 		byte[] data = Files.readAllBytes(path);
@@ -134,6 +141,7 @@ public class Peer implements InterfaceApp {
 		return 0;
 	}
 
+
 /**
  * sends the DELETE message to the MC channel
  * @param version
@@ -187,6 +195,7 @@ public void backupFile(String filename, Integer replicationDegree) throws NoSuch
 
 public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename) throws InterruptedException {
 		System.err.println("Going to backUp cunkN= "+chunkNo);
+
 		Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length);
 		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
 		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID());
@@ -221,7 +230,7 @@ public void deleteFile(String filename) throws NoSuchAlgorithmException, IOExcep
 	 * @throws IOException, NoSuchAlgorithmException
 	 * */
 	public String getFileID(String filename) throws IOException, NoSuchAlgorithmException {
-		Path filePath = Paths.get(filename);
+		Path filePath = Paths.get(filename); //The filename, not FileID
 		BasicFileAttributes attr = Files.readAttributes(filePath, BasicFileAttributes.class);
 		//System.out.println("lastModifiedTime: " + attr.lastModifiedTime());
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -232,21 +241,51 @@ public void deleteFile(String filename) throws NoSuchAlgorithmException, IOExcep
 
 	@Override
 	public void getFile(String filename) throws NoSuchAlgorithmException, IOException {
+		
 		String fileID = getFileID(filename);
 		Integer chunkNo = 0; //TODO: implement chunks
 		sendGetChunk(fileID, chunkNo);
-		System.err.println("Sent getFile");
+		Path filepath = Peer.getP().resolve("restoreFile");
+		Files.deleteIfExists(filepath);
+		Files.createFile(filepath);
+		
+		//TODO: guardar em file
+		//TODO: Enhancement getFile
 	}
 
-	private void sendGetChunk(String fileID, Integer chunkNo) {
+	private static void sendGetChunk(String fileID, Integer chunkNo) {
 		String msg = null;
 		msg = createGetChunkMessage(fileID, chunkNo) ;
 		ChannelMC.getInstance().sendMessage(msg.getBytes());
 		System.out.println("SENT --> "+msg);
 	}
 	
-	private String createGetChunkMessage(String fileID, Integer chunkNo) {
+	private static String createGetChunkMessage(String fileID, Integer chunkNo) {
 		String msg = "GETCHUNK "+ Peer.protocolVersion + " " + Peer.id + " " + fileID+ " " + chunkNo + " \r\n\r\n";
 		return msg;
+	}
+
+	/**
+	 * @return the p
+	 */
+	public static Path getP() {
+		return p;
+	}
+
+	/**
+	 * @param p the p to set
+	 */
+	public static void setP(Path p) {
+		Peer.p = p;
+	}
+
+	public static void restoreChunk(Parser parser) throws IOException {
+		System.err.println("Restore");
+		Path filepath = Peer.getP().resolve("restoreFile");
+		Files.write(filepath, parser.body, StandardOpenOption.APPEND);
+		//TODO: if two send the chunk?
+		System.err.println("Chunk length: "+parser.body.length);
+		if(parser.body.length>=64000)
+			sendGetChunk(parser.fileName, parser.chunkNo+1);
 	}
 }

@@ -54,14 +54,14 @@ public class ChunkBackup implements Runnable {
 	public void store() throws IOException, InterruptedException {
 		Chunk chunk = new Chunk(chunkNo, replicationDeg, body.length);
 		LocalState.getInstance().saveChunk(fileID, fileName + "_" + chunkNo, senderID, replicationDeg, chunk);
-		Path filePath = Paths.get(fileName + "_" + chunkNo);
+
+		Path filePath = Peer.getP().resolve(fileName + "_" + chunkNo);
 		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
 			System.out.println("Criar ficheiro: "+filePath);
 			Files.createFile(filePath);
 			Files.write(filePath,body);
 		}
-
-
+		
 		Random r = new Random();
 		Thread.sleep(r.nextInt(400));
 		sendConfirmation();//enviar sempre a mensagem store mesmo quando ja tinhamos este chunk guardado

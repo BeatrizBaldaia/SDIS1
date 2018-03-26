@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Random;
 
+import initiator.Peer;
 import message.ChannelMC;
 import message.ChannelMDR;
 import message.Parser;
@@ -37,7 +38,6 @@ public class Chunk implements Runnable {
 		}
 		if(LocalState.getInstance().seeIfAlreadySent(fileID, chunkNo)) return;
 		try {
-			System.err.println("SEND CHUNK");
 			sendChunkMessage();
 			LocalState.getInstance().notifyThatItWasSent(fileID, chunkNo);
 		} catch (UnsupportedEncodingException e) {
@@ -53,7 +53,7 @@ public class Chunk implements Runnable {
 	}
 
 	private String createChunkMessage() throws UnsupportedEncodingException {
-		Path filePath = Paths.get(this.fileID+"_"+this.chunkNo);
+		Path filePath = Peer.getP().resolve(this.fileID+"_"+this.chunkNo);
 		try {
 			this.body = Files.readAllBytes(filePath);
 		} catch (IOException e) {
@@ -62,7 +62,7 @@ public class Chunk implements Runnable {
 			return null;
 		}
 		String bodyStr = new String(this.body, "UTF-8"); // for UTF-8 encoding
-		String msg = "CHUNK "+ this.version + " " + this.senderID + " " + this.fileID+ " " + chunkNo + " \r\n\r\n" + bodyStr;
+		String msg = "CHUNK "+ this.version + " " + Peer.id + " " + this.fileID+ " " + chunkNo + " \r\n\r\n" + bodyStr;
 		return msg;
 	}
 }
