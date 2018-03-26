@@ -63,9 +63,10 @@ public class BackupFile {
 	 * @return
 	 */
 	public boolean desireReplicationDeg() {
+		System.err.println(replicationDeg + "==" + this.currReplicationDeg);
 		return this.replicationDeg == this.currReplicationDeg;
 	}
-	
+
 	public boolean updateReplicationInfo(int chunkID, int senderID) {
 		return chunks.get(chunkID).isNewPeerStoring(senderID);
 	}

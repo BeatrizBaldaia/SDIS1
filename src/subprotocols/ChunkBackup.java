@@ -19,7 +19,7 @@ public class ChunkBackup implements Runnable {
 	public int chunkNo = 0;
 	public int replicationDeg = 0;
 	public byte[] body = null;
-	
+
 	public ChunkBackup (Parser parser) {
 		version = parser.version;
 		senderID = parser.senderID;
@@ -44,14 +44,12 @@ public class ChunkBackup implements Runnable {
 				store();
 			}
 		} catch (IOException | InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return;
 	}
 	
 	public void store() throws IOException, InterruptedException {
-		System.err.println("Gets to store!");
 		Chunk chunk = new Chunk(chunkNo, replicationDeg, body.length);
 		if(LocalState.getInstance().saveChunk(fileID, fileName + "_" + chunkNo, senderID, replicationDeg, chunk)) {
 			Path filePath = Paths.get(fileName + "_" + chunkNo);

@@ -21,7 +21,7 @@ public class Chunk implements Runnable {
 	public String fileID = null;
 	public int chunkNo = 0;
 	public byte[] body = null;
-	
+
 	public Chunk(Parser parser) {
 		version = parser.version;
 		senderID = parser.senderID;
@@ -57,7 +57,6 @@ public class Chunk implements Runnable {
 		Path filePath = Paths.get(this.fileID+"_"+this.chunkNo);
 		try {
 			this.body = Files.readAllBytes(filePath);
-			//System.out.println("Body"+ new String(body));
 		} catch (IOException e) {
 			System.out.println("Couldn't read from file!");
 			e.printStackTrace();

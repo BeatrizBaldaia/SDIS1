@@ -1,4 +1,3 @@
-
 package initiator;
 
 import java.io.IOException;
@@ -8,6 +7,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Base64;
 
 import javax.xml.bind.DatatypeConverter;
@@ -118,12 +118,9 @@ public class Peer implements InterfaceApp {
 			System.out.println("File does not exist: "+ filename);
 			return;
 		}
-		//TODO: whay not send this one in LOCALSTATE?
-		//BackupFile file = new BackupFile(filename, Peer.id, replicationDegree);
 		byte[] body;
 		try {
 			body = Files.readAllBytes(filePath);
-			//System.out.println("Body"+ new String(body));
 		} catch (IOException e) {
 			System.out.println("Couldn't read from file!");
 			e.printStackTrace();
@@ -132,28 +129,35 @@ public class Peer implements InterfaceApp {
 		String fileID = this.getFileID(filename);
 		System.out.println("FileID: "+fileID);
 		int chunkNo = 0;
-		//TODO: Separete in chunks
-		Chunk chunk = new Chunk(chunkNo, replicationDegree, 64);//estou a assumir que este chunk e de tamanho 64
+		while(body.length>(64000*(chunkNo+1))) {
+			byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, (chunkNo+1)*64000);
+			
+			backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename);
+			chunkNo++;
+		}
+		byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, body.length);
+		backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename);
+	}
+	
+	public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename) throws InterruptedException {
+		Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length);
 		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
-		//TODO: se ao fim de um segundo nao receber n (sendo n = replicationDeg) o peer volta a enviar; passadas 5 tentativas, caga-se
-		//se ao fim de 1 segundo o BackupFile.desireReplicationDeg() for false, reenvia
-		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, body)==-1) {
-			System.out.println("Couldn't send putchunk!");
+		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk)==-1) {
+			System.err.println("Error: Could not send PUTCHUNK message.");
 			return;
 		}
-//		for(int i = 1; i <= 5; i++) {
-//			Thread.sleep(1000*i);
-//			//TODO: descomment  See previous todos
-//			//if(BackupFile.desireReplicationDeg()) return;
-//			if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, body) == -1) {
-//				System.err.println("Error: Could not send PUTCHUNK message.");
-//				return;
-//			}
-//		}
+		for(int i = 1; i <= 5; i++) {
+			Thread.sleep(1000*i);
+			if(LocalState.getInstance().getBackupFiles().get(fileID).desireReplicationDeg()) return;
+			if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk) == -1) {
+				System.err.println("Error: Could not send PUTCHUNK message.");
+				return;
+			}
+		}
 		
-		//TODO: Wait for responses.
 		return;
 	}
+	
 	/**
 	 * Generate a file ID
 	 * @param filename - the filename
@@ -201,7 +205,7 @@ public class Peer implements InterfaceApp {
 		ChannelMC.getInstance().sendMessage(msg.getBytes());
 		System.out.println("SENT --> "+msg);
 	}
-
+	
 	private String createGetChunkMessage(String fileID, Integer chunkNo) {
 		String msg = "GETCHUNK "+ Peer.protocolVersion + " " + Peer.id + " " + fileID+ " " + chunkNo + " \r\n\r\n";
 		return msg;
