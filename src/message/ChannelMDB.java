@@ -98,7 +98,8 @@ public class ChannelMDB {
                 	if(parser.parseHeader() != 0) {
                 		System.out.println("Error parsing the message");
                 	}
-                	if(parser.senderID != myID) {
+                	//System.err.println("Gets to listem!");
+                	if(parser.senderID != myID) { //
 	                	if(parser.messageType.equals("PUTCHUNK")) {
 	                		ChunkBackup subprotocol = new ChunkBackup(parser);
 	                		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);

@@ -122,7 +122,7 @@ public class Peer implements InterfaceApp {
 		byte[] body;
 		try {
 			body = Files.readAllBytes(filePath);
-			System.out.println("Body"+ new String(body));
+			//System.out.println("Body"+ new String(body));
 		} catch (IOException e) {
 			System.out.println("Couldn't read from file!");
 			e.printStackTrace();

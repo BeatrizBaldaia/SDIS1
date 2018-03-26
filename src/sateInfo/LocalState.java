@@ -8,7 +8,7 @@ public class LocalState {
 	private static LocalState instance = null;
 	
 	/**
-	 * maximum amount of disk space that can be used to store chunks (in KBytes)
+	 * maximum amount of disk space that can be used to store chunks (in Bytes)
 	 * */
 	private int storageCapacity;
 	
@@ -27,7 +27,7 @@ public class LocalState {
 	
 	public static LocalState getInstance() {
 		if(instance == null) {
-			instance = new LocalState(65, 0);
+			instance = new LocalState(65000, 0);
 		}
 		return instance;
 	}

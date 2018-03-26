@@ -43,7 +43,6 @@ public class ChunkBackup implements Runnable {
 			if((body.length + LocalState.getInstance().getUsedStorage()) <= LocalState.getInstance().getStorageCapacity()) {
 				store();
 			}
-			
 		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -52,8 +51,7 @@ public class ChunkBackup implements Runnable {
 	}
 	
 	public void store() throws IOException, InterruptedException {
-		//TODO: DO NOT STORE IN THE SAME SERVER
-		
+		System.err.println("Gets to store!");
 		Chunk chunk = new Chunk(chunkNo, replicationDeg, body.length);
 		if(LocalState.getInstance().saveChunk(fileID, fileName + "_" + chunkNo, senderID, replicationDeg, chunk)) {
 			Path filePath = Paths.get(fileName + "_" + chunkNo);
