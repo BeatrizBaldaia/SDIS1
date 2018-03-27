@@ -183,7 +183,7 @@ public void backupFile(String filename, Integer replicationDegree) throws NoSuch
 	String fileID = this.getFileID(filename);
 	System.out.println("FileID: "+fileID);
 	int chunkNo = 0;
-	while(body.length>(64000*(chunkNo+1))) {
+	while(body.length>=(64000*(chunkNo+1))) { //TODO: teste Muliple of 64
 		byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, (chunkNo+1)*64000);
 
 		backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename);
