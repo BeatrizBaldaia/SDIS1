@@ -4,12 +4,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Random;
 
 import initiator.Peer;
-import message.ChannelMC;
 import message.ChannelMDR;
 import message.Parser;
 import sateInfo.LocalState;

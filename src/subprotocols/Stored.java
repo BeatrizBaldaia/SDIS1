@@ -3,10 +3,7 @@
  */
 package subprotocols;
 
-import java.util.Arrays;
-
 import message.Parser;
-import message.SingletonThreadPoolExecutor;
 
 public class Stored implements Runnable {
 	public double version = 0.0;

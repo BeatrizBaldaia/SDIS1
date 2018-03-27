@@ -1,6 +1,5 @@
 package initiator;
 
-import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -10,24 +9,18 @@ import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Base64;
-
 import javax.xml.bind.DatatypeConverter;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
 import message.ChannelMC;
 import message.ChannelMDB;
 import message.ChannelMDR;
 import message.Parser;
-import sateInfo.BackupFile;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
 import server.InterfaceApp;
@@ -293,6 +286,7 @@ public void deleteFile(String filename) throws NoSuchAlgorithmException, IOExcep
 		Path filepath = Peer.getP().resolve("restoreFile");
 		FileOutputStream g = new FileOutputStream(filepath.toFile(),true);  //true --> append
 		g.write(parser.body);
+		g.close();
 		//TODO: if two send the chunk?
 		System.err.println("Chunk length: "+parser.body.length);
 		if(parser.body.length>=64000)

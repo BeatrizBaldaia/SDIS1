@@ -10,7 +10,7 @@ public class Chunk {
 	
 	private boolean sentWithGetChunk =false;
 	
-	private ArrayList<Integer> peersStoring = new ArrayList();
+	private ArrayList<Integer> peersStoring = new ArrayList<Integer>();
 	
 	public Chunk(int id, int replicationDeg, int size) {
 		this.id = id;

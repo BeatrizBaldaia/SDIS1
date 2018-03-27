@@ -6,14 +6,9 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-
 import sateInfo.BackupFile;
 import sateInfo.LocalState;
 import subprotocols.Chunk;
-import subprotocols.ChunkBackup;
-import subprotocols.Deletion;
-import subprotocols.Stored;
 
 public class ChannelMC {
 	private static ChannelMC instance = null;
