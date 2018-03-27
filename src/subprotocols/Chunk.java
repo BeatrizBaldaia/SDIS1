@@ -61,7 +61,7 @@ public class Chunk implements Runnable {
 			e.printStackTrace();
 			return null;
 		}
-		String bodyStr = new String(this.body, "UTF-8"); // for UTF-8 encoding
+		String bodyStr = new String(this.body,"ISO-8859-1"); // for "ISO-8859-1" encoding
 		String msg = "CHUNK "+ this.version + " " + Peer.id + " " + this.fileID+ " " + chunkNo + " \r\n\r\n" + bodyStr;
 		return msg;
 	}

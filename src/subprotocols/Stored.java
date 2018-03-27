@@ -22,7 +22,7 @@ public class Stored implements Runnable {
 		version = parser.version;
 		senderID = parser.senderID;
 		fileID = parser.fileName;
-		//fileName = new String(parser.fileName);
+		//fileName = new String(parser.fileName, "ISO-8859-1");
 		chunkNo = parser.chunkNo;
 		replicationDeg = parser.replicationDeg;
 		//body = Arrays.copyOf(parser.body, parser.body.length);
