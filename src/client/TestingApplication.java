@@ -28,7 +28,7 @@ public class TestingApplication {
 		}
 		case 1:{
 			try {
-				String filename = "testeBiigerThan64.txt";
+				String filename = "a.png";
 				//Integer degree = 2;
 				Registry registry = LocateRegistry.getRegistry(null);
 				InterfaceApp protocol = (InterfaceApp) registry.lookup("PROTOCOL");
