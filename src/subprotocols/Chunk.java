@@ -49,7 +49,7 @@ public class Chunk implements Runnable {
 		String msg = null;
 		msg = createChunkMessage();
 		ChannelMDR.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
-		System.out.println("SENT --> "+msg);
+		System.out.println("SENT --> "+msg.split("\r\n")[0]);
 	}
 
 	private String createChunkMessage() throws UnsupportedEncodingException {

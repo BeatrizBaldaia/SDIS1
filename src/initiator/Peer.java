@@ -1,5 +1,7 @@
 package initiator;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.rmi.registry.LocateRegistry;
@@ -12,8 +14,10 @@ import java.util.Base64;
 
 import javax.xml.bind.DatatypeConverter;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -140,7 +144,7 @@ public class Peer implements InterfaceApp {
 		
 		ChannelMDB.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
 		//System.out.println("SENT --> "+msg);
-		System.out.println("SENT --> PUTCHUNK");
+		System.out.println("SENT --> "+ msg.split("\r\n")[0]);//PUTCHUNK
 		return 0;
 	}
 
@@ -164,7 +168,7 @@ public int sendDeleteMessage(double version, int senderID, String fileID) throws
 		}
 		
 		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
-		System.out.println("SENT --> DELETE");
+		System.out.println("SENT --> "+msg);//DELETE
 		return 0;
 	}
 
@@ -262,7 +266,7 @@ public void deleteFile(String filename) throws NoSuchAlgorithmException, IOExcep
 		String msg = null;
 		msg = createGetChunkMessage(fileID, chunkNo) ;
 		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
-		System.out.println("SENT --> "+msg);
+		System.out.println("SENT --> "+msg);//GETCHUNk
 	}
 	
 	private static String createGetChunkMessage(String fileID, Integer chunkNo) {
@@ -287,7 +291,8 @@ public void deleteFile(String filename) throws NoSuchAlgorithmException, IOExcep
 	public static void restoreChunk(Parser parser) throws IOException {
 		System.err.println("Restore");
 		Path filepath = Peer.getP().resolve("restoreFile");
-		Files.write(filepath, parser.body, StandardOpenOption.APPEND);
+		FileOutputStream g = new FileOutputStream(filepath.toFile(),true);  //true --> append
+		g.write(parser.body);
 		//TODO: if two send the chunk?
 		System.err.println("Chunk length: "+parser.body.length);
 		if(parser.body.length>=64000)
