@@ -6,6 +6,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -107,6 +108,7 @@ public class LocalState {
 	}
 	
 	public boolean deleteFileChunks(String fileID) {
+		//TODO: Enhancement delete
 		//System.err.println("deleteFileChunks");
 		BackupFile file = null; 
 		if((file = backupFiles.get(fileID)) != null) {
@@ -116,7 +118,7 @@ public class LocalState {
 				//File directory = new File(".");
 				Path dir = Peer.getP();
 				File directory = dir.toFile();
-				String pattern = Peer.getP().toString()+"/"+fileID + "*";//TODO: windons
+				String pattern = Peer.getP().toString()+File.pathSeparator+fileID + "*";//TODO: windons
 				PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
 				File[] files = directory.listFiles();
 				for(int i = 0; i<files.length; i++) {
