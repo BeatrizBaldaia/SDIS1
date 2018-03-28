@@ -98,8 +98,8 @@ public class Peer implements InterfaceApp {
 	 */
 	public String createPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
 		String bodyStr = new String(body, "ISO-8859-1"); // for ISO-8859-1 encoding
-		System.err.println("bodyStr.lenght:"+bodyStr.length());
-		System.err.println("bodyStr.getBytes.size:"+bodyStr.getBytes("ISO-8859-1").length);
+//		System.err.println("bodyStr.lenght:"+bodyStr.length());
+//		System.err.println("bodyStr.getBytes.size:"+bodyStr.getBytes("ISO-8859-1").length);
 		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID+ " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
 		return msg;
 	}
@@ -172,19 +172,19 @@ public class Peer implements InterfaceApp {
 	public void backupFile(String filename, Integer replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
 		Path filePath = Paths.get(filename);
 		if(!Files.exists(filePath)) { //NOTE: O ficheiro nao existe
-			System.out.println("File does not exist: "+ filename);
+			System.out.println("Error: File "+filename+" does not exist: ");
 			return;
 		}
 		byte[] body;
 		try {
 			body = Files.readAllBytes(filePath);
 		} catch (IOException e) {
-			System.out.println("Couldn't read from file!");
+			System.out.println("Error: Could not read from file!");
 			e.printStackTrace();
 			return;
 		}
 		String fileID = this.getFileID(filename);
-		System.out.println("FileID: "+fileID);
+		//System.out.println("FileID: "+fileID);
 		int chunkNo = 0;
 		while(body.length>=(64000*(chunkNo+1))) { //TODO: teste Muliple of 64
 			byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, (chunkNo+1)*64000);
@@ -198,7 +198,7 @@ public class Peer implements InterfaceApp {
 	}
 	
 	public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename) throws InterruptedException, UnsupportedEncodingException {
-			System.err.println("Going to backUp cunkN= "+chunkNo);
+			//System.err.println("Going to backUp cunkN= "+chunkNo);
 	
 			Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length);
 			LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
@@ -207,7 +207,7 @@ public class Peer implements InterfaceApp {
 				System.err.println("Error: Could not send PUTCHUNK message.");
 				return;
 			}
-			System.err.println("bodyOfTheChunk.length: "+bodyOfTheChunk.length);
+			//System.err.println("bodyOfTheChunk.length: "+bodyOfTheChunk.length);
 			for(int i = 1; i <= 5; i++) {
 				Thread.sleep(1000*i);
 				if(LocalState.getInstance().getBackupFiles().get(fileID).desireReplicationDeg(chunk.getID())) return;
@@ -285,14 +285,14 @@ public class Peer implements InterfaceApp {
 	}
 
 	public static void restoreChunk(Parser parser) throws IOException {
-		System.err.println("Restore");
+	//	System.err.println("Restore");
 		if(parser.version != 1) { //Enhancements
 			
 			String data = new String(parser.body, "ISO-8859-1");
 			String[] elem = data.split(":");
-			System.err.println("Data :"+data);
-			System.err.println(elem[0]);
-			System.err.println(elem[1]);
+			//System.err.println("Data :"+data);
+//			System.err.println(elem[0]);
+//			System.err.println(elem[1]);
 			parser.body = new byte[64000];
 			Socket socket = new Socket(elem[0], Integer.valueOf(elem[1]));//TODO: Socket Port
 			DataInputStream input = new DataInputStream(socket.getInputStream());
@@ -304,10 +304,10 @@ public class Peer implements InterfaceApp {
 					length++;
 				}
 			} catch (EOFException e) {
-				System.err.println("ASSIM .." );
+				//System.err.println("ASSIM .." );
 			}
 			socket.close();
-			System.out.println("LEU: "+length);
+			//System.out.println("LEU: "+length);
 			parser.body = Arrays.copyOfRange(parser.body, 0, length);
 		}
 		Path filepath = Peer.getP().resolve("restoreFile");
@@ -315,7 +315,7 @@ public class Peer implements InterfaceApp {
 		g.write(parser.body);
 		g.close();
 		//TODO: if two send the chunk?
-		System.err.println("Chunk length: "+parser.body.length);
+//		System.err.println("Chunk length: "+parser.body.length);
 		if(parser.body.length>=64000)
 			sendGetChunk(parser.fileName, parser.chunkNo+1);
 	}

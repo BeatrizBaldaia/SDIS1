@@ -64,7 +64,7 @@ public class Parser {
 	 */
 	public int getVersion() {
 		if(header[1].length() != 3) {
-			System.out.println("This field should be in the format <n>'.'<m>");
+			System.out.println("Error: Version should be in the format <n>'.'<m>");
 			return -1;
 		}
 		version = Double.parseDouble(header[1]);
@@ -169,9 +169,9 @@ public class Parser {
 		if(messageType.equals("PUTCHUNK") || messageType.equals("CHUNK")) {
 			body = new byte[stream.available()];
 			stream.read(body, 0, body.length);
-			if(body.length>64000) {
-				System.err.println("Bigger than 64000");
-			}
+//			if(body.length>64000) {
+//				System.err.println("Bigger than 64000");
+//			}
 		}
 
 		return error;

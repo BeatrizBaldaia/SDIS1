@@ -102,11 +102,11 @@ public class ChannelMC {
 							//System.out.println("FileID: "+parser.fileID);
 						} else if(parser.messageType.equals("DELETE")) {
 							LocalState.getInstance().deleteFileChunks(parser.fileName);
-							System.out.println("Apagou ficheiro " + parser.fileName);
-							System.out.println("Agora tem os seguintes ficheiros guardados:");
-							for (Entry<String, BackupFile> entry : LocalState.getInstance().getBackupFiles().entrySet()) {
-							    System.out.println(entry.getKey());
-							}
+//							System.out.println("Apagou ficheiro " + parser.fileName);
+//							System.out.println("Agora tem os seguintes ficheiros guardados:");
+//							for (Entry<String, BackupFile> entry : LocalState.getInstance().getBackupFiles().entrySet()) {
+//							    System.out.println(entry.getKey());
+//							}
 						} else if(parser.messageType.equals("GETCHUNK")) {
 							Chunk subprotocol = new Chunk(parser);
 							LocalState.getInstance().returnToFalse(parser.fileName, parser.chunkNo);

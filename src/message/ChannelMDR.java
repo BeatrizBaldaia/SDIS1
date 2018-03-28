@@ -104,7 +104,7 @@ private static ChannelMDR instance = null;
 						if(parser.messageType.equals("CHUNK")) {
 
 							//System.err.println("Teste");
-							System.out.println("Recived CHUNK message");
+							//System.out.println("Recived CHUNK message");
 							LocalState.getInstance().notifyThatItWasSent(parser.fileName, parser.chunkNo);
 							Path filepath = Peer.getP().resolve("restoreFile");
 							if(Files.exists(filepath)) {//TODO: teste if its my restore file
