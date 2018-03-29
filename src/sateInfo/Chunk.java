@@ -103,4 +103,16 @@ public class Chunk {
 	public void addNewPeer(int peerID) {
 		peersStoring.add(peerID);
 	}
+	
+	/**
+	 * 
+	 * @return true if has exceeded the desired replication degree
+	 */
+	public boolean exceededDesiredReplicationDeg() {
+		return this.currReplicationDeg > this.replicationDeg;
+	}
+	
+	public int getexceededAmount() {
+		return this.currReplicationDeg - this.replicationDeg;
+	}
 }

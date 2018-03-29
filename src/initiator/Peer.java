@@ -267,6 +267,16 @@ public class Peer implements InterfaceApp {
 	public String getState() {
 		return LocalState.getInstance().getStateFileInfo();
 	}
+	
+	
+	@Override
+	public boolean reclaimStorage(int space) {
+		if(LocalState.getInstance().setStorageCapacity(space)) {
+			//apagar chunks
+			return true;
+		}
+		return false;//falso se nao teve de apagar chunks
+	}
 
 	private static void sendGetChunk(String fileID, Integer chunkNo, Boolean isEnhancement) throws UnsupportedEncodingException {
 		String msg = null;

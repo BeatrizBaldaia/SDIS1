@@ -1,5 +1,6 @@
 package sateInfo;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -127,6 +128,37 @@ public class BackupFile {
 		}
 		
 		return totalSpace;
+	}
+	
+	/**
+	 * deletes one chunk
+	 * @param chunkID
+	 * @return the size of the chunk
+	 */
+	public int deleteChunk(int chunkID) {
+		int freedSpace = chunks.get((Integer)chunkID).getSize();
+		chunks.remove((Integer)chunkID);
+		
+		return freedSpace;
+	}
+	
+	/**
+	 * Returns the chunks that have an actual replication degree higher than the desired one
+	 * @param fileID
+	 * @return Pair<Pair<fileID, chunkID> chunkSize>
+	 */
+	public ArrayList<Pair<Pair<String, Integer>, Integer>> getDisposableChunks(String fileID) {
+		ArrayList<Pair<Pair<String, Integer>, Integer>> result = new ArrayList<Pair<Pair<String, Integer>, Integer>>();
+		
+		for(ConcurrentHashMap.Entry<Integer, Chunk> entry : chunks.entrySet()) {
+			if(entry.getValue().exceededDesiredReplicationDeg()) {
+				Pair<String, Integer> file_chunk = new Pair<String, Integer>(fileID, entry.getKey());
+				Pair<Pair<String, Integer>, Integer> file_chunk_size = new Pair<Pair<String, Integer>, Integer> (file_chunk, entry.getValue().getexceededAmount());
+				result.add(file_chunk_size);
+			}
+		}
+		
+		return result;
 	}
 	
 	public boolean isBackupInitiator() {

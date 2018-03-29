@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -255,6 +257,36 @@ public class LocalState {
 		info += "\t->Amount of Storage Used: " + this.usedStorage + "\n";
 		
 		return info;
+	}
+	
+	/**
+	 * Changes the maximum storage capacity
+	 * @param space
+	 * @return true if is using more space than the allowed
+	 */
+	public boolean setStorageCapacity(int space) {
+		this.storageCapacity = space;
+		return this.usedStorage > this.storageCapacity;
+	}
+	
+	public void manageStorage() {
+		ArrayList<Pair<Pair<String, Integer>, Integer>> arr = new ArrayList<Pair<Pair<String, Integer>, Integer>>();
+		
+		for(ConcurrentHashMap.Entry<String, BackupFile> entry : backupFiles.entrySet()) {
+			arr.addAll(entry.getValue().getDisposableChunks(entry.getKey()));
+		}
+		
+		Collections.sort(arr);
+		
+		int i = 0;
+		while(this.usedStorage > this.storageCapacity) {
+			Pair<Pair<String, Integer>, Integer> pair = arr.get(i);
+			String file_id = pair.getL().getL();
+			Integer chunk_id = pair.getL().getR();
+			int freedStorage = backupFiles.get(file_id).getChunks().get(chunk_id).getSize();
+			this.usedStorage -= freedStorage;
+			//enviar a mensagem REMOVED 
+		}
 	}
 
 }
