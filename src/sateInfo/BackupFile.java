@@ -1,6 +1,7 @@
 package sateInfo;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -10,6 +11,7 @@ public class BackupFile {
 	private int serviceID = 0;
 	private int replicationDeg = 0;
 	private Map<Integer,Chunk> chunks = new ConcurrentHashMap<Integer, Chunk>();
+	private Boolean wasDeleted = false;
 	
 	public BackupFile(String pathName, int serviceID, int replicationDeg) {
 		this.pathName = pathName;
@@ -114,6 +116,12 @@ public class BackupFile {
 		chunks.get(chunkID).decreaseReplicationDeg(peerID);
 	}
 	
+	public void decreaseReplicationDegree(int peerID) {
+		for (Entry<Integer, Chunk> entry : chunks.entrySet()) {
+			entry.getValue().decreaseReplicationDeg(peerID);
+		}
+	}
+	
 	/**
 	 * Free storage
 	 * @return
@@ -132,5 +140,20 @@ public class BackupFile {
 	public boolean isBackupInitiator() {
 		return pathName != null;
 	}
+
+	public void notifyItWasDeleted() {
+		wasDeleted = true;
+	}
+
+	public boolean isReplicationDegreeZero() {
+		for (Entry<Integer, Chunk> entry : chunks.entrySet()) {
+			if(!entry.getValue().isReplicationDegreeZero()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	
 
 }

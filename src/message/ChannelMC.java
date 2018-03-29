@@ -103,7 +103,7 @@ public class ChannelMC {
 							//System.out.println("Filename: "+parser.fileName);
 							//System.out.println("FileID: "+parser.fileID);
 						} else if(parser.messageType.equals("DELETE")) {
-
+							System.err.println("ESTOU A APAGAR!!!");
 							Deletion subprotocol = new Deletion(parser);
 							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
 //							System.out.println("Apagou ficheiro " + parser.fileName);
@@ -115,8 +115,17 @@ public class ChannelMC {
 							Chunk subprotocol = new Chunk(parser);
 							LocalState.getInstance().returnToFalse(parser.fileName, parser.chunkNo);
 							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+						} else if(parser.messageType.equals("DELETED")) {
+							if(LocalState.getInstance().getBackupFiles().get(parser.fileName) != null) {
+								LocalState.getInstance().decreaseReplicationDegree(parser.fileName, parser.senderID);
+								if(LocalState.getInstance().isReplicationDegreeZero(parser.fileName)) {
+									LocalState.getInstance().getBackupFiles().remove(parser.fileName);
+								}
+								//System.err.println("decreaseReplicationDegree");
+							}
+							//System.err.println("TO DO");
 						} else {
-							System.err.println("Error: Does not recognize type of message.");
+							//System.err.println("Error: Does not recognize type of message.");
 						}
 					}
 				} catch (IOException e) {

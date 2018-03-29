@@ -102,7 +102,6 @@ private static ChannelMDR instance = null;
 
 						//System.err.println("Teste");
 						if(parser.messageType.equals("CHUNK")) {
-
 							//System.err.println("Teste");
 							//System.out.println("Recived CHUNK message");
 							LocalState.getInstance().notifyThatItWasSent(parser.fileName, parser.chunkNo);

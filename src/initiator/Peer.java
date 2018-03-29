@@ -2,6 +2,7 @@ package initiator;
 
 import java.io.DataInputStream;
 import java.io.EOFException;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -17,8 +18,10 @@ import java.util.Map;
 import javax.xml.bind.DatatypeConverter;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 
@@ -52,8 +55,19 @@ public class Peer implements InterfaceApp {
 			serviceAccessPoint = Integer.parseInt(args[2]);
 			
 			setP(Paths.get("peer_"+id));
-			if(!Files.exists(getP()))
+			if(!Files.exists(getP())) {
 				Files.createDirectory(getP());
+			} 
+//				else {
+//				Path dir = Peer.getP();
+//				File directory = dir.toFile();
+//				File[] files = directory.listFiles();
+//				for(int i = 0; i < files.length; i++) {
+//					String filename = files[i].getName();
+//					String[] elem = filename.split("_");
+//					LocalState.getInstance().saveChunk(elem[0], null, id, 0, chunk);
+//				}
+//			}
 			
 			mc = ChannelMC.getInstance();
 			mc.createMulticastSocket(args[3], args[4], id);
@@ -157,7 +171,6 @@ public class Peer implements InterfaceApp {
 	 * @throws UnsupportedEncodingException 
 	 */
 	public int sendDeleteMessage(double version, int senderID, String fileID) throws UnsupportedEncodingException {
-			
 			String msg = null;
 			try {
 				msg = createDeleteMessage(version, senderID, fileID) ;
@@ -195,6 +208,7 @@ public class Peer implements InterfaceApp {
 	
 			backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename, isEnhancement);
 			chunkNo++;
+
 		}
 		byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, body.length);
 		backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename,isEnhancement);
@@ -228,7 +242,9 @@ public class Peer implements InterfaceApp {
 	@Override
 	public void deleteFile(String filename, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException {
 		String fileID = getFileID(filename);
-		double version = Peer.protocolVersion; //TODO isEnhancement
+		double version = Peer.protocolVersion;
+		LocalState.getInstance().notifyItWasDeleted(fileID);
+		if(isEnhancement) { version = 1.2; }
 		if(sendDeleteMessage(version, Peer.id, fileID) == -1) {
 			System.err.println("Error: Could not send DELETE message.");
 			return;

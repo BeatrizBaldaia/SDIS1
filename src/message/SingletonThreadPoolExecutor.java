@@ -13,7 +13,7 @@ public class SingletonThreadPoolExecutor {
 		BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(10);
 		thread = new ThreadPoolExecutor(10, 20, 10L, TimeUnit.MILLISECONDS, workQueue);//TODO: ver arguement
 	}
-	
+
 	public static SingletonThreadPoolExecutor getInstance() {
 		if(instance == null) {
 			instance = new SingletonThreadPoolExecutor();

@@ -103,4 +103,8 @@ public class Chunk {
 	public void addNewPeer(int peerID) {
 		peersStoring.add(peerID);
 	}
+
+	public boolean isReplicationDegreeZero() {
+		return currReplicationDeg == 0;
+	}
 }

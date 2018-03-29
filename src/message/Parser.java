@@ -9,7 +9,7 @@ public class Parser {
 	public String messageType = null;
 	public double version = 0.0;
 	public int senderID = 0;
-	public int fileID = 0;
+	//public int fileID = 0;
 	public String fileName = null;
 	public int chunkNo = 0;
 	public int replicationDeg = 0;
@@ -158,7 +158,7 @@ public class Parser {
 		getSenderID();
 		error += getFileID();
 
-		if(!messageType.equals("DELETE")) {
+		if((!messageType.equals("DELETE")) && (!messageType.equals("DELETED"))) {
 			error += getChunkNo();
 		}
 

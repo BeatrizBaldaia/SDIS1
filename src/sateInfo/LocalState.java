@@ -26,7 +26,7 @@ public class LocalState {
 	private int usedStorage;
 
 	private Map<String, BackupFile> backupFiles = new ConcurrentHashMap<String, BackupFile>();
-
+	
 	public LocalState(int storageCapacity, int usedStorage) {
 		this.storageCapacity = storageCapacity;
 		this.usedStorage = usedStorage;
@@ -114,7 +114,7 @@ public class LocalState {
 	 */
 	public boolean deleteFileChunks(String fileID) {
 		//TODO: Enhancement delete
-		//System.err.println("deleteFileChunks");
+		System.err.println("deleteFileChunks");
 		BackupFile file = null; 
 		if((file = backupFiles.get(fileID)) != null) {
 			//System.err.println("If");
@@ -158,7 +158,9 @@ public class LocalState {
 	public void notifyThatItWasSent(String fileID, int chunkNo) {
 		getBackupFiles().get(fileID).notifyThatItWasSent(chunkNo);		
 	}
-
+	public void notifyItWasDeleted(String fileID) {
+		getBackupFiles().get(fileID).notifyItWasDeleted();		
+	}
 	/**
 	 * @return the backupFiles
 	 */
@@ -174,6 +176,10 @@ public class LocalState {
 	 */
 	public void decreaseReplicationDegree(String fileID, int chunkID, int peerID) {
 		backupFiles.get(fileID).decreaseReplicationDegree(chunkID, peerID);
+	}
+	public void decreaseReplicationDegree(String fileName, int peerID) {
+		backupFiles.get(fileName).decreaseReplicationDegree(peerID);
+		
 	}
 	public void increaseReplicationDegree(String fileID, int chunkID) {
 		backupFiles.get(fileID).increaseReplicationDegree(chunkID);
@@ -258,5 +264,11 @@ public class LocalState {
 		
 		return info;
 	}
+
+	public boolean isReplicationDegreeZero(String fileName) {
+		return this.backupFiles.get(fileName).isReplicationDegreeZero();
+	}
+
+	
 
 }
