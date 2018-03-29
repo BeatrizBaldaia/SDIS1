@@ -26,7 +26,7 @@ public class TestApp {
 		InterfaceApp protocol;
 		try {
 			registry = LocateRegistry.getRegistry(host, port);
-			protocol = (InterfaceApp) registry.lookup(name);//TODO: AccessPoint
+			protocol = (InterfaceApp) registry.lookup(name);
 		} catch (RemoteException | NotBoundException e1) {
 			e1.printStackTrace();
 			return;

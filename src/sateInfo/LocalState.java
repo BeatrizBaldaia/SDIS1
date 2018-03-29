@@ -32,6 +32,15 @@ public class LocalState {
 
 	private Map<String, BackupFile> backupFiles = new ConcurrentHashMap<String, BackupFile>();
 	
+	private Map<String, Pair<String,Integer> > restoring = new ConcurrentHashMap<String, Pair<String,Integer> >();
+	
+	/**
+	 * @return the restoring
+	 */
+	public Map<String, Pair<String,Integer> > getRestoring() {
+		return restoring;
+	}
+
 	public LocalState(int storageCapacity, int usedStorage) {
 		this.storageCapacity = storageCapacity;
 		this.usedStorage = usedStorage;

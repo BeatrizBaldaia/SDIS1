@@ -102,7 +102,6 @@ public class ChannelMC {
 						if(parser.messageType.equals("STORED")) {
 							//System.out.println("Recebeu mensagem STORE -- Fazer update do Replication Degree!");
 							LocalState.getInstance().updateReplicationInfo(parser.senderID, parser.fileID, parser.chunkNo);
-							//TODO: estamos a trocar o fileID com o fileName...
 							//System.out.println("Filename: "+parser.fileName);
 							//System.out.println("FileID: "+parser.fileID);
 						} else if(parser.messageType.equals("DELETE")) {
@@ -116,7 +115,7 @@ public class ChannelMC {
 //							}
 						} else if(parser.messageType.equals("GETCHUNK")) {
 							Chunk subprotocol = new Chunk(parser);
-							LocalState.getInstance().returnToFalse(parser.fileID, parser.chunkNo);
+							LocalState.getInstance().returnToFalse(parser.fileID, parser.chunkNo);//TODO: I dont have the file
 							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
 						} else if(parser.messageType.equals("DELETED")) {
 							if(LocalState.getInstance().getBackupFiles().get(parser.fileID) != null) {
