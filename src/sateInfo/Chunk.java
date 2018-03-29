@@ -60,7 +60,7 @@ public class Chunk {
 	public Chunk decreaseReplicationDeg(int peerID) {
 		
 		if(peersStoring.contains(peerID)) {
-			peersStoring.remove(peerID);
+			peersStoring.remove((Integer) peerID);
 			this.currReplicationDeg--;
 		}
 		return this;

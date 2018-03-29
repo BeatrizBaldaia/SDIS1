@@ -17,7 +17,6 @@ public class Deletion implements Runnable {
 	public Deletion(Parser parser) {
 		fileID = parser.fileName;
 	}
-
 	@Override
 	public void run() {
 		LocalState.getInstance().deleteFileChunks(fileID);

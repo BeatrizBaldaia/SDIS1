@@ -117,13 +117,15 @@ public class LocalState {
 		//System.err.println("deleteFileChunks");
 		BackupFile file = null; 
 		if((file = backupFiles.get(fileID)) != null) {
+			//System.err.println("If");
 			int recoveredSpace = file.deleteChunks();
 			if(recoveredSpace > 0) {
+				//System.err.println("recover");
 				this.usedStorage -= recoveredSpace;
 				//File directory = new File(".");
 				Path dir = Peer.getP();
 				File directory = dir.toFile();
-				String pattern = Peer.getP().toString()+File.pathSeparator+fileID + "*";//TODO: windons
+				String pattern = Peer.getP().toString()+File.separator+fileID + "*";
 				PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
 				File[] files = directory.listFiles();
 				for(int i = 0; i<files.length; i++) {
@@ -132,7 +134,7 @@ public class LocalState {
 					Path name = Peer.getP().resolve(filename);
 					//System.err.println("PATHS: "+name.toString());
 					if (name != null && matcher.matches(name)) {
-						System.err.println("  Pertence");
+						//System.err.println("  Pertence");
 						try {
 							Files.delete(name);
 						} catch (IOException e) {
