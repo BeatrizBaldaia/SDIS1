@@ -1,13 +1,6 @@
 package subprotocols;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-
 import initiator.Peer;
 import message.ChannelMC;
 import message.Parser;

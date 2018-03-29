@@ -13,17 +13,14 @@ import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import javax.xml.bind.DatatypeConverter;
 
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 
@@ -31,7 +28,6 @@ import message.ChannelMC;
 import message.ChannelMDB;
 import message.ChannelMDR;
 import message.Parser;
-import sateInfo.BackupFile;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
 import server.InterfaceApp;

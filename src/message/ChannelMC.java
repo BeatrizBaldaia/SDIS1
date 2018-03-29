@@ -5,13 +5,9 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
-import java.util.Map.Entry;
-
 import initiator.Peer;
-import sateInfo.BackupFile;
 import sateInfo.LocalState;
 import subprotocols.Chunk;
-import subprotocols.ChunkBackup;
 import subprotocols.Deletion;
 
 public class ChannelMC {
