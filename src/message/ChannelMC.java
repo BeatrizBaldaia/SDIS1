@@ -114,9 +114,13 @@ public class ChannelMC {
 //							    System.out.println(entry.getKey());
 //							}
 						} else if(parser.messageType.equals("GETCHUNK")) {
-							Chunk subprotocol = new Chunk(parser);
-							LocalState.getInstance().returnToFalse(parser.fileID, parser.chunkNo);//TODO: I dont have the file
-							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+							if(LocalState.getInstance().getBackupFiles().get(parser.fileID) != null) {
+								if(LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo) != null) {
+								Chunk subprotocol = new Chunk(parser);
+								LocalState.getInstance().returnToFalse(parser.fileID, parser.chunkNo);
+								SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+								}
+							}
 						} else if(parser.messageType.equals("DELETED")) {
 							if(LocalState.getInstance().getBackupFiles().get(parser.fileID) != null) {
 								LocalState.getInstance().decreaseReplicationDegree(parser.fileID, parser.senderID);
