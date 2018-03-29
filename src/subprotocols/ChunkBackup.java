@@ -53,6 +53,7 @@ public class ChunkBackup implements Runnable {
 	}
 
 	public void store() throws IOException, InterruptedException {
+		Utils.randonSleep(Utils.TIME_MAX_TO_SLEEP);
 		Chunk chunk = new Chunk(chunkNo, replicationDeg, (long) body.length, Peer.id);
 		LocalState.getInstance().saveChunk(fileID, null, senderID, replicationDeg, chunk);
 
@@ -63,8 +64,7 @@ public class ChunkBackup implements Runnable {
 			Files.write(filePath,body);
 		}
 		
-		Random r = new Random();
-		Thread.sleep(r.nextInt(400));
+		
 		sendConfirmation();//enviar sempre a mensagem store mesmo quando ja tinhamos este chunk guardado
 	}
 

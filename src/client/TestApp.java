@@ -16,7 +16,7 @@ public class TestApp {
 			return;
 		}
 		String peerAccessPoint = args[0];
-		System.out.println("Peer Access Point: " + peerAccessPoint);
+		System.out.println("Peer Access Point: " + peerAccessPoint);//TODO: AccessPoint
 		String subprotocol = args[1];
 		Registry registry;
 		InterfaceApp protocol;

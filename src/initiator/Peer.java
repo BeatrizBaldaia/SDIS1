@@ -273,8 +273,8 @@ public class Peer implements InterfaceApp {
 				return;
 			}
 			//System.err.println("bodyOfTheChunk.length: "+bodyOfTheChunk.length);
-			for(int i = 1; i <= 5; i++) {
-				Thread.sleep(1000*i);
+			for(int i = 0; i < 5; i++) {
+				Thread.sleep(1000*((int)Math.pow(2,i)));
 				if(LocalState.getInstance().getBackupFiles().get(fileID).desireReplicationDeg(chunk.getID())) return;
 				if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk) == -1) {
 					System.err.println("Error: Could not send PUTCHUNK message.");
