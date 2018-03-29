@@ -13,9 +13,9 @@ import java.security.NoSuchAlgorithmException;
  *
  */
 public interface InterfaceApp extends Remote {
-	public void backupFile(String filename, Integer replicationDegree) throws RemoteException, NoSuchAlgorithmException, IOException, InterruptedException;
+	public void backupFile(String filename, Integer replicationDegree, Boolean isEnhancement) throws RemoteException, NoSuchAlgorithmException, IOException, InterruptedException;
 	
-	public void deleteFile(String filename) throws NoSuchAlgorithmException, IOException;
+	public void deleteFile(String filename, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException;
 
-	public void getFile(String filename) throws RemoteException, NoSuchAlgorithmException, IOException;
+	public void getFile(String filename, Boolean isEnhancement) throws RemoteException, NoSuchAlgorithmException, IOException;
 }
