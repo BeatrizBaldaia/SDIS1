@@ -9,6 +9,7 @@ import java.nio.file.PathMatcher;
 
 import initiator.Peer;
 import message.Parser;
+import sateInfo.LocalState;
 
 public class Deletion implements Runnable {
 	public String fileID = null;
@@ -19,22 +20,7 @@ public class Deletion implements Runnable {
 
 	@Override
 	public void run() {
-		File directory = new File(".");
-		String pattern = fileID + "*";
-		PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
-		File[] files = directory.listFiles();
-		for(int i = 0; i<files.length; i++) {
-			String filename = files[i].getName();
-			Path name = Peer.getP().resolve(filename);
-			if (name != null && matcher.matches(name)) {
-				try {
-					Files.delete(name);
-				} catch (IOException e) {
-					System.err.println("Error: Could not delete file: "+name);
-					e.printStackTrace();
-				}
-			}
-		}
+		LocalState.getInstance().deleteFileChunks(fileID);
 		//TODO: Enhancement delete
 	}
 

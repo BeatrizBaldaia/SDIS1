@@ -18,4 +18,6 @@ public interface InterfaceApp extends Remote {
 	public void deleteFile(String filename) throws NoSuchAlgorithmException, IOException;
 
 	public void getFile(String filename) throws RemoteException, NoSuchAlgorithmException, IOException;
+	
+	public String getState();
 }

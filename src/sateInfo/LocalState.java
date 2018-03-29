@@ -106,6 +106,11 @@ public class LocalState {
 		return getBackupFiles().get(fileID).updateReplicationInfo(chunkID, senderID);
 	}
 	
+	/**
+	 * Delete all information about one file of fileID; free space
+	 * @param fileID
+	 * @return
+	 */
 	public boolean deleteFileChunks(String fileID) {
 		//System.err.println("deleteFileChunks");
 		BackupFile file = null; 
@@ -157,8 +162,14 @@ public class LocalState {
 		return backupFiles;
 	}
 	
-	public void decreaseReplicationDegree(String fileID, int chunkID) {
-		backupFiles.get(fileID).decreaseReplicationDegree(chunkID);
+	/**
+	 * Decreases the replication degree of a chunk and frees storage
+	 * @param fileID
+	 * @param chunkID who is going to have his replication degree decreased
+	 * @param peerID
+	 */
+	public void decreaseReplicationDegree(String fileID, int chunkID, int peerID) {
+		backupFiles.get(fileID).decreaseReplicationDegree(chunkID, peerID);
 	}
 	public void increaseReplicationDegree(String fileID, int chunkID) {
 		backupFiles.get(fileID).increaseReplicationDegree(chunkID);
@@ -166,6 +177,82 @@ public class LocalState {
 
 	public void returnToFalse(String fileName, int chunkNo) {
 		getBackupFiles().get(fileName).returnToFalse(chunkNo);		
+	}
+	
+	/**
+	 * Retrieve local service state information
+	 * @return
+	 */
+	public String getStateFileInfo() {
+		String info = "";
+		for (String key : backupFiles.keySet()) {
+			String fileInfo = "";
+			if(backupFiles.get(key).isBackupInitiator()) {
+				fileInfo = backupInitiatorInfo(backupFiles.get(key));
+			} else {
+				fileInfo = backupInitiatorInfo(backupFiles.get(key));
+			}
+			info += fileInfo + "\n";
+		}
+		
+		info += storageCapacityInfo();
+		
+		return info;
+	}
+	
+	/**
+	 * For each file whose backup it has initiated:
+	 * 	The file pathname
+	 * 	The backup service id of the file
+	 * 	The desired replication degree
+	 * 	For each chunk of the file:
+	 * 		- Its id
+	 * 		- Its perceived replication degree
+	 * @param file
+	 * @return
+	 */
+	public String backupInitiatorInfo(BackupFile file) {
+		String info = "I have initiated the backup of file:\n\t->Path Name: " + file.getPathName() + ";\n";
+		info += "\t->Service ID: " + file.getServiceID() + "\n";
+		info += "\t->Desired Replication Degree: " + file.getReplicationDegree() + "\n";
+		info += "\t->Chunks:\n";
+		for (Integer key : file.getChunks().keySet()) {
+			Chunk chunk = file.getChunks().get(key);
+			info += "\t   ID = " + chunk.getID() + " ; Perceived Replication Degree = " + chunk.getReplicationDegree() + "\n";
+		}
+	
+		return info;
+	}
+	
+	/**
+	 * For each chunk it stores:
+	 * 	- Its id
+	 * 	- Its size (in KBytes)
+	 * 	- Its perceived replication degree
+	 * @param file 
+	 * @return
+	 */
+	public String storedBackupChunksInfo(BackupFile file) {
+		String info = "I'm storing the following chunks:\n";
+		for (Integer key : file.getChunks().keySet()) {
+			Chunk chunk = file.getChunks().get(key);
+			info += "\tID = " + chunk.getID() + " ; Size = " + chunk.getSize() + " ; Perceived Replication Degree = " + chunk.getReplicationDegree() + "\n";
+		}
+		
+		return info;
+	}
+	
+	/**
+	 * The peer's storage capacity, i.e. the maximum amount of disk space that can be used to store chunks,
+	 *  and the amount of storage (both in KBytes) used to backup the chunks.
+	 * @return
+	 */
+	public String storageCapacityInfo() {
+		String info = "Storage Capacity:\n";
+		info += "\t->Maximum Amount of disk Space: " + this.storageCapacity + "\n";
+		info += "\t->Amount of Storage Used: " + this.usedStorage + "\n";
+		
+		return info;
 	}
 
 }

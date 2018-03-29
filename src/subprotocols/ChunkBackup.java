@@ -53,8 +53,8 @@ public class ChunkBackup implements Runnable {
 	}
 
 	public void store() throws IOException, InterruptedException {
-		Chunk chunk = new Chunk(chunkNo, replicationDeg, body.length);
-		LocalState.getInstance().saveChunk(fileID, fileName + "_" + chunkNo, senderID, replicationDeg, chunk);
+		Chunk chunk = new Chunk(chunkNo, replicationDeg, body.length, Peer.id);
+		LocalState.getInstance().saveChunk(fileID, null, senderID, replicationDeg, chunk);
 
 		Path filePath = Peer.getP().resolve(fileName + "_" + chunkNo);
 		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe

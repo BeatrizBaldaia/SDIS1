@@ -9,7 +9,6 @@ public class BackupFile {
 	private String pathName = null;
 	private int serviceID = 0;
 	private int replicationDeg = 0;
-	private int currReplicationDeg = 0; //TODO: what?
 	private Map<Integer,Chunk> chunks = new ConcurrentHashMap<Integer, Chunk>();
 	
 	public BackupFile(String pathName, int serviceID, int replicationDeg) {
@@ -47,8 +46,7 @@ public class BackupFile {
 	 * @param chunk
 	 */
 	public BackupFile addChunk(Chunk chunk) {
-		if(getChunks().computeIfAbsent(chunk.getID(), k -> chunk.increaseReplicationDeg()) != null) {
-			this.currReplicationDeg++;
+		if(getChunks().computeIfAbsent(chunk.getID(), k -> chunk) != null) {
 			LocalState.getInstance().setUsedStorage(chunk.getSize());
 			return this;
 		}
@@ -64,6 +62,12 @@ public class BackupFile {
 		return chunks.get(chunkID).desireReplicationDeg();
 	}
 
+	/**
+	 * increases the replication degree if there is a new peer storing the chunk
+	 * @param chunkID
+	 * @param senderID
+	 * @return
+	 */
 	public boolean updateReplicationInfo(int chunkID, int senderID) {
 		return getChunks().get(chunkID).isNewPeerStoring(senderID);
 	}
@@ -99,18 +103,21 @@ public class BackupFile {
 	 * @param chunkID
 	 */
 	public void increaseReplicationDegree(int chunkID) {
-		this.currReplicationDeg++;
 		chunks.get(chunkID).increaseReplicationDeg();
 	}
 	/**
 	 * decreases by one the current replication degree
 	 * @param chunkID
 	 */
-	public void decreaseReplicationDegree(int chunkID) {
-		this.currReplicationDeg--;
-		chunks.get(chunkID).decreaseReplicationDeg();
+	public void decreaseReplicationDegree(int chunkID, int peerID) {
+		LocalState.getInstance().setUsedStorage(-(chunks.get(chunkID).getSize()));//Frees storage
+		chunks.get(chunkID).decreaseReplicationDeg(peerID);
 	}
 	
+	/**
+	 * Free storage
+	 * @return
+	 */
 	public int deleteChunks() {
 		int totalSpace = 0;
 
@@ -120,6 +127,10 @@ public class BackupFile {
 		}
 		
 		return totalSpace;
+	}
+	
+	public boolean isBackupInitiator() {
+		return pathName != null;
 	}
 
 }

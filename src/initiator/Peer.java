@@ -9,6 +9,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Map;
+
 import javax.xml.bind.DatatypeConverter;
 
 import java.nio.charset.StandardCharsets;
@@ -21,6 +23,7 @@ import message.ChannelMC;
 import message.ChannelMDB;
 import message.ChannelMDR;
 import message.Parser;
+import sateInfo.BackupFile;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
 import server.InterfaceApp;
@@ -197,9 +200,9 @@ public void backupFile(String filename, Integer replicationDegree) throws NoSuch
 public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename) throws InterruptedException, UnsupportedEncodingException {
 		System.err.println("Going to backUp cunkN= "+chunkNo);
 
-		Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length);
+		Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length, Peer.id);
 		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
-		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID());
+		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id);
 		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk) == -1) {
 			System.err.println("Error: Could not send PUTCHUNK message.");
 			return;
@@ -253,6 +256,11 @@ public void deleteFile(String filename) throws NoSuchAlgorithmException, IOExcep
 		
 		//TODO: guardar em file
 		//TODO: Enhancement getFile
+	}
+	
+	@Override
+	public String getState() {
+		return LocalState.getInstance().getStateFileInfo();
 	}
 
 	private static void sendGetChunk(String fileID, Integer chunkNo) throws UnsupportedEncodingException {
