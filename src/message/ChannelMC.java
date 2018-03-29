@@ -28,6 +28,11 @@ public class ChannelMC {
 		}
 		return instance;
 	}
+	/**
+	 * @param addressStr
+	 * @param portStr
+	 * @param myID
+	 */
 	public void createMulticastSocket(String addressStr, String portStr, int myID) {
 		this.myID = myID;
 		try {

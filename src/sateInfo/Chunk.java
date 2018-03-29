@@ -105,6 +105,6 @@ public class Chunk {
 	}
 
 	public boolean isReplicationDegreeZero() {
-		return currReplicationDeg == 0;
+		return currReplicationDeg <= 0;
 	}
 }

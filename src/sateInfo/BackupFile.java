@@ -63,7 +63,7 @@ public class BackupFile {
 	public boolean desireReplicationDeg(int chunkID) {
 		return chunks.get(chunkID).desireReplicationDeg();
 	}
-
+	
 	/**
 	 * increases the replication degree if there is a new peer storing the chunk
 	 * @param chunkID

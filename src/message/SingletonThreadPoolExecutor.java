@@ -8,6 +8,7 @@ public class SingletonThreadPoolExecutor {
 	private static SingletonThreadPoolExecutor instance = null;
 	private ThreadPoolExecutor thread;
 	
+	
 	protected SingletonThreadPoolExecutor() {
 		/* ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) */
 		BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(10);
@@ -21,6 +22,9 @@ public class SingletonThreadPoolExecutor {
 		return instance;
 	}
 	
+	/**
+	 * @return the thread
+	 */
 	public ThreadPoolExecutor getThreadPoolExecutor() {
 		return thread;
 	}

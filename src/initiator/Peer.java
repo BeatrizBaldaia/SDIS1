@@ -95,13 +95,6 @@ public class Peer implements InterfaceApp {
 			}
 		}
 	
-	public byte[] getFileBody(String fileName) throws IOException { //Deprecated
-		String pathStr = "..//data/" + fileName;
-		Path path = Paths.get(pathStr);
-		byte[] data = Files.readAllBytes(path);
-		return data;
-	}
-	
 	/**
 	 * 
 	 * @param version of the protocol
@@ -161,7 +154,6 @@ public class Peer implements InterfaceApp {
 		return 0;
 	}
 
-
 /**
 	 * sends the DELETE message to the MC channel
 	 * @param version
@@ -184,7 +176,9 @@ public class Peer implements InterfaceApp {
 			return 0;
 		}
 
-	
+	/* (non-Javadoc)
+	 * @see server.InterfaceApp#backupFile(java.lang.String, java.lang.Integer, java.lang.Boolean)
+	 */
 	@Override
 	public void backupFile(String filename, Integer replicationDegree, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException, InterruptedException {
 		Path filePath = Paths.get(filename);
@@ -215,6 +209,16 @@ public class Peer implements InterfaceApp {
 		//TODO: Enhancement backup
 	}
 	
+	/**
+	 * @param chunkNo
+	 * @param replicationDegree
+	 * @param bodyOfTheChunk
+	 * @param fileID
+	 * @param filename
+	 * @param isEnhancement
+	 * @throws InterruptedException
+	 * @throws UnsupportedEncodingException
+	 */
 	public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename, Boolean isEnhancement) throws InterruptedException, UnsupportedEncodingException {
 			//System.err.println("Going to backUp cunkN= "+chunkNo);
 	
@@ -239,6 +243,9 @@ public class Peer implements InterfaceApp {
 			return;
 		}
 		
+	/* (non-Javadoc)
+	 * @see server.InterfaceApp#deleteFile(java.lang.String, java.lang.Boolean)
+	 */
 	@Override
 	public void deleteFile(String filename, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException {
 		String fileID = getFileID(filename);
@@ -266,6 +273,9 @@ public class Peer implements InterfaceApp {
 	}
 
 
+	/* (non-Javadoc)
+	 * @see server.InterfaceApp#getFile(java.lang.String, java.lang.Boolean)
+	 */
 	@Override
 	public void getFile(String filename, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException {
 		
@@ -279,11 +289,20 @@ public class Peer implements InterfaceApp {
 		//TODO: Enhancement getFile
 	}
 	
+	/* (non-Javadoc)
+	 * @see server.InterfaceApp#getState()
+	 */
 	@Override
 	public String getState() {
 		return LocalState.getInstance().getStateFileInfo();
 	}
 
+	/**
+	 * @param fileID
+	 * @param chunkNo
+	 * @param isEnhancement
+	 * @throws UnsupportedEncodingException
+	 */
 	private static void sendGetChunk(String fileID, Integer chunkNo, Boolean isEnhancement) throws UnsupportedEncodingException {
 		String msg = null;
 		msg = createGetChunkMessage(fileID, chunkNo,isEnhancement) ;
@@ -291,6 +310,12 @@ public class Peer implements InterfaceApp {
 		System.out.println("SENT --> "+msg);//GETCHUNk
 	}
 	
+	/**
+	 * @param fileID
+	 * @param chunkNo
+	 * @param isEnhancement
+	 * @return
+	 */
 	private static String createGetChunkMessage(String fileID, Integer chunkNo, Boolean isEnhancement) {
 		double version = Peer.protocolVersion;
 		if(isEnhancement) { version=1.1; }
@@ -312,6 +337,10 @@ public class Peer implements InterfaceApp {
 		Peer.p = p;
 	}
 
+	/**
+	 * @param parser
+	 * @throws IOException
+	 */
 	public static void restoreChunk(Parser parser) throws IOException {
 	//	System.err.println("Restore");
 		Boolean isEnhancement = false;
