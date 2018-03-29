@@ -12,6 +12,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import initiator.Peer;
 
+/**
+ * @author anabela
+ *
+ */
 public class LocalState {
 	private static LocalState instance = null;
 	
@@ -87,7 +91,7 @@ public class LocalState {
 	 * @param chunk
 	 * @return
 	 */
-	public BackupFile createNewBackupFile(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
+	private BackupFile createNewBackupFile(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
 		BackupFile file = new BackupFile(pathName, serviceID, replicationDeg);
 		file.addChunk(chunk);
 		return file;
@@ -151,13 +155,28 @@ public class LocalState {
 		return false;
 	}
 	
+	/**
+	 * Sees if a CHUNK message was already sent
+	 * @param fileID
+	 * @param chunkID
+	 * @return true if some peer has already sent a CHUNK message
+	 */
 	public boolean seeIfAlreadySent(String fileID, int chunkID) {
 		return getBackupFiles().get(fileID).seeIfAlreadySent(chunkID);
 	}
-
+	
+	/**
+	 * Marks the chunk as having already been sent in a CHUNK message
+	 * @param fileID
+	 * @param chunkNo
+	 */
 	public void notifyThatItWasSent(String fileID, int chunkNo) {
 		getBackupFiles().get(fileID).notifyThatItWasSent(chunkNo);		
 	}
+	/**
+	 * Marks the file as having already been deleted, in this peer
+	 * @param fileID
+	 */
 	public void notifyItWasDeleted(String fileID) {
 		getBackupFiles().get(fileID).notifyItWasDeleted();		
 	}
@@ -177,16 +196,31 @@ public class LocalState {
 	public void decreaseReplicationDegree(String fileID, int chunkID, int peerID) {
 		backupFiles.get(fileID).decreaseReplicationDegree(chunkID, peerID);
 	}
+	/**
+	 * Decreases the replication degree of the whole file
+	 * @param fileID
+	 * @param peerID
+	 */
 	public void decreaseReplicationDegree(String fileName, int peerID) {
 		backupFiles.get(fileName).decreaseReplicationDegree(peerID);
-		
 	}
+	
+	/**
+	 * Increases the replication degree of a chunk and  storage
+	 * @param fileID
+	 * @param chunkID who is going to have his replication degree increased
+	 */
 	public void increaseReplicationDegree(String fileID, int chunkID) {
 		backupFiles.get(fileID).increaseReplicationDegree(chunkID);
 	}
 
+	/**
+	 * Returns Boolean sentWithGetChunk to false, so that a new GETCHUNK may be sent
+	 * @param fileName
+	 * @param chunkNo
+	 */
 	public void returnToFalse(String fileName, int chunkNo) {
-		getBackupFiles().get(fileName).returnToFalse(chunkNo);		
+		getBackupFiles().get(fileName).returnToFalse(chunkNo);
 	}
 	
 	/**
@@ -265,10 +299,13 @@ public class LocalState {
 		return info;
 	}
 
+	/**
+	 * Checks if all peers have deleted a file
+	 * @param fileName
+	 * @return true if replication degree of all chunks is zero
+	 */
 	public boolean isReplicationDegreeZero(String fileName) {
 		return this.backupFiles.get(fileName).isReplicationDegreeZero();
 	}
-
-	
 
 }
