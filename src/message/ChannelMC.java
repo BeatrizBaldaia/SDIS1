@@ -103,13 +103,14 @@ public class ChannelMC {
 							//System.out.println("Filename: "+parser.fileName);
 							//System.out.println("FileID: "+parser.fileID);
 						} else if(parser.messageType.equals("DELETE")) {
+
 							Deletion subprotocol = new Deletion(parser);
-	                		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
-							System.out.println("Apagou ficheiro " + parser.fileName);
-							System.out.println("Agora tem os seguintes ficheiros guardados:");
-							for (Entry<String, BackupFile> entry : LocalState.getInstance().getBackupFiles().entrySet()) {
-							    System.out.println(entry.getKey());
-							}
+							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+//							System.out.println("Apagou ficheiro " + parser.fileName);
+//							System.out.println("Agora tem os seguintes ficheiros guardados:");
+//							for (Entry<String, BackupFile> entry : LocalState.getInstance().getBackupFiles().entrySet()) {
+//							    System.out.println(entry.getKey());
+//							}
 						} else if(parser.messageType.equals("GETCHUNK")) {
 							Chunk subprotocol = new Chunk(parser);
 							LocalState.getInstance().returnToFalse(parser.fileName, parser.chunkNo);

@@ -1,6 +1,9 @@
-/client/
 /sateInfo/
 /subprotocols/
-/message/
 /initiator/
+<<<<<<< HEAD
+=======
+/message/
+/client/
+>>>>>>> branch 'master' of https://github.com/BeatrizBaldaia/SDIS1.git
 /server/

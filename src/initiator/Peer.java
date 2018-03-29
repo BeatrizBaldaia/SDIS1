@@ -1,8 +1,11 @@
 package initiator;
 
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.Socket;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -98,8 +101,8 @@ public class Peer implements InterfaceApp {
 	 */
 	public String createPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
 		String bodyStr = new String(body, "ISO-8859-1"); // for ISO-8859-1 encoding
-		System.err.println("bodyStr.lenght:"+bodyStr.length());
-		System.err.println("bodyStr.getBytes.size:"+bodyStr.getBytes("ISO-8859-1").length);
+//		System.err.println("bodyStr.lenght:"+bodyStr.length());
+//		System.err.println("bodyStr.getBytes.size:"+bodyStr.getBytes("ISO-8859-1").length);
 		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID+ " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
 		return msg;
 	}
@@ -146,88 +149,91 @@ public class Peer implements InterfaceApp {
 
 
 /**
- * sends the DELETE message to the MC channel
- * @param version
- * @param senderID
- * @param fileID
- * @return
- * @throws UnsupportedEncodingException 
- */
-public int sendDeleteMessage(double version, int senderID, String fileID) throws UnsupportedEncodingException {
-		
-		String msg = null;
-		try {
-			msg = createDeleteMessage(version, senderID, fileID) ;
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			return -1;
+	 * sends the DELETE message to the MC channel
+	 * @param version
+	 * @param senderID
+	 * @param fileID
+	 * @return
+	 * @throws UnsupportedEncodingException 
+	 */
+	public int sendDeleteMessage(double version, int senderID, String fileID) throws UnsupportedEncodingException {
+			
+			String msg = null;
+			try {
+				msg = createDeleteMessage(version, senderID, fileID) ;
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+				return -1;
+			}
+			
+			ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+			System.out.println("SENT --> "+msg);//DELETE
+			return 0;
 		}
-		
-		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
-		System.out.println("SENT --> "+msg);//DELETE
-		return 0;
-	}
 
-@Override
-public void backupFile(String filename, Integer replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
-	Path filePath = Paths.get(filename);
-	if(!Files.exists(filePath)) { //NOTE: O ficheiro nao existe
-		System.out.println("File does not exist: "+ filename);
-		return;
-	}
-	byte[] body;
-	try {
-		body = Files.readAllBytes(filePath);
-	} catch (IOException e) {
-		System.out.println("Couldn't read from file!");
-		e.printStackTrace();
-		return;
-	}
-	String fileID = this.getFileID(filename);
-	System.out.println("FileID: "+fileID);
-	int chunkNo = 0;
-	while(body.length>=(64000*(chunkNo+1))) { //TODO: teste Muliple of 64
-		byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, (chunkNo+1)*64000);
-
-		backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename);
-		chunkNo++;
-	}
-	byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, body.length);
-	backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename);
-	//TODO: Enhancement backup
-}
-
-public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename) throws InterruptedException, UnsupportedEncodingException {
-		System.err.println("Going to backUp cunkN= "+chunkNo);
-
-		Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length, Peer.id);
-		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
-		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id);
-		if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk) == -1) {
-			System.err.println("Error: Could not send PUTCHUNK message.");
+	
+	@Override
+	public void backupFile(String filename, Integer replicationDegree, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException, InterruptedException {
+		Path filePath = Paths.get(filename);
+		if(!Files.exists(filePath)) { //NOTE: O ficheiro nao existe
+			System.out.println("Error: File "+filename+" does not exist: ");
 			return;
 		}
-		System.err.println("bodyOfTheChunk.length: "+bodyOfTheChunk.length);
-		for(int i = 1; i <= 5; i++) {
-			Thread.sleep(1000*i);
-			if(LocalState.getInstance().getBackupFiles().get(fileID).desireReplicationDeg(chunk.getID())) return;
-			if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk) == -1) {
+		byte[] body;
+		try {
+			body = Files.readAllBytes(filePath);
+		} catch (IOException e) {
+			System.out.println("Error: Could not read from file!");
+			e.printStackTrace();
+			return;
+		}
+		String fileID = this.getFileID(filename);
+		//System.out.println("FileID: "+fileID);
+		int chunkNo = 0;
+		while(body.length>=(64000*(chunkNo+1))) { //TODO: teste Muliple of 64
+			byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, (chunkNo+1)*64000);
+	
+			backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename, isEnhancement);
+			chunkNo++;
+		}
+		byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, body.length);
+		backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename,isEnhancement);
+		//TODO: Enhancement backup
+	}
+	
+	public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename, Boolean isEnhancement) throws InterruptedException, UnsupportedEncodingException {
+			//System.err.println("Going to backUp cunkN= "+chunkNo);
+	
+			Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length, Peer.id);
+			LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
+			LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id);
+			double version = Peer.protocolVersion; //TODO: isEnhancement
+			if(this.sendPutChunkMessage(version, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk) == -1) {
 				System.err.println("Error: Could not send PUTCHUNK message.");
 				return;
 			}
+			//System.err.println("bodyOfTheChunk.length: "+bodyOfTheChunk.length);
+			for(int i = 1; i <= 5; i++) {
+				Thread.sleep(1000*i);
+				if(LocalState.getInstance().getBackupFiles().get(fileID).desireReplicationDeg(chunk.getID())) return;
+				if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk) == -1) {
+					System.err.println("Error: Could not send PUTCHUNK message.");
+					return;
+				}
+			}
+			
+			return;
 		}
 		
-		return;
-	}
-	
-@Override
-public void deleteFile(String filename) throws NoSuchAlgorithmException, IOException {
-	String fileID = getFileID(filename);
-	if(sendDeleteMessage(Peer.protocolVersion, Peer.id, fileID) == -1) {
-		System.err.println("Error: Could not send DELETE message.");
-		return;
-	}
-}	
+	@Override
+	public void deleteFile(String filename, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException {
+		String fileID = getFileID(filename);
+		double version = Peer.protocolVersion; //TODO isEnhancement
+		if(sendDeleteMessage(version, Peer.id, fileID) == -1) {
+			System.err.println("Error: Could not send DELETE message.");
+			return;
+		}
+	}	
 	/**
 	 * Generate a file ID
 	 * @param filename - the filename
@@ -245,16 +251,15 @@ public void deleteFile(String filename) throws NoSuchAlgorithmException, IOExcep
 
 
 	@Override
-	public void getFile(String filename) throws NoSuchAlgorithmException, IOException {
+	public void getFile(String filename, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException {
 		
 		String fileID = getFileID(filename);
-		Integer chunkNo = 0; //TODO: implement chunks
-		sendGetChunk(fileID, chunkNo);
+		Integer chunkNo = 0;
+		sendGetChunk(fileID, chunkNo,isEnhancement);
 		Path filepath = Peer.getP().resolve("restoreFile");
 		Files.deleteIfExists(filepath);
 		Files.createFile(filepath);
 		
-		//TODO: guardar em file
 		//TODO: Enhancement getFile
 	}
 	
@@ -263,15 +268,17 @@ public void deleteFile(String filename) throws NoSuchAlgorithmException, IOExcep
 		return LocalState.getInstance().getStateFileInfo();
 	}
 
-	private static void sendGetChunk(String fileID, Integer chunkNo) throws UnsupportedEncodingException {
+	private static void sendGetChunk(String fileID, Integer chunkNo, Boolean isEnhancement) throws UnsupportedEncodingException {
 		String msg = null;
-		msg = createGetChunkMessage(fileID, chunkNo) ;
+		msg = createGetChunkMessage(fileID, chunkNo,isEnhancement) ;
 		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
 		System.out.println("SENT --> "+msg);//GETCHUNk
 	}
 	
-	private static String createGetChunkMessage(String fileID, Integer chunkNo) {
-		String msg = "GETCHUNK "+ Peer.protocolVersion + " " + Peer.id + " " + fileID+ " " + chunkNo + " \r\n\r\n";
+	private static String createGetChunkMessage(String fileID, Integer chunkNo, Boolean isEnhancement) {
+		double version = Peer.protocolVersion;
+		if(isEnhancement) { version=1.1; }
+		String msg = "GETCHUNK "+ version + " " + Peer.id + " " + fileID+ " " + chunkNo + " \r\n\r\n";
 		return msg;
 	}
 
@@ -290,14 +297,39 @@ public void deleteFile(String filename) throws NoSuchAlgorithmException, IOExcep
 	}
 
 	public static void restoreChunk(Parser parser) throws IOException {
-		System.err.println("Restore");
+	//	System.err.println("Restore");
+		Boolean isEnhancement = false;
+		if(parser.version != 1) { //Enhancements
+			isEnhancement = true;
+			String data = new String(parser.body, "ISO-8859-1");
+			String[] elem = data.split(":");
+			//System.err.println("Data :"+data);
+//			System.err.println(elem[0]);
+//			System.err.println(elem[1]);
+			parser.body = new byte[64000];
+			Socket socket = new Socket(elem[0], Integer.valueOf(elem[1]));//TODO: Socket Port
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			int length = 0;
+			try {
+				while(true) {
+					byte b = input.readByte();
+					parser.body[length]= b;
+					length++;
+				}
+			} catch (EOFException e) {
+				//System.err.println("ASSIM .." );
+			}
+			socket.close();
+			//System.out.println("LEU: "+length);
+			parser.body = Arrays.copyOfRange(parser.body, 0, length);
+		}
 		Path filepath = Peer.getP().resolve("restoreFile");
 		FileOutputStream g = new FileOutputStream(filepath.toFile(),true);  //true --> append
 		g.write(parser.body);
 		g.close();
 		//TODO: if two send the chunk?
-		System.err.println("Chunk length: "+parser.body.length);
+//		System.err.println("Chunk length: "+parser.body.length);
 		if(parser.body.length>=64000)
-			sendGetChunk(parser.fileName, parser.chunkNo+1);
+			sendGetChunk(parser.fileName, parser.chunkNo+1, isEnhancement);
 	}
 }
