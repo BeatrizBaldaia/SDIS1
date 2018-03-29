@@ -9,3 +9,8 @@ javac -d bin/ -cp src src/Initiator/Peer.java
 java -cp bin Initiator.Peer 1 226.0.0.1 8080 226.0.0.2 8081 teste.txt 1
 
 java -jar McastSnooper.jar 226.0.0.1:8080 226.0.0.2:8081 226.0.0.0:8082
+
+
+Version 1.0 Normal
+Version 1.1 Enhancement RESTORE
+Version 1.2 Enhencement DELETE

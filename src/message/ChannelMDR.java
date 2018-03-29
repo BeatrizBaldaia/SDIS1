@@ -19,8 +19,7 @@ private static ChannelMDR instance = null;
 	private int port;
 	private int myID;
 
-	public ChannelMDR() {
-	}
+	public ChannelMDR() { }
 
 
 	public static ChannelMDR getInstance() {
@@ -30,6 +29,11 @@ private static ChannelMDR instance = null;
 		return instance;
 	}
 	
+	/**
+	 * @param addressStr
+	 * @param portStr
+	 * @param myID
+	 */
 	public void createMulticastSocket(String addressStr, String portStr, int myID) {
 		this.myID = myID;
 		try {
@@ -102,7 +106,6 @@ private static ChannelMDR instance = null;
 
 						//System.err.println("Teste");
 						if(parser.messageType.equals("CHUNK")) {
-
 							//System.err.println("Teste");
 							//System.out.println("Recived CHUNK message");
 							LocalState.getInstance().notifyThatItWasSent(parser.fileName, parser.chunkNo);

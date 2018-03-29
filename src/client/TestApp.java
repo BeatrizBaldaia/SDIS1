@@ -11,7 +11,7 @@ import server.InterfaceApp;
 
 public class TestApp {
 	public static void main(String[] args) throws RemoteException, NoSuchAlgorithmException, IOException, InterruptedException {
-		if (args.length < 3) {
+		if (args.length < 2) {
 			System.out.println("Error: Not enougth arguments.");
 			return;
 		}
@@ -62,6 +62,8 @@ public class TestApp {
 				break;
 			}
 			case "STATE":{
+				String state = protocol.getState();
+				System.out.println(state);
 				System.err.println("Implement STATE");//TODO: state
 				break;
 			}

@@ -16,8 +16,7 @@ public class ChannelMDB {
     private int port;
     private int myID;
 
-    public ChannelMDB() {
-    }
+    public ChannelMDB() {}
 
     public static ChannelMDB getInstance() {
     	if(instance == null) {

@@ -24,8 +24,7 @@ public interface InterfaceApp extends Remote {
 	 * @throws InterruptedException
 	 */
 	public void backupFile(String filename, Integer replicationDegree, Boolean isEnhancement) throws RemoteException, NoSuchAlgorithmException, IOException, InterruptedException;
-	
-	
+		
 	/**
 	 * A file is deleted from its home file system
 	 * @param filename
@@ -33,13 +32,13 @@ public interface InterfaceApp extends Remote {
 	 * @throws NoSuchAlgorithmException
 	 * @throws IOException
 	 */
-	public void deleteFile(String filename, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException;
+	public void deleteFile(String filename, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException, RemoteException;
 
 	/**
 	 * Retrieve local service state information
 	 * @return
 	 */
-	public String getState();
+	public String getState() throws RemoteException;
 
 	/**
 	 * Recover all the chunks of a file

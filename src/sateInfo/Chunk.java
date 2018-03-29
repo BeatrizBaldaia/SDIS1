@@ -60,7 +60,7 @@ public class Chunk {
 	public Chunk decreaseReplicationDeg(int peerID) {
 		
 		if(peersStoring.contains(peerID)) {
-			peersStoring.remove(peerID);
+			peersStoring.remove((Integer) peerID);
 			this.currReplicationDeg--;
 		}
 		return this;
@@ -103,6 +103,7 @@ public class Chunk {
 	public void addNewPeer(int peerID) {
 		peersStoring.add(peerID);
 	}
+
 	
 	/**
 	 * 
@@ -114,5 +115,8 @@ public class Chunk {
 	
 	public int getexceededAmount() {
 		return this.currReplicationDeg - this.replicationDeg;
+	}
+	public boolean isReplicationDegreeZero() {
+		return currReplicationDeg <= 0;
 	}
 }
