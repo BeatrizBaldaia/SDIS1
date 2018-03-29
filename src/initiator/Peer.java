@@ -14,6 +14,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -54,21 +56,6 @@ public class Peer implements InterfaceApp {
 			id = Integer.parseInt(args[1]);
 			serviceAccessPoint = Integer.parseInt(args[2]);
 			
-			setP(Paths.get("peer_"+id));
-			if(!Files.exists(getP())) {
-				Files.createDirectory(getP());
-			} 
-//				else {
-//				Path dir = Peer.getP();
-//				File directory = dir.toFile();
-//				File[] files = directory.listFiles();
-//				for(int i = 0; i < files.length; i++) {
-//					String filename = files[i].getName();
-//					String[] elem = filename.split("_");
-//					LocalState.getInstance().saveChunk(elem[0], null, id, 0, chunk);
-//				}
-//			}
-			
 			mc = ChannelMC.getInstance();
 			mc.createMulticastSocket(args[3], args[4], id);
 			mdb = ChannelMDB.getInstance();
@@ -76,9 +63,16 @@ public class Peer implements InterfaceApp {
 			mdr = ChannelMDR.getInstance();
 			mdr.createMulticastSocket(args[7], args[8], id);
 			
+			setP(Paths.get("peer_"+id));
+			if(!Files.exists(getP())) {
+				Files.createDirectory(getP());
+			} 
+			
 			mc.listen();
 			mdb.listen();
 			mdr.listen();
+			
+			checkWhichChunksAreInMe();
 			
 			try {
 				Peer obj = new Peer();
@@ -95,6 +89,54 @@ public class Peer implements InterfaceApp {
 			}
 		}
 	
+	private static void checkWhichChunksAreInMe() throws UnsupportedEncodingException {
+		Path dir = Peer.getP();
+		File directory = dir.toFile();
+		File[] files = directory.listFiles();
+		Set<String> fileIDs = new TreeSet<String>();
+		for(int i = 0; i<files.length; i++) {
+			String filename = files[i].getName();
+			Path path = Peer.getP().resolve(filename);
+			String[] elem = filename.split("_");
+			if (elem.length == 1) {
+				try {
+					Files.delete(path);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				String fileID = elem[0];
+				Integer chunkNo = Integer.valueOf(elem[1]);
+				Long size;
+				try {
+					size = (Long) Files.getAttribute(path, "size");
+				} catch (IOException e) {
+					e.printStackTrace();
+					return;
+				}
+				Chunk chunk = new Chunk(chunkNo, 1, size, Peer.id);
+				LocalState.getInstance().saveChunk(fileID, null, Peer.id, 1, chunk);
+				fileIDs.add(fileID);
+			}
+			
+		}
+		String[] filesNames = fileIDs.toArray(new String[0]);
+		for(int i = 0; i<filesNames.length; i++) {
+			sendCheckDeleteMessage(filesNames[i]);
+		}
+	}
+
+	private static void sendCheckDeleteMessage(String fileID) throws UnsupportedEncodingException {
+		String msg = createCheckDeleteMessage(fileID);
+		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+		System.out.println(msg);
+	}
+
+	private static String createCheckDeleteMessage(String fileID) {
+		String msg = "CHECKDELETE "+ Peer.protocolVersion + " " + Peer.id + " " + fileID +" \r\n\r\n";
+		return msg;
+	}
+
 	/**
 	 * 
 	 * @param version of the protocol
@@ -122,7 +164,7 @@ public class Peer implements InterfaceApp {
 	 * @return the PUTCHUNK message to be sent
 	 * @throws UnsupportedEncodingException 
 	 */
-	public String createDeleteMessage(double version, int senderID, String fileID) throws UnsupportedEncodingException {
+	public static String createDeleteMessage(double version, int senderID, String fileID) throws UnsupportedEncodingException {
 		String msg = "DELETE "+ version + " " + senderID + " " + fileID + " \r\n\r\n";
 		return msg;
 	}
@@ -162,7 +204,7 @@ public class Peer implements InterfaceApp {
 	 * @return
 	 * @throws UnsupportedEncodingException 
 	 */
-	public int sendDeleteMessage(double version, int senderID, String fileID) throws UnsupportedEncodingException {
+	public static int sendDeleteMessage(double version, int senderID, String fileID) throws UnsupportedEncodingException {
 			String msg = null;
 			try {
 				msg = createDeleteMessage(version, senderID, fileID) ;
@@ -222,7 +264,7 @@ public class Peer implements InterfaceApp {
 	public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename, Boolean isEnhancement) throws InterruptedException, UnsupportedEncodingException {
 			//System.err.println("Going to backUp cunkN= "+chunkNo);
 	
-			Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length, Peer.id);
+			Chunk chunk = new Chunk(chunkNo, replicationDegree, (long) bodyOfTheChunk.length, Peer.id);
 			LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
 			LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id);
 			double version = Peer.protocolVersion; //TODO: isEnhancement
@@ -281,6 +323,8 @@ public class Peer implements InterfaceApp {
 		
 		String fileID = getFileID(filename);
 		Integer chunkNo = 0;
+		Chunk chunk = new Chunk(chunkNo, 0, (long) 0, Peer.id);
+		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, 0, chunk);
 		sendGetChunk(fileID, chunkNo,isEnhancement);
 		Path filepath = Peer.getP().resolve("restoreFile");
 		Files.deleteIfExists(filepath);
@@ -378,6 +422,8 @@ public class Peer implements InterfaceApp {
 			//System.out.println("LEU: "+length);
 			parser.body = Arrays.copyOfRange(parser.body, 0, length);
 		}
+		Chunk chunk = new Chunk(parser.chunkNo+1, 0, (long) 0, Peer.id);
+		LocalState.getInstance().saveChunk(parser.fileName, null, Peer.id, 0, chunk);
 		Path filepath = Peer.getP().resolve("restoreFile");
 		FileOutputStream g = new FileOutputStream(filepath.toFile(),true);  //true --> append
 		g.write(parser.body);

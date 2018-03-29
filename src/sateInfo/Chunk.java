@@ -6,16 +6,16 @@ public class Chunk {
 	private int id = 0;
 	private int replicationDeg = 0;
 	private int currReplicationDeg = 0;
-	private int size = 0;
+	private Long size = (long) 0;
 	
 	private boolean sentWithGetChunk =false;
 	
 	private ArrayList<Integer> peersStoring = new ArrayList<Integer>();
 	
-	public Chunk(int id, int replicationDeg, int size, int peerID) {
+	public Chunk(int id, int replicationDeg, Long size2, int peerID) {
 		this.id = id;
 		this.replicationDeg = replicationDeg;
-		this.size = size;
+		this.size = size2;
 		peersStoring.add(peerID);
 		this.currReplicationDeg++;
 	}
@@ -40,7 +40,7 @@ public class Chunk {
 	 * 
 	 * @return the size (in KBytes)
 	 */
-	public int getSize() {
+	public long getSize() {
 		return this.size;
 	}
 	

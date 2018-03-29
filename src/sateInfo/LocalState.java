@@ -63,10 +63,10 @@ public class LocalState {
 	
 	/**
 	 * Updates the used storage info after saving one more chunk
-	 * @param size of the chunk saved
+	 * @param l of the chunk saved
 	 */
-	public void setUsedStorage(int size) {
-		usedStorage += size;
+	public void setUsedStorage(long l) {
+		usedStorage += l;
 	}
 	
 	/**
@@ -173,7 +173,7 @@ public class LocalState {
 	 * @param chunkNo
 	 */
 	public void notifyThatItWasSent(String fileID, int chunkNo) {
-		getBackupFiles().get(fileID).notifyThatItWasSent(chunkNo);		
+		getBackupFiles().get(fileID).notifyThatItWasSent(chunkNo);
 	}
 	/**
 	 * Marks the file as having already been deleted, in this peer
@@ -325,7 +325,7 @@ public class LocalState {
 			Pair<Pair<String, Integer>, Integer> pair = arr.get(i);
 			String file_id = pair.getL().getL();
 			Integer chunk_id = pair.getL().getR();
-			int freedStorage = backupFiles.get(file_id).getChunks().get(chunk_id).getSize();
+			long freedStorage = backupFiles.get(file_id).getChunks().get(chunk_id).getSize();
 			this.usedStorage -= freedStorage;
 			//enviar a mensagem REMOVED 
 		}

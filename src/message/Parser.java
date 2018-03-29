@@ -158,7 +158,7 @@ public class Parser {
 		getSenderID();
 		error += getFileID();
 
-		if((!messageType.equals("DELETE")) && (!messageType.equals("DELETED"))) {
+		if((!messageType.equals("DELETE")) && (!messageType.equals("DELETED"))&& (!messageType.equals("CHECKDELETE"))) {
 			error += getChunkNo();
 		}
 

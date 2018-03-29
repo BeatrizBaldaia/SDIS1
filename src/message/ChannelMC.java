@@ -6,6 +6,8 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.util.Map.Entry;
+
+import initiator.Peer;
 import sateInfo.BackupFile;
 import sateInfo.LocalState;
 import subprotocols.Chunk;
@@ -129,8 +131,17 @@ public class ChannelMC {
 								//System.err.println("decreaseReplicationDegree");
 							}
 							//System.err.println("TO DO");
+						} else if(parser.messageType.equals("CHECKDELETE")) {
+							if(LocalState.getInstance().getBackupFiles().get(parser.fileName) != null) {
+								if(LocalState.getInstance().getBackupFiles().get(parser.fileName).getWasDeleted()) {
+									if(Peer.sendDeleteMessage(1.2, Peer.id, parser.fileName) == -1) {
+										System.err.println("Error: Could not send DELETE message.");
+										return;
+									}
+								}
+							}
 						} else {
-							//System.err.println("Error: Does not recognize type of message.");
+							System.err.println("Error: Does not recognize type of message.");
 						}
 					}
 				} catch (IOException e) {

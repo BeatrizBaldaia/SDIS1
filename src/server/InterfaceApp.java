@@ -55,6 +55,6 @@ public interface InterfaceApp extends Remote {
 	 * @param space available for backup
 	 * @return
 	 */
-	public boolean reclaimStorage(int space);
+	public boolean reclaimStorage(int space) throws RemoteException;
 
 }

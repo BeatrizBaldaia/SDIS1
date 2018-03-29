@@ -14,6 +14,13 @@ public class BackupFile {
 	private Map<Integer,Chunk> chunks = new ConcurrentHashMap<Integer, Chunk>();
 	private Boolean wasDeleted = false;
 	
+	/**
+	 * @return the wasDeleted
+	 */
+	public Boolean getWasDeleted() {
+		return wasDeleted;
+	}
+
 	public BackupFile(String pathName, int serviceID, int replicationDeg) {
 		this.pathName = pathName;
 		this.serviceID = serviceID;
@@ -143,8 +150,8 @@ public class BackupFile {
 	 * @param chunkID
 	 * @return the size of the chunk
 	 */
-	public int deleteChunk(int chunkID) {
-		int freedSpace = chunks.get((Integer)chunkID).getSize();
+	public long deleteChunk(int chunkID) {
+		long freedSpace = chunks.get((Integer)chunkID).getSize();
 		chunks.remove((Integer)chunkID);
 		
 		return freedSpace;
