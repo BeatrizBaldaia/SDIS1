@@ -75,7 +75,7 @@ public class Peer implements InterfaceApp {
 				InterfaceApp protocol = (InterfaceApp) UnicastRemoteObject.exportObject(obj, 0);
 
 				// Bind the remote object's stub in the registry
-				Registry registry = LocateRegistry.getRegistry(1099);
+				Registry registry = LocateRegistry.getRegistry("localhost",1099);
 				registry.rebind("PROTOCOL", protocol); //TODO: see diference bind/rebind
 
 				System.out.println("Server ready");
@@ -402,7 +402,7 @@ public class Peer implements InterfaceApp {
 //			System.err.println(elem[0]);
 //			System.err.println(elem[1]);
 			parser.body = new byte[64000];
-			Socket socket = new Socket(elem[0], Integer.valueOf(elem[1]));//TODO: Socket Port
+			Socket socket = new Socket(elem[0], Integer.valueOf(elem[1]));
 			DataInputStream input = new DataInputStream(socket.getInputStream());
 			int length = 0;
 			try {
@@ -419,7 +419,7 @@ public class Peer implements InterfaceApp {
 			parser.body = Arrays.copyOfRange(parser.body, 0, length);
 		}
 		Chunk chunk = new Chunk(parser.chunkNo+1, 0, (long) 0, Peer.id);
-		LocalState.getInstance().saveChunk(parser.fileName, null, Peer.id, 0, chunk);
+		LocalState.getInstance().saveChunk(parser.fileID, null, Peer.id, 0, chunk);
 		Path filepath = Peer.getP().resolve("restoreFile");
 		FileOutputStream g = new FileOutputStream(filepath.toFile(),true);  //true --> append
 		g.write(parser.body);
@@ -427,6 +427,6 @@ public class Peer implements InterfaceApp {
 		//TODO: if two send the chunk?
 //		System.err.println("Chunk length: "+parser.body.length);
 		if(parser.body.length>=64000)
-			sendGetChunk(parser.fileName, parser.chunkNo+1, isEnhancement);
+			sendGetChunk(parser.fileID, parser.chunkNo+1, isEnhancement);
 	}
 }

@@ -24,8 +24,8 @@ public class ChunkBackup implements Runnable {
 	public ChunkBackup (Parser parser) {
 		version = parser.version;
 		senderID = parser.senderID;
-		fileID = parser.fileName;
-		fileName = new String(parser.fileName);
+		fileID = parser.fileID;
+		fileName = new String(parser.fileID);
 		chunkNo = parser.chunkNo;
 		replicationDeg = parser.replicationDeg;
 		body = Arrays.copyOf(parser.body, parser.body.length);

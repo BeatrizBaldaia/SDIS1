@@ -118,7 +118,6 @@ public class LocalState {
 	 * @return
 	 */
 	public boolean deleteFileChunks(String fileID) {
-		//TODO: Enhancement delete
 		System.err.println("deleteFileChunks");
 		BackupFile file = null; 
 		if((file = backupFiles.get(fileID)) != null) {

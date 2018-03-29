@@ -16,13 +16,17 @@ public class TestApp {
 			return;
 		}
 		String peerAccessPoint = args[0];
+		String[] elems = peerAccessPoint.split(":");
+		String host = elems[0];
+		Integer port = Integer.valueOf(elems[1]);
+		String name = elems[2];
 		System.out.println("Peer Access Point: " + peerAccessPoint);//TODO: AccessPoint
 		String subprotocol = args[1];
 		Registry registry;
 		InterfaceApp protocol;
 		try {
-			registry = LocateRegistry.getRegistry(null);
-			protocol = (InterfaceApp) registry.lookup("PROTOCOL");//TODO: AccessPoint
+			registry = LocateRegistry.getRegistry(host, port);
+			protocol = (InterfaceApp) registry.lookup(name);//TODO: AccessPoint
 		} catch (RemoteException | NotBoundException e1) {
 			e1.printStackTrace();
 			return;
@@ -64,7 +68,7 @@ public class TestApp {
 			case "STATE":{
 				String state = protocol.getState();
 				System.out.println(state);
-				System.err.println("Implement STATE");//TODO: state
+				System.err.println("Returned: State Done!");
 				break;
 			}
 			default: {

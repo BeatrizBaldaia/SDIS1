@@ -11,7 +11,7 @@ public class Deletion implements Runnable {
 	public Double version = null;
 		
 	public Deletion(Parser parser) {
-		fileID = parser.fileName;
+		fileID = parser.fileID;
 		version = parser.version;
 	}
 	@Override
@@ -25,7 +25,6 @@ public class Deletion implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		//TODO: Enhancement delete
 	}
 	private void sendDeletedMessage() throws UnsupportedEncodingException {
 		String msg = null;

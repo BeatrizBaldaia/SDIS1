@@ -24,7 +24,7 @@ public class Chunk implements Runnable {
 	public Chunk(Parser parser) {
 		version = parser.version;
 		senderID = parser.senderID;
-		fileID = parser.fileName;
+		fileID = parser.fileID;
 		chunkNo = parser.chunkNo;
 	}
 	@Override
