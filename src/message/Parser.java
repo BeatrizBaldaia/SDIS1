@@ -10,7 +10,7 @@ public class Parser {
 	public double version = 0.0;
 	public int senderID = 0;
 	//public int fileID = 0;
-	public String fileName = null;
+	public String fileID = null;
 	public int chunkNo = 0;
 	public int replicationDeg = 0;
 	public byte[] body = null;
@@ -105,7 +105,7 @@ public class Parser {
 //			strFileID += "0x" + Character.toUpperCase(header[3].charAt(i)) + Character.toUpperCase(header[3].charAt(i + 1));
 //			i++;
 //		}
-		fileName = header[3];
+		fileID = header[3];
 //		fileID = Integer.parseInt(strFileID);
 		return 0;
 	}
@@ -158,7 +158,7 @@ public class Parser {
 		getSenderID();
 		error += getFileID();
 
-		if((!messageType.equals("DELETE")) && (!messageType.equals("DELETED"))) {
+		if((!messageType.equals("DELETE")) && (!messageType.equals("DELETED"))&& (!messageType.equals("CHECKDELETE"))) {
 			error += getChunkNo();
 		}
 

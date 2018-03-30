@@ -103,17 +103,9 @@ private static ChannelMDR instance = null;
 					}
 					//System.err.println("Teste");
 					if(parser.senderID != myID) {
-
-						//System.err.println("Teste");
 						if(parser.messageType.equals("CHUNK")) {
-							//System.err.println("Teste");
-							//System.out.println("Recived CHUNK message");
-							LocalState.getInstance().notifyThatItWasSent(parser.fileName, parser.chunkNo);
-							Path filepath = Peer.getP().resolve("restoreFile");
-							if(Files.exists(filepath)) {//TODO: teste if its my restore file
-								//System.err.println("Teste");
-								Peer.restoreChunk(parser);
-							}
+							LocalState.getInstance().notifyThatItWasSent(parser.fileID, parser.chunkNo);
+							Peer.restoreChunk(parser);
 						}
 					}
 					

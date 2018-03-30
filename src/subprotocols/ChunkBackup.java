@@ -5,8 +5,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.*;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Random;
-
 import initiator.Peer;
 import message.*;
 import sateInfo.Chunk;
@@ -19,6 +17,7 @@ public class ChunkBackup implements Runnable {
 	public int myID = 0;
 	public String fileID = null;
 	public int chunkNo = 0;
+
 
 	public ChunkBackup (double version, int myID, String fileID, int chunkNo) {
 		this.version = version;
@@ -43,6 +42,4 @@ public class ChunkBackup implements Runnable {
 		}//enviar sempre a mensagem store mesmo quando ja tinhamos este chunk guardado
 		return;
 	}
-
-
 }

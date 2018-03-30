@@ -16,14 +16,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.bind.DatatypeConverter;
 
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 
@@ -59,21 +59,6 @@ public class Peer implements InterfaceApp {
 			id = Integer.parseInt(args[1]);
 			serviceAccessPoint = Integer.parseInt(args[2]);
 			
-			setP(Paths.get("peer_"+id));
-			if(!Files.exists(getP())) {
-				Files.createDirectory(getP());
-			} 
-//				else {
-//				Path dir = Peer.getP();
-//				File directory = dir.toFile();
-//				File[] files = directory.listFiles();
-//				for(int i = 0; i < files.length; i++) {
-//					String filename = files[i].getName();
-//					String[] elem = filename.split("_");
-//					LocalState.getInstance().saveChunk(elem[0], null, id, 0, chunk);
-//				}
-//			}
-			
 			mc = ChannelMC.getInstance();
 			mc.createMulticastSocket(args[3], args[4], id);
 			mdb = ChannelMDB.getInstance();
@@ -81,16 +66,23 @@ public class Peer implements InterfaceApp {
 			mdr = ChannelMDR.getInstance();
 			mdr.createMulticastSocket(args[7], args[8], id);
 			
+			setP(Paths.get("peer_"+id));
+			if(!Files.exists(getP())) {
+				Files.createDirectory(getP());
+			} 
+			
 			mc.listen();
 			mdb.listen();
 			mdr.listen();
+			
+			checkWhichChunksAreInMe();
 			
 			try {
 				Peer obj = new Peer();
 				InterfaceApp protocol = (InterfaceApp) UnicastRemoteObject.exportObject(obj, 0);
 
 				// Bind the remote object's stub in the registry
-				Registry registry = LocateRegistry.getRegistry(1099);
+				Registry registry = LocateRegistry.getRegistry("localhost",1099);
 				registry.rebind("PROTOCOL", protocol); //TODO: see diference bind/rebind
 
 				System.out.println("Server ready");
@@ -100,6 +92,54 @@ public class Peer implements InterfaceApp {
 			}
 		}
 	
+	private static void checkWhichChunksAreInMe() throws UnsupportedEncodingException {
+		Path dir = Peer.getP();
+		File directory = dir.toFile();
+		File[] files = directory.listFiles();
+		Set<String> fileIDs = new TreeSet<String>();
+		for(int i = 0; i<files.length; i++) {
+			String filename = files[i].getName();
+			Path path = Peer.getP().resolve(filename);
+			String[] elem = filename.split("_");
+			if (elem.length == 1) {
+				try {
+					Files.delete(path);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				String fileID = elem[0];
+				Integer chunkNo = Integer.valueOf(elem[1]);
+				Long size;
+				try {
+					size = (Long) Files.getAttribute(path, "size");
+				} catch (IOException e) {
+					e.printStackTrace();
+					return;
+				}
+				Chunk chunk = new Chunk(chunkNo, 1, size, Peer.id);
+				LocalState.getInstance().saveChunk(fileID, null, Peer.id, 1, chunk);
+				fileIDs.add(fileID);
+			}
+			
+		}
+		String[] filesNames = fileIDs.toArray(new String[0]);
+		for(int i = 0; i<filesNames.length; i++) {
+			sendCheckDeleteMessage(filesNames[i]);
+		}
+	}
+
+	private static void sendCheckDeleteMessage(String fileID) throws UnsupportedEncodingException {
+		String msg = createCheckDeleteMessage(fileID);
+		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+		System.out.println(msg);
+	}
+
+	private static String createCheckDeleteMessage(String fileID) {
+		String msg = "CHECKDELETE "+ Peer.protocolVersion + " " + Peer.id + " " + fileID +" \r\n\r\n";
+		return msg;
+	}
+
 	/**
 	 * 
 	 * @param version of the protocol
@@ -127,7 +167,7 @@ public class Peer implements InterfaceApp {
 	 * @return the PUTCHUNK message to be sent
 	 * @throws UnsupportedEncodingException 
 	 */
-	public String createDeleteMessage(double version, int senderID, String fileID) throws UnsupportedEncodingException {
+	public static String createDeleteMessage(double version, int senderID, String fileID) throws UnsupportedEncodingException {
 		String msg = "DELETE "+ version + " " + senderID + " " + fileID + " \r\n\r\n";
 		return msg;
 	}
@@ -180,7 +220,7 @@ public class Peer implements InterfaceApp {
 	 * @return
 	 * @throws UnsupportedEncodingException 
 	 */
-	public int sendDeleteMessage(double version, int senderID, String fileID) throws UnsupportedEncodingException {
+	public static int sendDeleteMessage(double version, int senderID, String fileID) throws UnsupportedEncodingException {
 			String msg = null;
 			try {
 				msg = createDeleteMessage(version, senderID, fileID) ;
@@ -233,7 +273,7 @@ public class Peer implements InterfaceApp {
 		String fileID = this.getFileID(filename);
 		//System.out.println("FileID: "+fileID);
 		int chunkNo = 0;
-		while(body.length>=(64000*(chunkNo+1))) { //TODO: teste Muliple of 64
+		while(body.length>=(64000*(chunkNo+1))) { 
 			byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, (chunkNo+1)*64000);
 	
 			backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename, isEnhancement);
@@ -257,7 +297,7 @@ public class Peer implements InterfaceApp {
 	 */
 	public static void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String fileName, Boolean isEnhancement) throws InterruptedException, UnsupportedEncodingException {
 
-		Chunk chunk = new Chunk(chunkNo, replicationDegree, bodyOfTheChunk.length, Peer.id);
+		Chunk chunk = new Chunk(chunkNo, replicationDegree, (long) bodyOfTheChunk.length, Peer.id);
 		LocalState.getInstance().saveChunk(fileID, fileName, Peer.id, replicationDegree, chunk);
 		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id, Peer.id);
 		double version = Peer.protocolVersion; //TODO: isEnhancement
@@ -265,6 +305,7 @@ public class Peer implements InterfaceApp {
 		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().submit(subprotocol);
 		return;
 	}
+
 		
 	/* (non-Javadoc)
 	 * @see server.InterfaceApp#deleteFile(java.lang.String, java.lang.Boolean)
@@ -304,12 +345,13 @@ public class Peer implements InterfaceApp {
 		
 		String fileID = getFileID(filename);
 		Integer chunkNo = 0;
+		Chunk chunk = new Chunk(chunkNo, 0, (long) 0, Peer.id);
+		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, 0, chunk);
+		LocalState.getInstance().getRestoring().put(fileID, new Pair<String,Integer>(filename, chunkNo));
 		sendGetChunk(fileID, chunkNo,isEnhancement);
 		Path filepath = Peer.getP().resolve("restoreFile");
 		Files.deleteIfExists(filepath);
 		Files.createFile(filepath);
-		
-		//TODO: Enhancement getFile
 	}
 	
 	/* (non-Javadoc)
@@ -388,17 +430,17 @@ public class Peer implements InterfaceApp {
 	 * @throws IOException
 	 */
 	public static void restoreChunk(Parser parser) throws IOException {
-	//	System.err.println("Restore");
+		Pair<String, Integer> pair = LocalState.getInstance().getRestoring().get(parser.fileID);
+		if(pair == null) { return; } //Not a file I sent restore
+		if(pair.getR() != parser.chunkNo) { System.out.println("Two CHUNK Messages we sent!");return;}
+		pair.setR(pair.getR()+1);
 		Boolean isEnhancement = false;
 		if(parser.version != 1) { //Enhancements
 			isEnhancement = true;
 			String data = new String(parser.body, "ISO-8859-1");
 			String[] elem = data.split(":");
-			//System.err.println("Data :"+data);
-//			System.err.println(elem[0]);
-//			System.err.println(elem[1]);
 			parser.body = new byte[64000];
-			Socket socket = new Socket(elem[0], Integer.valueOf(elem[1]));//TODO: Socket Port
+			Socket socket = new Socket(elem[0], Integer.valueOf(elem[1]));
 			DataInputStream input = new DataInputStream(socket.getInputStream());
 			int length = 0;
 			try {
@@ -407,20 +449,17 @@ public class Peer implements InterfaceApp {
 					parser.body[length]= b;
 					length++;
 				}
-			} catch (EOFException e) {
-				//System.err.println("ASSIM .." );
-			}
+			} catch (EOFException e) { }
 			socket.close();
-			//System.out.println("LEU: "+length);
 			parser.body = Arrays.copyOfRange(parser.body, 0, length);
 		}
-		Path filepath = Peer.getP().resolve("restoreFile");
-		FileOutputStream g = new FileOutputStream(filepath.toFile(),true);  //true --> append
+		Chunk chunk = new Chunk(parser.chunkNo+1, 0, (long) 0, Peer.id);
+		LocalState.getInstance().saveChunk(parser.fileID, null, Peer.id, 0, chunk);
+		Path filepath = Peer.getP().resolve("restoreFile-"+pair.getL());
+		FileOutputStream g = new FileOutputStream(filepath.toFile(),true);//true --> append
 		g.write(parser.body);
 		g.close();
-		//TODO: if two send the chunk?
-//		System.err.println("Chunk length: "+parser.body.length);
 		if(parser.body.length>=64000)
-			sendGetChunk(parser.fileName, parser.chunkNo+1, isEnhancement);
+			sendGetChunk(parser.fileID, parser.chunkNo+1, isEnhancement);
 	}
 }

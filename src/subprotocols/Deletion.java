@@ -1,13 +1,6 @@
 package subprotocols;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-
 import initiator.Peer;
 import message.ChannelMC;
 import message.Parser;
@@ -18,7 +11,7 @@ public class Deletion implements Runnable {
 	public Double version = null;
 		
 	public Deletion(Parser parser) {
-		fileID = parser.fileName;
+		fileID = parser.fileID;
 		version = parser.version;
 	}
 	@Override
@@ -32,7 +25,6 @@ public class Deletion implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		//TODO: Enhancement delete
 	}
 	private void sendDeletedMessage() throws UnsupportedEncodingException {
 		String msg = null;

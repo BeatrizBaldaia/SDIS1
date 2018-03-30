@@ -14,6 +14,7 @@ public class SingletonThreadPoolExecutor {
 		/* ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) */
 		RejectedExecutionHandler handler = new MyRejectedExecutionHandler();
 		thread = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), handler);//TODO: ver arguement
+
 	}
 
 	public static SingletonThreadPoolExecutor getInstance() {

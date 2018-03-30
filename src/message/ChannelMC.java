@@ -5,11 +5,9 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
-import java.util.Map.Entry;
-import sateInfo.BackupFile;
+import initiator.Peer;
 import sateInfo.LocalState;
 import subprotocols.Chunk;
-import subprotocols.ChunkBackup;
 import subprotocols.Deletion;
 
 public class ChannelMC {
@@ -102,7 +100,7 @@ public class ChannelMC {
 					if(parser.senderID != myID) {
 						//Receber mensagens STORED, GETCHUNK, DELETE e REMOVED
 						if(parser.messageType.equals("STORED")) {
-							LocalState.getInstance().updateReplicationInfo(parser.senderID, parser.fileName, parser.chunkNo);
+							LocalState.getInstance().updateReplicationInfo(parser.senderID, parser.fileID, parser.chunkNo);
 						} else if(parser.messageType.equals("DELETE")) {
 							System.err.println("ESTOU A APAGAR!!!");
 							Deletion subprotocol = new Deletion(parser);
@@ -113,20 +111,33 @@ public class ChannelMC {
 //							    System.out.println(entry.getKey());
 //							}
 						} else if(parser.messageType.equals("GETCHUNK")) {
-							Chunk subprotocol = new Chunk(parser);
-							LocalState.getInstance().returnToFalse(parser.fileName, parser.chunkNo);
-							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+							if(LocalState.getInstance().getBackupFiles().get(parser.fileID) != null) {
+								if(LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo) != null) {
+								Chunk subprotocol = new Chunk(parser);
+								LocalState.getInstance().returnToFalse(parser.fileID, parser.chunkNo);
+								SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+								}
+							}
 						} else if(parser.messageType.equals("DELETED")) {
-							if(LocalState.getInstance().getBackupFiles().get(parser.fileName) != null) {
-								LocalState.getInstance().decreaseReplicationDegree(parser.fileName, parser.senderID);
-								if(LocalState.getInstance().isReplicationDegreeZero(parser.fileName)) {
-									LocalState.getInstance().getBackupFiles().remove(parser.fileName);
+							if(LocalState.getInstance().getBackupFiles().get(parser.fileID) != null) {
+								LocalState.getInstance().decreaseReplicationDegree(parser.fileID, parser.senderID);
+								if(LocalState.getInstance().isReplicationDegreeZero(parser.fileID)) {
+									LocalState.getInstance().getBackupFiles().remove(parser.fileID);
 								}
 								//System.err.println("decreaseReplicationDegree");
 							}
 							//System.err.println("TO DO");
+						} else if(parser.messageType.equals("CHECKDELETE")) {
+							if(LocalState.getInstance().getBackupFiles().get(parser.fileID) != null) {
+								if(LocalState.getInstance().getBackupFiles().get(parser.fileID).getWasDeleted()) {
+									if(Peer.sendDeleteMessage(1.2, Peer.id, parser.fileID) == -1) {
+										System.err.println("Error: Could not send DELETE message.");
+										return;
+									}
+								}
+							}
 						} else {
-							//System.err.println("Error: Does not recognize type of message.");
+							System.err.println("Error: Does not recognize type of message.");
 						}
 					}
 				} catch (IOException e) {

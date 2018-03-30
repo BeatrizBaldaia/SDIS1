@@ -128,7 +128,7 @@ public class ChannelMDB {
     	try {
 			if((parser.body.length + LocalState.getInstance().getUsedStorage()) <= LocalState.getInstance().getStorageCapacity()) {
 				storeChunk(parser);
-				ChunkBackup subprotocol = new ChunkBackup(parser.version, Peer.id, parser.fileName, parser.chunkNo);
+				ChunkBackup subprotocol = new ChunkBackup(parser.version, Peer.id, parser.fileID, parser.chunkNo);
         		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
         		
         		Random r = new Random();
@@ -146,10 +146,10 @@ public class ChannelMDB {
      */
     public void storeChunk(Parser parser) throws IOException {
     	byte[] body = Arrays.copyOf(parser.body, parser.body.length);
-    	Chunk chunk = new Chunk(parser.chunkNo, parser.replicationDeg, body.length, Peer.id);
-		LocalState.getInstance().saveChunk(parser.fileName, null, parser.senderID, parser.replicationDeg, chunk);
+    	Chunk chunk = new Chunk(parser.chunkNo, parser.replicationDeg, (long) body.length, Peer.id);
+		LocalState.getInstance().saveChunk(parser.fileID, null, parser.senderID, parser.replicationDeg, chunk);
 
-		Path filePath = Peer.getP().resolve(parser.fileName + "_" + parser.chunkNo);
+		Path filePath = Peer.getP().resolve(parser.fileID + "_" + parser.chunkNo);
 		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
 			System.out.println("Criar ficheiro: "+filePath);
 			Files.createFile(filePath);

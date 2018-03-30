@@ -6,7 +6,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
@@ -33,6 +32,15 @@ public class LocalState {
 
 	private Map<String, BackupFile> backupFiles = new ConcurrentHashMap<String, BackupFile>();
 	
+	private Map<String, Pair<String,Integer> > restoring = new ConcurrentHashMap<String, Pair<String,Integer> >();
+	
+	/**
+	 * @return the restoring
+	 */
+	public Map<String, Pair<String,Integer> > getRestoring() {
+		return restoring;
+	}
+
 	public LocalState(int storageCapacity, int usedStorage) {
 		this.storageCapacity = storageCapacity;
 		this.usedStorage = usedStorage;
@@ -63,10 +71,10 @@ public class LocalState {
 	
 	/**
 	 * Updates the used storage info after saving one more chunk
-	 * @param size of the chunk saved
+	 * @param l of the chunk saved
 	 */
-	public void setUsedStorage(int size) {
-		usedStorage += size;
+	public void setUsedStorage(long l) {
+		usedStorage += l;
 	}
 	
 	/**
@@ -119,7 +127,6 @@ public class LocalState {
 	 * @return
 	 */
 	public boolean deleteFileChunks(String fileID) {
-		//TODO: Enhancement delete
 		System.err.println("deleteFileChunks");
 		BackupFile file = null; 
 		if((file = backupFiles.get(fileID)) != null) {
@@ -173,7 +180,7 @@ public class LocalState {
 	 * @param chunkNo
 	 */
 	public void notifyThatItWasSent(String fileID, int chunkNo) {
-		getBackupFiles().get(fileID).notifyThatItWasSent(chunkNo);		
+		getBackupFiles().get(fileID).notifyThatItWasSent(chunkNo);
 	}
 	/**
 	 * Marks the file as having already been deleted, in this peer
@@ -333,8 +340,10 @@ public class LocalState {
 			Pair<Pair<String, Integer>, Integer> pair = arr.get(i);
 			String file_id = pair.getL().getL();
 			Integer chunk_id = pair.getL().getR();
+
 			deletedChunks.add(pair.getL());
-			int freedStorage = backupFiles.get(file_id).deleteChunk(chunk_id);
+			int freedStorage = (int) backupFiles.get(file_id).deleteChunk(chunk_id);
+			//long freedStorage = backupFiles.get(file_id).getChunks().get(chunk_id).getSize();
 			this.usedStorage -= freedStorage;
 			 
 		}

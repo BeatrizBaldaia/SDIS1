@@ -20,8 +20,8 @@ public class Reclaiming implements Runnable{
 	public Reclaiming (Parser parser) {
 		version = parser.version;
 		senderID = parser.senderID;
-		fileID = parser.fileName;
-		fileName = new String(parser.fileName);
+		fileID = parser.fileID;
+		fileName = new String(parser.fileID);
 		chunkNo = parser.chunkNo;
 	}
 	
