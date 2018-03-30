@@ -87,7 +87,7 @@ public class LocalState {
 	 */
 	
 	public void saveChunk(String fileID, String pathName, int serviceID, int replicationdeg, Chunk chunk) {
-		synchronized (this) {
+		synchronized (instance) {
 		if(getBackupFiles().compute(fileID, (k,v) -> computeSaveChunk(k,v,pathName,serviceID,replicationdeg,chunk)) == null) {
 //			if(getBackupFiles().get(fileID).getChunks().get(chunk.getID())==null) {
 //				System.err.println("Chunk Nao salvado1 "+chunk.getID());

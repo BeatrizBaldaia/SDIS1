@@ -125,7 +125,7 @@ public class Chunk {
 	 * @return
 	 */
 	public boolean desireReplicationDeg() {
-		return this.replicationDeg < this.currReplicationDeg;
+		return this.replicationDeg <= this.currReplicationDeg;
 	}
 
 	/**
