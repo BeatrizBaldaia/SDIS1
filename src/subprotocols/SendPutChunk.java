@@ -22,7 +22,7 @@ public class SendPutChunk implements Runnable {
 	public SendPutChunk (double version, int senderID, String fileID, String fileName, int chunkNo, int replicationDeg, byte[] body) {
 		this.version = version;
 		this.senderID = senderID;
-		this.fileID = fileName;
+		this.fileID = fileID;
 		this.fileName = new String(fileName);
 		this.chunkNo = chunkNo;
 		this.replicationDeg = replicationDeg;
@@ -35,6 +35,7 @@ public class SendPutChunk implements Runnable {
 			System.out.println("Returnd desired!");
 			return;
 		}
+		System.out.println("Teste tries");
 		if(tries == 5) {
 			System.err.println("Error: Could not send PUTCHUNK message.");
 			return;

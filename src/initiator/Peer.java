@@ -315,7 +315,7 @@ public class Peer implements InterfaceApp {
 		Chunk chunk = new Chunk(chunkNo, replicationDegree, (long) bodyOfTheChunk.length, Peer.id);
 		System.out.println("A Guardar file: "+fileID+" CHUNKNO: "+chunk.getID());
 		LocalState.getInstance().saveChunk(fileID, fileName, Peer.id, replicationDegree, chunk);
-		//System.out.println("GUARDADO!!!: "+fileID+" CHUNKNO: "+chunk.getID());
+		System.out.println("SAVACHUNK!!!: "+fileID+" CHUNKNO: "+chunk.getID());
 		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id, Peer.id);
 		double version = Peer.protocolVersion; //TODO: isEnhancement
 		SendPutChunk subprotocol = new SendPutChunk(version, Peer.id, fileID, fileName, chunkNo, replicationDegree, bodyOfTheChunk);
