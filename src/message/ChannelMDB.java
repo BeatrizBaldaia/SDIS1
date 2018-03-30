@@ -17,6 +17,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import initiator.Peer;
+import sateInfo.BackupFile;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
 import subprotocols.ChunkBackup;
@@ -113,9 +114,14 @@ public class ChannelMDB {
                 	//System.err.println("Gets to listem!");
                 	if(parser.senderID != myID) { //
 	                	if(parser.messageType.equals("PUTCHUNK")) {
-	                		//Chunk chunk = LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo);
-	                		//chunk.setReclaimMode(Chunk.State.OFF);
-	                		//TODO WHAT???
+	                		BackupFile file = LocalState.getInstance().getBackupFiles().get(parser.fileID);
+	                		if(file != null) {
+	                			Chunk chunk = file.getChunks().get(parser.chunkNo);
+		                		if(chunk != null) {
+		                			chunk.setReclaimMode(Chunk.State.OFF);
+		                		}
+	                		}
+
 	                		handlePutChunkMsg(parser);
 	                	}
                 	}

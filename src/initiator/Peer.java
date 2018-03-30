@@ -264,7 +264,7 @@ public class Peer implements InterfaceApp {
 			System.out.println("Error: File "+filename+" does not exist: ");
 			return;
 		}
-		Long numberOfChunks = (Files.size(filePath)/64000)+1;
+		Long numberOfChunks = (Math.floorDiv(Files.size(filePath), 64000))+1;
 		String fileID = this.getFileID(filename);
 		int chunkNo = 0;
 		while(chunkNo < numberOfChunks) {
