@@ -34,6 +34,7 @@ import message.ChannelMDB;
 import message.ChannelMDR;
 import message.Parser;
 import message.SingletonThreadPoolExecutor;
+import sateInfo.BackupFile;
 import sateInfo.Chunk;
 import sateInfo.Chunk.State;
 import sateInfo.LocalState;
@@ -266,6 +267,7 @@ public class Peer implements InterfaceApp {
 		}
 		Long numberOfChunks = (Math.floorDiv(Files.size(filePath), 64000))+1;
 		String fileID = this.getFileID(filename);
+		LocalState.getInstance().getBackupFiles().put(fileID, new BackupFile(filename, Peer.id, replicationDegree));
 		int chunkNo = 0;
 		while(chunkNo < numberOfChunks) {
 			
