@@ -102,11 +102,7 @@ public class ChannelMC {
 					if(parser.senderID != myID) {
 						//Receber mensagens STORED, GETCHUNK, DELETE e REMOVED
 						if(parser.messageType.equals("STORED")) {
-							//System.out.println("Recebeu mensagem STORE -- Fazer update do Replication Degree!");
 							LocalState.getInstance().updateReplicationInfo(parser.senderID, parser.fileName, parser.chunkNo);
-							//TODO: estamos a trocar o fileID com o fileName...
-							//System.out.println("Filename: "+parser.fileName);
-							//System.out.println("FileID: "+parser.fileID);
 						} else if(parser.messageType.equals("DELETE")) {
 							System.err.println("ESTOU A APAGAR!!!");
 							Deletion subprotocol = new Deletion(parser);

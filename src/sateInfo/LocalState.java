@@ -195,8 +195,11 @@ public class LocalState {
 	 * @param chunkID who is going to have his replication degree decreased
 	 * @param peerID
 	 */
-	public void decreaseReplicationDegree(String fileID, int chunkID, int peerID) {
-		backupFiles.get(fileID).decreaseReplicationDegree(chunkID, peerID);
+	public void decreaseReplicationDegree(String fileID, int chunkID, int peerID, int myID) {
+		int freedStorage = backupFiles.get(fileID).decreaseReplicationDegree(chunkID, peerID);
+		if(myID == peerID) {
+			this.usedStorage -= freedStorage;
+		}
 	}
 	/**
 	 * Decreases the replication degree of the whole file
@@ -311,24 +314,32 @@ public class LocalState {
 		return this.usedStorage > this.storageCapacity;
 	}
 	
-	public void manageStorage() {
+	/**
+	 * Deletes chunks in order to have an used storage amount equal or less than the
+	 * maximum capacity
+	 * @return A set of chunkID's, of one certain fileID, deleted
+	 */
+	public ArrayList<Pair<String, Integer>> manageStorage() {
 		ArrayList<Pair<Pair<String, Integer>, Integer>> arr = new ArrayList<Pair<Pair<String, Integer>, Integer>>();
+		ArrayList<Pair<String, Integer>> deletedChunks = new ArrayList<Pair<String, Integer>>();
 		
 		for(ConcurrentHashMap.Entry<String, BackupFile> entry : backupFiles.entrySet()) {
-			arr.addAll(entry.getValue().getDisposableChunks(entry.getKey()));
+			arr.addAll(entry.getValue().getAllChunks(entry.getKey()));
 		}
-		
-		Collections.sort(arr);
+		Collections.sort(arr);		
 		
 		int i = 0;
 		while(this.usedStorage > this.storageCapacity) {
 			Pair<Pair<String, Integer>, Integer> pair = arr.get(i);
 			String file_id = pair.getL().getL();
 			Integer chunk_id = pair.getL().getR();
-			int freedStorage = backupFiles.get(file_id).getChunks().get(chunk_id).getSize();
+			deletedChunks.add(pair.getL());
+			int freedStorage = backupFiles.get(file_id).deleteChunk(chunk_id);
 			this.usedStorage -= freedStorage;
-			//enviar a mensagem REMOVED 
+			 
 		}
+		
+		return deletedChunks;
 	}
 
 	/**
