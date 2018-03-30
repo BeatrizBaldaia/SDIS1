@@ -313,9 +313,9 @@ public class Peer implements InterfaceApp {
 	public static void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String fileName, Boolean isEnhancement) throws InterruptedException, UnsupportedEncodingException {
 
 		Chunk chunk = new Chunk(chunkNo, replicationDegree, (long) bodyOfTheChunk.length, Peer.id);
-		System.out.println("A Guardar file: "+fileID+" CHUNKNO: "+chunk.getID());
+		//System.out.println("A Guardar file: "+fileID+" CHUNKNO: "+chunk.getID());
 		LocalState.getInstance().saveChunk(fileID, fileName, Peer.id, replicationDegree, chunk);
-		System.out.println("SAVACHUNK!!!: "+fileID+" CHUNKNO: "+chunk.getID());
+		//System.out.println("SAVACHUNK!!!: "+fileID+" CHUNKNO: "+chunk.getID());
 		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id, Peer.id);
 		double version = Peer.protocolVersion; //TODO: isEnhancement
 		SendPutChunk subprotocol = new SendPutChunk(version, Peer.id, fileID, fileName, chunkNo, replicationDegree, bodyOfTheChunk);

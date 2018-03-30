@@ -89,17 +89,17 @@ public class LocalState {
 	public void saveChunk(String fileID, String pathName, int serviceID, int replicationdeg, Chunk chunk) {
 		synchronized (this) {
 		if(getBackupFiles().compute(fileID, (k,v) -> computeSaveChunk(k,v,pathName,serviceID,replicationdeg,chunk)) == null) {
-			if(getBackupFiles().get(fileID).getChunks().get(chunk.getID())==null) {
-				System.err.println("Chunk Nao salvado1 "+chunk.getID());
-			} else {
-				System.out.println("1GUARDAR CHUNK NO :"+getBackupFiles().get(fileID).getChunks().get(chunk.getID()).getID() );
-			}
+//			if(getBackupFiles().get(fileID).getChunks().get(chunk.getID())==null) {
+//				System.err.println("Chunk Nao salvado1 "+chunk.getID());
+//			} else {
+//				System.out.println("1GUARDAR CHUNK NO :"+getBackupFiles().get(fileID).getChunks().get(chunk.getID()).getID() );
+//			}
 		}
-		if(getBackupFiles().get(fileID).getChunks().get(chunk.getID())==null) {
-			System.err.println("Chunk Nao salvado2 "+chunk.getID());
-		} else {
-			System.out.println("2GUARDAR CHUNK NO :"+getBackupFiles().get(fileID).getChunks().get(chunk.getID()).getID() );
-		}
+//		if(getBackupFiles().get(fileID).getChunks().get(chunk.getID())==null) {
+//			System.err.println("Chunk Nao salvado2 "+chunk.getID());
+//		} else {
+//			System.out.println("2GUARDAR CHUNK NO :"+getBackupFiles().get(fileID).getChunks().get(chunk.getID()).getID() );
+//		}
 		}
 //		if(getBackupFiles().computeIfPresent(fileID, (k,v) -> v.addChunk(chunk)) == null) {
 //			getBackupFiles().computeIfAbsent(fileID, k -> createNewBackupFile(k,pathName, serviceID, replicationDeg, chunk));
@@ -128,20 +128,20 @@ public class LocalState {
 		return file;
 	}
 
-	/**
-	 * Creates a new BackupFile object to be saved in the hashmap
-	 * @param fileID
-	 * @param pathName
-	 * @param serviceID
-	 * @param replicationDeg
-	 * @param chunk
-	 * @return
-	 */
-	private BackupFile createNewBackupFile(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
-		BackupFile file = new BackupFile(pathName, serviceID, replicationDeg);
-		file.addChunk(chunk);
-		return file;
-	}
+//	/**
+//	 * Creates a new BackupFile object to be saved in the hashmap
+//	 * @param fileID
+//	 * @param pathName
+//	 * @param serviceID
+//	 * @param replicationDeg
+//	 * @param chunk
+//	 * @return
+//	 */
+//	private BackupFile createNewBackupFile(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
+//		BackupFile file = new BackupFile(pathName, serviceID, replicationDeg);
+//		file.addChunk(chunk);
+//		return file;
+//	}
 	/**
 	 * Updates the current replication degree related to a file
 	 * @param senderID
