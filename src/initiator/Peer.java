@@ -336,8 +336,11 @@ public class Peer implements InterfaceApp {
 		if(LocalState.getInstance().getBackupFiles().get(fileID)==null) {
 			LocalState.getInstance().getBackupFiles().put(fileID, new BackupFile(filename, Peer.id, 0));
 		}
-		LocalState.getInstance().notifyItWasDeleted(fileID);
-		if(isEnhancement) { version = 1.2; }
+		
+		if(isEnhancement) { version = 1.2; LocalState.getInstance().notifyItWasDeleted(fileID);
+		}else {
+			LocalState.getInstance().getBackupFiles().remove(fileID);
+		}
 		if(sendDeleteMessage(version, Peer.id, fileID) == -1) {
 			System.err.println("Error: Could not send DELETE message.");
 			return;

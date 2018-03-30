@@ -17,6 +17,22 @@ public class Chunk {
 	private State reclaimMode = State.OFF;
 	
 	private int currReplicationDeg = 0;
+	
+	
+	/**
+	 * @return the currReplicationDeg
+	 */
+	public int getCurrReplicationDeg() {
+		return currReplicationDeg;
+	}
+
+	/**
+	 * @param currReplicationDeg the currReplicationDeg to set
+	 */
+	public void setCurrReplicationDeg(int currReplicationDeg) {
+		this.currReplicationDeg = currReplicationDeg;
+	}
+
 	private Long size = (long) 0;
 	
 	private boolean sentWithGetChunk =false;
