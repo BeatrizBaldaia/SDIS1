@@ -119,12 +119,14 @@ public class LocalState {
 	}
 	private BackupFile computeSaveChunk(String k, BackupFile v, String pathName, int serviceID, int replicationdeg,
 			Chunk chunk) {
+		System.err.println("ATOMIC");
 		BackupFile file = v;
 		if(file == null) {
 			System.err.println("UMA VEZ!!");
 			file = new BackupFile(pathName, serviceID, replicationdeg);
 		}
 		file.addChunk(chunk);
+		System.err.println("   ATOMIC");
 		return file;
 	}
 
