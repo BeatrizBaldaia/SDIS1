@@ -14,8 +14,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -35,7 +33,6 @@ import message.ChannelMDB;
 import message.ChannelMDR;
 import message.Parser;
 import message.SingletonThreadPoolExecutor;
-import sateInfo.BackupFile;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
 import sateInfo.Pair;
@@ -269,10 +266,11 @@ public class Peer implements InterfaceApp {
 		String fileID = this.getFileID(filename);
 		int chunkNo = 0;
 		while(chunkNo < numberOfChunks) {
+			
 			AsynchronousFileChannel channel = AsynchronousFileChannel.open(filePath);
 			ByteBuffer body = ByteBuffer.allocate(64000);
 			int numberOfChunk = chunkNo;
-			channel.read(body, 64000*chunkNo, body, new CompletionHandler<Integer, ByteBuffer>() {
+			CompletionHandler<Integer, ByteBuffer> reader =new CompletionHandler<Integer, ByteBuffer>() {
 				@Override
 				public void completed(Integer result, ByteBuffer buffer) {
 					System.err.println("result = " + result);
@@ -296,7 +294,8 @@ public class Peer implements InterfaceApp {
 					
 				}
 				
-			});
+			};
+			channel.read(body, 64000*chunkNo, body, reader);
 			chunkNo++;
 		}//TODO: Enhancement backup
 	}
@@ -314,10 +313,12 @@ public class Peer implements InterfaceApp {
 	public static void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String fileName, Boolean isEnhancement) throws InterruptedException, UnsupportedEncodingException {
 
 		Chunk chunk = new Chunk(chunkNo, replicationDegree, (long) bodyOfTheChunk.length, Peer.id);
+		System.out.println("A Guardar file: "+fileID+" CHUNKNO: "+chunk.getID());
 		LocalState.getInstance().saveChunk(fileID, fileName, Peer.id, replicationDegree, chunk);
+		//System.out.println("GUARDADO!!!: "+fileID+" CHUNKNO: "+chunk.getID());
 		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id, Peer.id);
 		double version = Peer.protocolVersion; //TODO: isEnhancement
-		SendPutChunk subprotocol = new SendPutChunk(Peer.protocolVersion, Peer.id, fileID, fileName, chunkNo, replicationDegree, bodyOfTheChunk);
+		SendPutChunk subprotocol = new SendPutChunk(version, Peer.id, fileID, fileName, chunkNo, replicationDegree, bodyOfTheChunk);
 		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().submit(subprotocol);
 		return;
 	}

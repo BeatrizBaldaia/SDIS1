@@ -1,15 +1,7 @@
 package subprotocols;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.*;
-import java.nio.file.Files;
-import java.util.Arrays;
-import initiator.Peer;
 import message.*;
-import sateInfo.Chunk;
-import sateInfo.LocalState;
-import server.Utils;
 
 public class ChunkBackup implements Runnable {	
 

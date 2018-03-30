@@ -2,11 +2,9 @@ package subprotocols;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import message.ChannelMDB;
-import message.Parser;
 import message.SingletonThreadPoolExecutor;
 import sateInfo.LocalState;
 
@@ -32,7 +30,9 @@ public class SendPutChunk implements Runnable {
 	}
 	@Override
 	public void run() {
+		System.out.println("IN RUN SEND PUT CHUNK MESSAGE!");
 		if(LocalState.getInstance().getBackupFiles().get(fileID).desireReplicationDeg(chunkNo)) {
+			System.out.println("Returnd desired!");
 			return;
 		}
 		if(tries == 5) {
@@ -45,7 +45,8 @@ public class SendPutChunk implements Runnable {
 			e.printStackTrace();
 		}
 		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().schedule(this, (long) (Math.pow(2, tries) * 1000) , TimeUnit.MILLISECONDS);
-		tries++;		
+		tries++;
+		System.out.println("HERE!");
 		
 	}
 	

@@ -30,7 +30,7 @@ public class LocalState {
 	 */
 	private int usedStorage;
 
-	private Map<String, BackupFile> backupFiles = new ConcurrentHashMap<String, BackupFile>();
+	private ConcurrentHashMap<String, BackupFile> backupFiles = new ConcurrentHashMap<String, BackupFile>();
 	
 	private Map<String, Pair<String,Integer> > restoring = new ConcurrentHashMap<String, Pair<String,Integer> >();
 	
@@ -85,13 +85,47 @@ public class LocalState {
 	 * @param replicationDeg
 	 * @param chunk
 	 */
-	public void saveChunk(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
-		if(getBackupFiles().computeIfPresent(fileID, (k,v) -> v.addChunk(chunk)) == null) {
-			getBackupFiles().put(fileID, createNewBackupFile(fileID,pathName, serviceID, replicationDeg, chunk));
-			return;
-		};	
-		return;
+	
+	public synchronized void saveChunk(String fileID, String pathName, int serviceID, int replicationdeg, Chunk chunk) {
+		if(getBackupFiles().compute(fileID, (k,v) -> computeSaveChunk(k,v,pathName,serviceID,replicationdeg,chunk)) == null) {
+			if(getBackupFiles().get(fileID).getChunks().get(chunk.getID())==null) {
+				System.err.println("Chunk Nao salvado1 "+chunk.getID());
+			} else {
+				System.out.println("1GUARDAR CHUNK NO :"+getBackupFiles().get(fileID).getChunks().get(chunk.getID()).getID() );
+			}
+		}
+		if(getBackupFiles().get(fileID).getChunks().get(chunk.getID())==null) {
+			System.err.println("Chunk Nao salvado2 "+chunk.getID());
+		} else {
+			System.out.println("2GUARDAR CHUNK NO :"+getBackupFiles().get(fileID).getChunks().get(chunk.getID()).getID() );
+		}
+//		if(getBackupFiles().computeIfPresent(fileID, (k,v) -> v.addChunk(chunk)) == null) {
+//			getBackupFiles().computeIfAbsent(fileID, k -> createNewBackupFile(k,pathName, serviceID, replicationDeg, chunk));
+//			if(getBackupFiles().get(fileID).getChunks().get(chunk.getID())==null) {
+//				System.err.println("Chunk Nao salvado1 "+chunk.getID());
+//			} else {
+//				System.out.println("GUARDAR CHUNK NO :"+getBackupFiles().get(fileID).getChunks().get(chunk.getID()).getID() );
+//			}
+//			return;
+//		}
+//		if(getBackupFiles().get(fileID).getChunks().get(chunk.getID())==null) {
+//			System.err.println("Chunk Nao salvado2 "+chunk.getID());
+//		} else {
+//			System.out.println("GUARDADO CHUNK NO :"+getBackupFiles().get(fileID).getChunks().get(chunk.getID()).getID() );
+//		}
+//		return;
 	}
+	private BackupFile computeSaveChunk(String k, BackupFile v, String pathName, int serviceID, int replicationdeg,
+			Chunk chunk) {
+		BackupFile file = v;
+		if(file == null) {
+			System.err.println("UMA VEZ!!");
+			file = new BackupFile(pathName, serviceID, replicationdeg);
+		}
+		file.addChunk(chunk);
+		return file;
+	}
+
 	/**
 	 * Creates a new BackupFile object to be saved in the hashmap
 	 * @param fileID

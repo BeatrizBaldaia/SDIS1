@@ -61,7 +61,6 @@ public class BackupFile {
 			return this;
 		}
 		return null;
-		
 	}
 	
 	/**
@@ -125,9 +124,14 @@ public class BackupFile {
 	 * @param chunkID
 	 */
 	public int decreaseReplicationDegree(int chunkID, int peerID) {
-		int freedStorage = (int) chunks.get(chunkID).getSize();
+		if(getChunks().get(chunkID)==null) {
+			System.out.println("Chunk NO: "+chunkID+" Does not exist!");
+		} else {
+			System.out.println("Chunk NO: "+chunkID+" Exist!");
+		}
+		int freedStorage = (int) getChunks().get(chunkID).getSize();
 		//LocalState.getInstance().setUsedStorage(-(chunks.get(chunkID).getSize()));//Frees storage
-		chunks.get(chunkID).decreaseReplicationDeg(peerID);
+		getChunks().get(chunkID).decreaseReplicationDeg(peerID);
 		
 		return freedStorage;
 	}

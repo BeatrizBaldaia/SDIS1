@@ -1,10 +1,7 @@
 package subprotocols;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
-import java.util.Arrays;
-
 import initiator.Peer;
 import message.Parser;
 import sateInfo.LocalState;

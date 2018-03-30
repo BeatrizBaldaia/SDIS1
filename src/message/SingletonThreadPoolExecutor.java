@@ -1,9 +1,6 @@
 package message;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class SingletonThreadPoolExecutor {
 	private static SingletonThreadPoolExecutor instance = null;
