@@ -38,7 +38,6 @@ public class Reclaiming implements Runnable{
 			byte[] body = Files.readAllBytes(Peer.getP().resolve(fileID+"_"+chunkNo));
 			//Peer.backupChunk(chunkNo, replicationDegree, body, fileID, null, false);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

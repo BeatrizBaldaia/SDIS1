@@ -1,10 +1,14 @@
 package message;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.CompletionHandler;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -152,7 +156,24 @@ public class ChannelMDB {
 		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
 			System.out.println("Criar ficheiro: "+filePath);
 			Files.createFile(filePath);
-			Files.write(filePath, body);
+			AsynchronousFileChannel channel = AsynchronousFileChannel.open(filePath);
+			CompletionHandler<Integer, ByteBuffer> writter = new CompletionHandler<Integer, ByteBuffer>() {
+				@Override
+				public void completed(Integer result, ByteBuffer buffer) {
+					System.out.println("Finished writing!");
+				}
+	
+				@Override
+				public void failed(Throwable arg0, ByteBuffer arg1) {
+					System.err.println("Error: Could not write!");
+					
+				}
+				
+			};
+			ByteBuffer src = ByteBuffer.allocate(parser.body.length);
+			src.put(parser.body);
+			src.flip();
+			channel.write(src, 0, src, writter);
 		}
     }
     
