@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import initiator.Peer;
 import message.Parser;
+import sateInfo.Chunk;
 import sateInfo.LocalState;
 import server.Utils;
 
@@ -16,6 +17,7 @@ public class Reclaiming implements Runnable{
 	public String fileID = null;
 	public String fileName = null;
 	public int chunkNo = 0;
+	private byte[] body = null;
 	
 	public Reclaiming (Parser parser) {
 		version = parser.version;
@@ -23,26 +25,21 @@ public class Reclaiming implements Runnable{
 		fileID = parser.fileID;
 		fileName = new String(parser.fileID);
 		chunkNo = parser.chunkNo;
+		this.body = Arrays.copyOf(body, body.length);
 	}
 	
 	@Override
 	public void run() {
-		LocalState.getInstance().decreaseReplicationDegree(fileID, chunkNo, senderID, Peer.id);
-		if(!LocalState.getInstance().getBackupFiles().get(fileID).getChunks().get(chunkNo).desireReplicationDeg()) { //se o replication degree esta abaixo do que e pedido
+		Chunk chunk = LocalState.getInstance().getBackupFiles().get(this.fileID).getChunks().get(this.chunkNo);
+		if(chunk.getReclaimMode() == Chunk.State.ON) {
+			chunk.setReclaimMode(Chunk.State.OFF);
 			try {
-				Utils.randonSleep(Utils.TIME_MAX_TO_SLEEP);//TODO: interromper quando recebe mensagem PUTCHUNK
-			} catch (InterruptedException e) {
-				// nao envia PUTCHUNK
+				boolean isEnhancement = (this.version == 1.2) ? true : false;
+				
+				Peer.backupChunk(this.chunkNo, chunk.getReplicationDegree(), this.body, this.fileID, this.fileName, isEnhancement);
+			} catch (UnsupportedEncodingException | InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
-		try {
-			int replicationDegree = LocalState.getInstance().getBackupFiles().get(fileID).getChunks().get(chunkNo).getReplicationDeg();
-			byte[] body = Files.readAllBytes(Peer.getP().resolve(fileID+"_"+chunkNo));
-			//Peer.backupChunk(chunkNo, replicationDegree, body, fileID, null, false);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 }

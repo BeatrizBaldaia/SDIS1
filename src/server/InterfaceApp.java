@@ -8,10 +8,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * @author anabela
- *
- */
+
 public interface InterfaceApp extends Remote {
 	/**
 	 * Backup a chunk

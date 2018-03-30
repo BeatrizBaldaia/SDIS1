@@ -65,7 +65,7 @@ public class BackupFile {
 	}
 	
 	/**
-	 * verifies if  the actual replication degree of a chunk is different from the one that is desired
+	 * verifies if  the actual replication degree of a chunk is lower than the one that is desired
 	 * @return
 	 */
 	public boolean desireReplicationDeg(int chunkID) {

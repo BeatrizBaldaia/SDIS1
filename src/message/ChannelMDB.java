@@ -108,6 +108,8 @@ public class ChannelMDB {
                 	//System.err.println("Gets to listem!");
                 	if(parser.senderID != myID) { //
 	                	if(parser.messageType.equals("PUTCHUNK")) {
+	                		Chunk chunk = LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo);
+	                		chunk.setReclaimMode(Chunk.State.OFF);
 	                		handlePutChunkMsg(parser);
 	                	}
                 	}
