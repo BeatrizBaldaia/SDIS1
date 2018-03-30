@@ -14,3 +14,9 @@ java -jar McastSnooper.jar 226.0.0.1:8080 226.0.0.2:8081 226.0.0.0:8082
 Version 1.0 Normal
 Version 1.1 Enhancement RESTORE
 Version 1.2 Enhencement DELETE
+
+java -cp bin initiator.Peer 1 1 2 226.0.0.1 8080 226.0.0.2 8081 226.0.0.0 8082
+java -cp bin initiator.Peer 1 2 2 226.0.0.1 8080 226.0.0.2 8081 226.0.0.0 8082
+java -cp bin initiator.Peer 1 3 2 226.0.0.1 8080 226.0.0.2 8081 226.0.0.0 8082
+java -cp bin client.TestApp localhost:1099:PROTOCOL BACKUP a.png 1
+

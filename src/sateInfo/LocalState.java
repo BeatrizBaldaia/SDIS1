@@ -87,7 +87,8 @@ public class LocalState {
 	 */
 	
 	public void saveChunk(String fileID, String pathName, int serviceID, int replicationdeg, Chunk chunk) {
-		synchronized (this) {
+		synchronized (instance) {
+			System.out.println("SINCHONIZED");
 		if(getBackupFiles().compute(fileID, (k,v) -> computeSaveChunk(k,v,pathName,serviceID,replicationdeg,chunk)) == null) {
 //			if(getBackupFiles().get(fileID).getChunks().get(chunk.getID())==null) {
 //				System.err.println("Chunk Nao salvado1 "+chunk.getID());
@@ -100,6 +101,8 @@ public class LocalState {
 //		} else {
 //			System.out.println("2GUARDAR CHUNK NO :"+getBackupFiles().get(fileID).getChunks().get(chunk.getID()).getID() );
 //		}
+
+		System.out.println("   SINCHONIZED");
 		}
 //		if(getBackupFiles().computeIfPresent(fileID, (k,v) -> v.addChunk(chunk)) == null) {
 //			getBackupFiles().computeIfAbsent(fileID, k -> createNewBackupFile(k,pathName, serviceID, replicationDeg, chunk));
@@ -119,12 +122,14 @@ public class LocalState {
 	}
 	private BackupFile computeSaveChunk(String k, BackupFile v, String pathName, int serviceID, int replicationdeg,
 			Chunk chunk) {
+		System.err.println("ATOMIC");
 		BackupFile file = v;
 		if(file == null) {
 			System.err.println("UMA VEZ!!");
 			file = new BackupFile(pathName, serviceID, replicationdeg);
 		}
 		file.addChunk(chunk);
+		System.err.println("   ATOMIC");
 		return file;
 	}
 
