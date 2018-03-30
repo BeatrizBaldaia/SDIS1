@@ -435,7 +435,7 @@ public class Peer implements InterfaceApp {
 		if(pair.getR() != parser.chunkNo) { System.out.println("Two CHUNK Messages we sent!");return;}
 		pair.setR(pair.getR()+1);
 		Boolean isEnhancement = false;
-		if(parser.version != 1) { //Enhancements
+		if(parser.version != 1) { //Enhancements //TODO: a versao tem de ser um double de dois numeros ; Ex: 1.1
 			isEnhancement = true;
 			String data = new String(parser.body, "ISO-8859-1");
 			String[] elem = data.split(":");

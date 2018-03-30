@@ -5,9 +5,13 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 import initiator.Peer;
+import sateInfo.Chunk;
 import sateInfo.LocalState;
-import subprotocols.Chunk;
+import subprotocols.ChunkRestore;
 import subprotocols.Deletion;
 
 public class ChannelMC {
@@ -112,10 +116,13 @@ public class ChannelMC {
 //							}
 						} else if(parser.messageType.equals("GETCHUNK")) {
 							if(LocalState.getInstance().getBackupFiles().get(parser.fileID) != null) {
-								if(LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo) != null) {
-								Chunk subprotocol = new Chunk(parser);
-								LocalState.getInstance().returnToFalse(parser.fileID, parser.chunkNo);
-								SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+								Chunk chunk = LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo);
+								if(chunk != null) {
+									chunk.setRestoreMode(Chunk.State.ON);
+									ChunkRestore subprotocol = new ChunkRestore(parser);
+									Random r = new Random();
+					        		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().schedule(subprotocol, (long) r.nextInt(400), TimeUnit.MILLISECONDS);
+									//LocalState.getInstance().returnToFalse(parser.fileID, parser.chunkNo);
 								}
 							}
 						} else if(parser.messageType.equals("DELETED")) {
