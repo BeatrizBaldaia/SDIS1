@@ -1,21 +1,20 @@
 package message;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class SingletonThreadPoolExecutor {
 	private static SingletonThreadPoolExecutor instance = null;
-	private ThreadPoolExecutor thread;
+	private ScheduledThreadPoolExecutor thread;
 	
 	
 	protected SingletonThreadPoolExecutor() {
 		/* ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) */
-		//BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(10);
-//		thread = new ThreadPoolExecutor(10, 20, 10L, TimeUnit.MILLISECONDS, workQueue);
-		//TODO ver threads
-		thread = new ScheduledThreadPoolExecutor(20);
+
+		RejectedExecutionHandler handler = new MyRejectedExecutionHandler();
+		thread = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), handler);//TODO: ver arguement
 	}
 
 	public static SingletonThreadPoolExecutor getInstance() {
@@ -28,7 +27,7 @@ public class SingletonThreadPoolExecutor {
 	/**
 	 * @return the thread
 	 */
-	public ThreadPoolExecutor getThreadPoolExecutor() {
+	public ScheduledThreadPoolExecutor getThreadPoolExecutor() {
 		return thread;
 	}
 }

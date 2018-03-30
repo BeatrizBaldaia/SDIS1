@@ -2,9 +2,17 @@ package sateInfo;
 
 import java.util.ArrayList;
 
+
+enum State { OFF, ON, CONTINUE }
+
 public class Chunk {
+	
 	private int id = 0;
 	private int replicationDeg = 0;
+	private State reclaimMode = State.OFF;
+	public int getReplicationDeg() {
+		return replicationDeg;
+	}
 	private int currReplicationDeg = 0;
 	private Long size = (long) 0;
 	
@@ -12,6 +20,7 @@ public class Chunk {
 	
 	private ArrayList<Integer> peersStoring = new ArrayList<Integer>();
 	
+
 	public Chunk(int id, int replicationDeg, Long size2, int peerID) {
 		this.id = id;
 		this.replicationDeg = replicationDeg;

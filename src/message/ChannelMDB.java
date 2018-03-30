@@ -5,7 +5,15 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import initiator.Peer;
+import sateInfo.Chunk;
+import sateInfo.LocalState;
 import subprotocols.ChunkBackup;
 
 public class ChannelMDB {
@@ -100,8 +108,7 @@ public class ChannelMDB {
                 	//System.err.println("Gets to listem!");
                 	if(parser.senderID != myID) { //
 	                	if(parser.messageType.equals("PUTCHUNK")) {
-	                		ChunkBackup subprotocol = new ChunkBackup(parser);
-	                		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+	                		handlePutChunkMsg(parser);
 	                	}
                 	}
                 } catch (IOException e) {
@@ -112,4 +119,42 @@ public class ChannelMDB {
         }).start();
     	
     }
+    
+    /**
+     * Process the PUTCHUNK message
+     * @param parser
+     */
+    public void handlePutChunkMsg(Parser parser) {
+    	try {
+			if((parser.body.length + LocalState.getInstance().getUsedStorage()) <= LocalState.getInstance().getStorageCapacity()) {
+				storeChunk(parser);
+				ChunkBackup subprotocol = new ChunkBackup(parser.version, Peer.id, parser.fileID, parser.chunkNo);
+        		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
+        		
+        		Random r = new Random();
+        		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().schedule(subprotocol, (long) r.nextInt(400), TimeUnit.MILLISECONDS);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+    
+    /**
+     * Stores the chunk if it doesn't exists
+     * @param parser
+     * @throws IOException
+     */
+    public void storeChunk(Parser parser) throws IOException {
+    	byte[] body = Arrays.copyOf(parser.body, parser.body.length);
+    	Chunk chunk = new Chunk(parser.chunkNo, parser.replicationDeg, (long) body.length, Peer.id);
+		LocalState.getInstance().saveChunk(parser.fileID, null, parser.senderID, parser.replicationDeg, chunk);
+
+		Path filePath = Peer.getP().resolve(parser.fileID + "_" + parser.chunkNo);
+		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
+			System.out.println("Criar ficheiro: "+filePath);
+			Files.createFile(filePath);
+			Files.write(filePath, body);
+		}
+    }
+    
 }

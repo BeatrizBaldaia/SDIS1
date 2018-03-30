@@ -79,7 +79,12 @@ public class BackupFile {
 	 * @return
 	 */
 	public boolean updateReplicationInfo(int chunkID, int senderID) {
-		return getChunks().get(chunkID).isNewPeerStoring(senderID);
+		Chunk chunk = getChunks().get(chunkID);
+		if(chunk == null) {
+			System.out.println("This peer is not saving this chunk.\n");
+			return false;
+		} 
+		return chunk.isNewPeerStoring(senderID);
 	}
 
 	public boolean seeIfAlreadySent(int chunkID) {
@@ -119,9 +124,12 @@ public class BackupFile {
 	 * decreases by one the current replication degree
 	 * @param chunkID
 	 */
-	public void decreaseReplicationDegree(int chunkID, int peerID) {
-		LocalState.getInstance().setUsedStorage(-(chunks.get(chunkID).getSize()));//Frees storage
+	public int decreaseReplicationDegree(int chunkID, int peerID) {
+		int freedStorage = (int) chunks.get(chunkID).getSize();
+		//LocalState.getInstance().setUsedStorage(-(chunks.get(chunkID).getSize()));//Frees storage
 		chunks.get(chunkID).decreaseReplicationDeg(peerID);
+		
+		return freedStorage;
 	}
 	
 	public void decreaseReplicationDegree(int peerID) {
@@ -132,7 +140,7 @@ public class BackupFile {
 	
 	/**
 	 * Free storage
-	 * @return
+	 * @return the total space used saving this chunks
 	 */
 	public int deleteChunks() {
 		int totalSpace = 0;
@@ -158,19 +166,17 @@ public class BackupFile {
 	}
 	
 	/**
-	 * Returns the chunks that have an actual replication degree higher than the desired one
+	 * Gives all the saved chunks id's of this backup file
 	 * @param fileID
-	 * @return Pair<Pair<fileID, chunkID> chunkSize>
+	 * @return
 	 */
-	public ArrayList<Pair<Pair<String, Integer>, Integer>> getDisposableChunks(String fileID) {
+	public ArrayList<Pair<Pair<String, Integer>, Integer>> getAllChunks(String fileID) {
 		ArrayList<Pair<Pair<String, Integer>, Integer>> result = new ArrayList<Pair<Pair<String, Integer>, Integer>>();
 		
 		for(ConcurrentHashMap.Entry<Integer, Chunk> entry : chunks.entrySet()) {
-			if(entry.getValue().exceededDesiredReplicationDeg()) {
-				Pair<String, Integer> file_chunk = new Pair<String, Integer>(fileID, entry.getKey());
-				Pair<Pair<String, Integer>, Integer> file_chunk_size = new Pair<Pair<String, Integer>, Integer> (file_chunk, entry.getValue().getexceededAmount());
-				result.add(file_chunk_size);
-			}
+			Pair<String, Integer> file_chunk = new Pair<String, Integer>(fileID, entry.getKey());
+			Pair<Pair<String, Integer>, Integer> file_chunk_size = new Pair<Pair<String, Integer>, Integer> (file_chunk, entry.getValue().getexceededAmount());
+			result.add(file_chunk_size);
 		}
 		
 		return result;

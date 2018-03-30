@@ -12,7 +12,10 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -31,10 +34,13 @@ import message.ChannelMC;
 import message.ChannelMDB;
 import message.ChannelMDR;
 import message.Parser;
+import message.SingletonThreadPoolExecutor;
+import sateInfo.BackupFile;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
 import sateInfo.Pair;
 import server.InterfaceApp;
+import subprotocols.SendPutChunk;
 
 public class Peer implements InterfaceApp {
 	private static double protocolVersion;
@@ -148,7 +154,7 @@ public class Peer implements InterfaceApp {
 	 * @return the PUTCHUNK message to be sent
 	 * @throws UnsupportedEncodingException 
 	 */
-	public String createPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
+	public static String createPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
 		String bodyStr = new String(body, "ISO-8859-1"); // for ISO-8859-1 encoding
 //		System.err.println("bodyStr.lenght:"+bodyStr.length());
 //		System.err.println("bodyStr.getBytes.size:"+bodyStr.getBytes("ISO-8859-1").length);
@@ -170,6 +176,19 @@ public class Peer implements InterfaceApp {
 	}
 	
 	/**
+	 * 
+	 * @param version of the protocol
+	 * @param senderID who is going to send the message
+	 * @param fileID ; file identifier for the backup service
+	 * @param chunkNo ; chunk identifier
+	 * @return the REMOVED message to be sent
+	 */
+	public String createRemovedMessage(double version, int senderID, String fileID, int chunkNo) {
+		String msg = "REMOVED"+ version + " " + senderID + " " + fileID + " " + chunkNo + " \r\n\r\n";
+		return msg;
+	}
+	
+	/**
 	 * sends the PUTCHUNK message to the MDB channel
 	 * @param version
 	 * @param senderID
@@ -180,7 +199,7 @@ public class Peer implements InterfaceApp {
 	 * @return different of 0 when error 
 	 * @throws UnsupportedEncodingException 
 	 */
-	public int sendPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
+	public static int sendPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
 		
 		String msg = null;
 		try {
@@ -217,6 +236,24 @@ public class Peer implements InterfaceApp {
 			System.out.println("SENT --> "+msg);//DELETE
 			return 0;
 		}
+	
+	/**
+	 * sends the REMOVED message to the MC channel
+	 * @param version
+	 * @param senderID
+	 * @param fileID
+	 * @param chunkNo
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	public int sendRemovedMessage(double version, int senderID, String fileID, int chunkNo) throws UnsupportedEncodingException {
+		String msg = null;
+		msg = createRemovedMessage(version, senderID, fileID, chunkNo) ;
+		
+		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+		System.out.println("SENT --> "+msg);//REMOVED
+		return 0;
+	}
 
 	/* (non-Javadoc)
 	 * @see server.InterfaceApp#backupFile(java.lang.String, java.lang.Integer, java.lang.Boolean)
@@ -228,7 +265,6 @@ public class Peer implements InterfaceApp {
 			System.out.println("Error: File "+filename+" does not exist: ");
 			return;
 		}
-		
 		Long numberOfChunks = (Files.size(filePath)/64000)+1;
 		String fileID = this.getFileID(filename);
 		int chunkNo = 0;
@@ -275,27 +311,16 @@ public class Peer implements InterfaceApp {
 	 * @throws InterruptedException
 	 * @throws UnsupportedEncodingException
 	 */
-	public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename, Boolean isEnhancement) throws InterruptedException, UnsupportedEncodingException {	
-			Chunk chunk = new Chunk(chunkNo, replicationDegree, (long) bodyOfTheChunk.length, Peer.id);
-			LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
-			LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id);
-			double version = Peer.protocolVersion; //TODO: isEnhancement backup
-			if(this.sendPutChunkMessage(version, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk) == -1) {
-				System.err.println("Error: Could not send PUTCHUNK message.");
-				return;
-			}
-			//System.err.println("bodyOfTheChunk.length: "+bodyOfTheChunk.length);
-			for(int i = 0; i < 5; i++) {
-				Thread.sleep(1000*((int)Math.pow(2,i)));
-				if(LocalState.getInstance().getBackupFiles().get(fileID).desireReplicationDeg(chunk.getID())) return;
-				if(this.sendPutChunkMessage(Peer.protocolVersion, Peer.id, fileID, chunkNo, replicationDegree, bodyOfTheChunk) == -1) {
-					System.err.println("Error: Could not send PUTCHUNK message.");
-					return;
-				}
-			}
-			
-			return;
-		}
+	public static void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String fileName, Boolean isEnhancement) throws InterruptedException, UnsupportedEncodingException {
+
+		Chunk chunk = new Chunk(chunkNo, replicationDegree, (long) bodyOfTheChunk.length, Peer.id);
+		LocalState.getInstance().saveChunk(fileID, fileName, Peer.id, replicationDegree, chunk);
+		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id, Peer.id);
+		double version = Peer.protocolVersion; //TODO: isEnhancement
+		SendPutChunk subprotocol = new SendPutChunk(Peer.protocolVersion, Peer.id, fileID, fileName, chunkNo, replicationDegree, bodyOfTheChunk);
+		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().submit(subprotocol);
+		return;
+	}
 		
 	/* (non-Javadoc)
 	 * @see server.InterfaceApp#deleteFile(java.lang.String, java.lang.Boolean)
@@ -357,6 +382,19 @@ public class Peer implements InterfaceApp {
 	public boolean reclaimStorage(int space) {
 		if(LocalState.getInstance().setStorageCapacity(space)) {
 			//apagar chunks
+			ArrayList<Pair<String, Integer>> deletedChunks = LocalState.getInstance().manageStorage();//enviar uma mensagem REMOVED para cada chunk apagado
+			for(Pair<String, Integer> pair : deletedChunks) {
+				try {
+					if(sendRemovedMessage(Peer.protocolVersion, Peer.id, pair.getL(), pair.getR()) == -1) {
+						System.err.println("Error: Could not send REMOVED message.");
+						return false;
+					}
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+				
 			return true;
 		}
 		return false;//falso se nao teve de apagar chunks
