@@ -5,9 +5,6 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import initiator.Peer;
 import sateInfo.Chunk;
 import sateInfo.LocalState;

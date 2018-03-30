@@ -2,11 +2,9 @@ package subprotocols;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import message.ChannelMDB;
-import message.Parser;
 import message.SingletonThreadPoolExecutor;
 import sateInfo.LocalState;
 
@@ -24,7 +22,7 @@ public class SendPutChunk implements Runnable {
 	public SendPutChunk (double version, int senderID, String fileID, String fileName, int chunkNo, int replicationDeg, byte[] body) {
 		this.version = version;
 		this.senderID = senderID;
-		this.fileID = fileName;
+		this.fileID = fileID;
 		this.fileName = new String(fileName);
 		this.chunkNo = chunkNo;
 		this.replicationDeg = replicationDeg;
@@ -32,20 +30,25 @@ public class SendPutChunk implements Runnable {
 	}
 	@Override
 	public void run() {
+		//System.out.println("IN RUN SEND PUT CHUNK MESSAGE!");
 		if(LocalState.getInstance().getBackupFiles().get(fileID).desireReplicationDeg(chunkNo)) {
+			//System.out.println("Returnd desired!");
 			return;
 		}
+		//System.out.println("Teste tries");
 		if(tries == 5) {
 			System.err.println("Error: Could not send PUTCHUNK message.");
 			return;
 		}
 		try {
+			//System.out.println("TRY");
 			sendPutChunkMessage(version, senderID, fileID, chunkNo, replicationDeg, body);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().schedule(this, (long) (Math.pow(2, tries) * 1000) , TimeUnit.MILLISECONDS);
-		tries++;		
+		tries++;
+		//System.out.println("HERE!");
 		
 	}
 	
