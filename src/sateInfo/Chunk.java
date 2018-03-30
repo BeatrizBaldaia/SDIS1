@@ -15,9 +15,7 @@ public class Chunk {
 	private int replicationDeg = 0;
 	private State restoreMode = State.OFF;
 	private State reclaimMode = State.OFF;
-	public int getReplicationDeg() {
-		return replicationDeg;
-	}
+	
 	private int currReplicationDeg = 0;
 	private Long size = (long) 0;
 	
@@ -127,7 +125,7 @@ public class Chunk {
 	 * @return
 	 */
 	public boolean desireReplicationDeg() {
-		return this.replicationDeg <= this.currReplicationDeg;
+		return this.replicationDeg < this.currReplicationDeg;
 	}
 
 	/**

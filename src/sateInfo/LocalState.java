@@ -176,7 +176,7 @@ public class LocalState {
 				//File directory = new File(".");
 				Path dir = Peer.getP();
 				File directory = dir.toFile();
-				String pattern = Peer.getP().toString()+File.separator+fileID + "*";
+				String pattern = Peer.getP().toString() + File.separator + fileID + "*";
 				PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
 				File[] files = directory.listFiles();
 				for(int i = 0; i<files.length; i++) {

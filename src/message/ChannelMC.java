@@ -11,8 +11,10 @@ import java.util.concurrent.TimeUnit;
 import initiator.Peer;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
+import subprotocols.ChunkBackup;
 import subprotocols.ChunkRestore;
 import subprotocols.Deletion;
+import subprotocols.Reclaiming;
 
 public class ChannelMC {
 	private static ChannelMC instance = null;
@@ -142,6 +144,16 @@ public class ChannelMC {
 										return;
 									}
 								}
+							}
+						} else if(parser.messageType.equals("REMOVED")) {
+							LocalState.getInstance().decreaseReplicationDegree(parser.fileID, parser.chunkNo, parser.senderID, Peer.id);
+							if(LocalState.getInstance().getBackupFiles().get(parser.fileID).desireReplicationDeg(parser.chunkNo)) {
+								Chunk chunk = LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo);
+								chunk.setReclaimMode(Chunk.State.ON);
+								Reclaiming subprotocol = new Reclaiming(parser);
+				        		
+				        		Random r = new Random();
+				        		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().schedule(subprotocol, (long) r.nextInt(400), TimeUnit.MILLISECONDS);
 							}
 						} else {
 							System.err.println("Error: Does not recognize type of message.");
