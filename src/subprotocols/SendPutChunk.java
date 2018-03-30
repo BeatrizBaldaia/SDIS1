@@ -13,7 +13,7 @@ public class SendPutChunk implements Runnable {
 	private double version = 0.0;
 	private int senderID = 0;
 	private String fileID = null;
-	private String fileName = null;
+	//private String fileName = null;
 	private int chunkNo = 0;
 	private int replicationDeg = 0;
 	private byte[] body = null;
@@ -23,7 +23,7 @@ public class SendPutChunk implements Runnable {
 		this.version = version;
 		this.senderID = senderID;
 		this.fileID = fileID;
-		this.fileName = new String(fileName);
+		//this.fileName = new String(fileName);
 		this.chunkNo = chunkNo;
 		this.replicationDeg = replicationDeg;
 		this.body = Arrays.copyOf(body, body.length);

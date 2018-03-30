@@ -333,6 +333,9 @@ public class Peer implements InterfaceApp {
 	public void deleteFile(String filename, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException {
 		String fileID = getFileID(filename);
 		double version = Peer.protocolVersion;
+		if(LocalState.getInstance().getBackupFiles().get(fileID)==null) {
+			LocalState.getInstance().getBackupFiles().put(fileID, new BackupFile(filename, Peer.id, 0));
+		}
 		LocalState.getInstance().notifyItWasDeleted(fileID);
 		if(isEnhancement) { version = 1.2; }
 		if(sendDeleteMessage(version, Peer.id, fileID) == -1) {
