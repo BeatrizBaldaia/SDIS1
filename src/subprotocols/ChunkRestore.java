@@ -2,9 +2,12 @@ package subprotocols;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.CompletionHandler;
 import java.nio.file.Path;
 
 import initiator.Peer;
@@ -41,21 +44,47 @@ public class ChunkRestore implements Runnable {
 	}
 
 	private void sendChunkMessage() throws IOException {
-		String msg = null;
-		msg = createChunkMessage();
-		ChannelMDR.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
-		System.out.println("SENT --> "+msg.split("\r\n")[0]);
+		Path filePath = Peer.getP().resolve(this.fileID+"_"+this.chunkNo);
+		AsynchronousFileChannel channel = AsynchronousFileChannel.open(filePath);
+		ByteBuffer body = ByteBuffer.allocate(64000);
+		CompletionHandler<Integer, ByteBuffer> reader =new CompletionHandler<Integer, ByteBuffer>() {
+			@Override
+			public void completed(Integer result, ByteBuffer buffer) {
+				//System.err.println("result = " + result);
+				String msg=null;
+				buffer.flip();
+				byte[] data = new byte[buffer.limit()];
+				buffer.get(data);
+				//System.out.println(new String(data));
+				buffer.clear();
+				try {
+					msg = createChunkMessage(data);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				try {
+					ChannelMDR.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+				System.out.println("SENT --> "+msg.split("\r\n")[0]);
+				
+			}
+
+			@Override
+			public void failed(Throwable arg0, ByteBuffer arg1) {
+				System.err.println("Error: Could not read!");
+				
+			}
+			
+		};
+		channel.read(body, 0, body, reader);
 	}
 
-	private String createChunkMessage() throws IOException {
-			Path filePath = Peer.getP().resolve(this.fileID+"_"+this.chunkNo);
-			try {
-				this.body = Files.readAllBytes(filePath);
-			} catch (IOException e) {
-				System.out.println("Couldn't read from file!");
-				e.printStackTrace();
-				return null;
-			}
+	private String createChunkMessage(byte[] body) throws IOException {
+			
+			this.body = body;
 		if(this.version != 1) { //ENHANCEMENT
 			
 			ServerSocket machine = new ServerSocket(1040);
