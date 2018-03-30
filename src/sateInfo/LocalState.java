@@ -88,7 +88,7 @@ public class LocalState {
 	
 	public void saveChunk(String fileID, String pathName, int serviceID, int replicationdeg, Chunk chunk) {
 		synchronized (instance) {
-			System.out.println("SINCHONIZED");
+			//System.out.println("SINCHONIZED");
 //		if(getBackupFiles().compute(fileID, (k,v) -> computeSaveChunk(k,v,pathName,serviceID,replicationdeg,chunk)) == null) {
 //			if(getBackupFiles().get(fileID).getChunks().get(chunk.getID())==null) {
 //				System.err.println("Chunk Nao salvado1 "+chunk.getID());
@@ -106,11 +106,11 @@ public class LocalState {
 //		}
 		if(backupFiles.computeIfPresent(fileID, (k,v) -> v.addChunk(chunk)) == null) {
 			backupFiles.computeIfAbsent(fileID, k -> createNewBackupFile(k,pathName, serviceID, replicationdeg, chunk));
-			System.out.println("   1SINCHONIZED");
+			//System.out.println("   1SINCHONIZED");
 
 			return;
 		}
-		System.out.println("   2SINCHONIZED");
+		//System.out.println("   2SINCHONIZED");
 
 		return;
 	}}

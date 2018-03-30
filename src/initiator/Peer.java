@@ -277,7 +277,7 @@ public class Peer implements InterfaceApp {
 			CompletionHandler<Integer, ByteBuffer> reader =new CompletionHandler<Integer, ByteBuffer>() {
 				@Override
 				public void completed(Integer result, ByteBuffer buffer) {
-					System.err.println("result = " + result);
+					//System.err.println("result = " + result);
 	
 					buffer.flip();
 					byte[] data = new byte[buffer.limit()];
