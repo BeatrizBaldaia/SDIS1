@@ -11,6 +11,7 @@ import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -156,7 +157,7 @@ public class ChannelMDB {
 		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
 			System.out.println("Criar ficheiro: "+filePath);
 			Files.createFile(filePath);
-			AsynchronousFileChannel channel = AsynchronousFileChannel.open(filePath);
+			AsynchronousFileChannel channel = AsynchronousFileChannel.open(filePath,StandardOpenOption.WRITE);
 			CompletionHandler<Integer, ByteBuffer> writter = new CompletionHandler<Integer, ByteBuffer>() {
 				@Override
 				public void completed(Integer result, ByteBuffer buffer) {

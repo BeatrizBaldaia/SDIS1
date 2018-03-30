@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import sateInfo.Chunk.State;
+
 
 public class BackupFile {
 
@@ -197,6 +199,15 @@ public class BackupFile {
 	public boolean isReplicationDegreeZero() {
 		for (Entry<Integer, Chunk> entry : chunks.entrySet()) {
 			if(!entry.getValue().isReplicationDegreeZero()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean checkIfIHaveAllChunks() {
+		for (Entry<Integer, Chunk> entry : chunks.entrySet()) {
+			if(entry.getValue().getRestoreMode() == State.RECEIVE) {
 				return false;
 			}
 		}

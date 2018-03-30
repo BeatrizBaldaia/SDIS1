@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
 import message.ChannelMC;
@@ -34,6 +35,7 @@ import message.ChannelMDR;
 import message.Parser;
 import message.SingletonThreadPoolExecutor;
 import sateInfo.Chunk;
+import sateInfo.Chunk.State;
 import sateInfo.LocalState;
 import sateInfo.Pair;
 import server.InterfaceApp;
@@ -361,23 +363,13 @@ public class Peer implements InterfaceApp {
 		
 		String fileID = getFileID(filename);
 		Integer chunkNo = 0;
-		Chunk chunk = new Chunk(chunkNo, 0, (long) 0, Peer.id);
-		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, 0, chunk);
-		LocalState.getInstance().getRestoring().put(fileID, new Pair<String,Integer>(filename, chunkNo));
-		//TODO:
-		int fileSize = 65000; //TODO: ler o ficheiro para ver o seu tamanho. 65000 foi um tamanho a sorte
-		int totalNumChunks = Math.floorDiv(fileSize, 6400) + 1;//numero total de chunks que o file vai ter
+		long fileSize = (Long) Files.getAttribute(Paths.get(filename), "size");
+		int totalNumChunks = (int) (Math.floorDiv(fileSize, 64000) + 1);//numero total de chunks que o file vai ter
 		for(int i = 0; i < totalNumChunks; i++) {
+			LocalState.getInstance().getBackupFiles().get(fileID).getChunks().get(chunkNo).setRestoreMode(State.RECEIVE);
 			sendGetChunk(fileID, chunkNo,isEnhancement);
 			chunkNo++;
 		}
-		
-		/*
-		sendGetChunk(fileID, chunkNo,isEnhancement);
-		Path filepath = Peer.getP().resolve("restoreFile");
-		Files.deleteIfExists(filepath);
-		Files.createFile(filepath);
-		*/
 	}
 	
 	/* (non-Javadoc)
@@ -456,12 +448,10 @@ public class Peer implements InterfaceApp {
 	 * @throws IOException
 	 */
 	public static void restoreChunk(Parser parser) throws IOException {
-		Pair<String, Integer> pair = LocalState.getInstance().getRestoring().get(parser.fileID);
-		if(pair == null) { return; } //Not a file I sent restore
-		if(pair.getR() != parser.chunkNo) { System.out.println("Two CHUNK Messages we sent!");return;}
-		pair.setR(pair.getR()+1);
+		System.err.println("Estou aqui!");
 		Boolean isEnhancement = false;
-		if(parser.version != 1) { //Enhancements //TODO: a versao tem de ser um double de dois numeros ; Ex: 1.1
+		if(parser.version != 1.0) { //Enhancements 
+			//TODO: Versao Norma 1.0 a versao tem de ser um double de dois numeros ; Ex: 1.1
 			isEnhancement = true;
 			String data = new String(parser.body, "ISO-8859-1");
 			String[] elem = data.split(":");
@@ -479,15 +469,40 @@ public class Peer implements InterfaceApp {
 			socket.close();
 			parser.body = Arrays.copyOfRange(parser.body, 0, length);
 		}
-		Chunk chunk = new Chunk(parser.chunkNo+1, 0, (long) 0, Peer.id);
-		LocalState.getInstance().saveChunk(parser.fileID, null, Peer.id, 0, chunk);
-		Path filepath = Peer.getP().resolve("restoreFile-"+pair.getL());
-		FileOutputStream g = new FileOutputStream(filepath.toFile(),true);//true --> append
-		g.write(parser.body);
-		g.close();
-		//TODO: Nao enviar mensagens nesta funcao. Esta funcao quando recebe o ultimo CHUNK msg e que vai juntar todos os chunks ja guardados.
+
+		LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo).setBody(parser.body);
+		if(LocalState.getInstance().getBackupFiles().get(parser.fileID).checkIfIHaveAllChunks()) {
+			writeRestoredFile(parser.fileID);
+		}
 		
-		if(parser.body.length>=64000)
-			sendGetChunk(parser.fileID, parser.chunkNo+1, isEnhancement);
+	}
+
+	private static void writeRestoredFile(String fileID) throws IOException {
+		Path filepath = Peer.getP().resolve("restoreFile-"+LocalState.getInstance().getBackupFiles().get(fileID).getPathName());
+		Files.createFile(filepath);
+		int numberOfChunks = LocalState.getInstance().getBackupFiles().get(fileID).getChunks().size();
+		for(int i = 0; i < numberOfChunks; i++) {
+			AsynchronousFileChannel channel = AsynchronousFileChannel.open(filepath,StandardOpenOption.WRITE);
+			CompletionHandler<Integer, ByteBuffer> writter = new CompletionHandler<Integer, ByteBuffer>() {
+				@Override
+				public void completed(Integer result, ByteBuffer buffer) {
+					System.out.println("Finished writing!");
+				}
+
+				@Override
+				public void failed(Throwable arg0, ByteBuffer arg1) {
+					System.err.println("Error: Could not write!");
+					
+				}
+				
+			};
+			byte[] body = LocalState.getInstance().getBackupFiles().get(fileID).getChunks().get(i).getBody();
+			LocalState.getInstance().getBackupFiles().get(fileID).getChunks().get(i).setBody(null);
+			ByteBuffer src = ByteBuffer.allocate(body.length);
+			src.put(body);
+			src.flip();
+			channel.write(src, i*64000, src, writter);
+		}
+		
 	}
 }

@@ -5,6 +5,10 @@ import java.util.ArrayList;
 
 
 
+/**
+ * @author anabela
+ *
+ */
 public class Chunk {
 	public enum State { OFF, ON, RECEIVE }
 	private int id = 0;
@@ -20,8 +24,13 @@ public class Chunk {
 	private boolean sentWithGetChunk =false;
 	
 	private ArrayList<Integer> peersStoring = new ArrayList<Integer>();
-	
 
+	
+	/**
+	 * To use in the restore protocol, keeps the body until i can write to the file
+	 */
+	private byte[] body;
+	
 	public Chunk(int id, int replicationDeg, Long size2, int peerID) {
 		this.id = id;
 		this.replicationDeg = replicationDeg;
@@ -35,7 +44,7 @@ public class Chunk {
 	 * @return the restore mode: 
 	 * 	OFF = not going to try sent the CHUNK msg;
 	 *  ON = may try to send CHUNK msg after waiting random time;
-	 *  RECEIVE = the one whi asked for restore.
+	 *  RECEIVE = the one who asked for restore.
 	 */
 	public State getRestoreMode() {
 		return this.restoreMode;
@@ -165,5 +174,19 @@ public class Chunk {
 	}
 	public boolean isReplicationDegreeZero() {
 		return currReplicationDeg <= 0;
+	}
+
+	/**
+	 * @return the body
+	 */
+	public byte[] getBody() {
+		return body;
+	}
+
+	/**
+	 * @param body the body to set
+	 */
+	public void setBody(byte[] body) {
+		this.body = body;
 	}
 }
