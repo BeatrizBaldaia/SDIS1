@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 import initiator.Peer;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
-import subprotocols.ChunkBackup;
 import subprotocols.ChunkRestore;
 import subprotocols.Deletion;
 import subprotocols.Reclaiming;

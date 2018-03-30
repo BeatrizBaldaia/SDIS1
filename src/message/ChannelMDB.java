@@ -1,7 +1,6 @@
 package message;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -139,17 +138,17 @@ public class ChannelMDB {
      * @param parser
      */
     public void handlePutChunkMsg(Parser parser) {
-    	try {
-			if((parser.body.length + LocalState.getInstance().getUsedStorage()) <= LocalState.getInstance().getStorageCapacity()) {
+		if((parser.body.length + LocalState.getInstance().getUsedStorage()) <= LocalState.getInstance().getStorageCapacity()) {
+			try {
 				storeChunk(parser);
-				ChunkBackup subprotocol = new ChunkBackup(parser.version, Peer.id, parser.fileID, parser.chunkNo);
-        		
-        		Random r = new Random();
-        		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().schedule(subprotocol, (long) r.nextInt(400), TimeUnit.MILLISECONDS);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
+			ChunkBackup subprotocol = new ChunkBackup(parser.version, Peer.id, parser.fileID, parser.chunkNo);
+			Random r = new Random();
+			SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().schedule(subprotocol, (long) r.nextInt(400), TimeUnit.MILLISECONDS);
 		}
+
     }
     
     /**

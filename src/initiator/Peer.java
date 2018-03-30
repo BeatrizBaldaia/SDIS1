@@ -3,7 +3,6 @@ package initiator;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
@@ -86,7 +85,7 @@ public class Peer implements InterfaceApp {
 
 				// Bind the remote object's stub in the registry
 				Registry registry = LocateRegistry.getRegistry("localhost",1099);
-				registry.rebind("PROTOCOL", protocol); //TODO: see diference bind/rebind
+				registry.rebind("PROTOCOL", protocol);
 
 				System.out.println("Server ready");
 			} catch (Exception e) {
@@ -334,6 +333,9 @@ public class Peer implements InterfaceApp {
 	public void deleteFile(String filename, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException {
 		String fileID = getFileID(filename);
 		double version = Peer.protocolVersion;
+		if(LocalState.getInstance().getBackupFiles().get(fileID)==null) {
+			LocalState.getInstance().getBackupFiles().put(fileID, new BackupFile(filename, Peer.id, 0));
+		}
 		LocalState.getInstance().notifyItWasDeleted(fileID);
 		if(isEnhancement) { version = 1.2; }
 		if(sendDeleteMessage(version, Peer.id, fileID) == -1) {
@@ -395,7 +397,6 @@ public class Peer implements InterfaceApp {
 						return false;
 					}
 				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -451,10 +452,9 @@ public class Peer implements InterfaceApp {
 	 */
 	public static void restoreChunk(Parser parser) throws IOException {
 		System.err.println("Estou aqui!");
-		Boolean isEnhancement = false;
-		if(parser.version != 1.0) { //Enhancements 
-			//TODO: Versao Norma 1.0 a versao tem de ser um double de dois numeros ; Ex: 1.1
-			isEnhancement = true;
+		//Boolean isEnhancement = false;
+		if(parser.version != 1.0) { 
+			//isEnhancement = true;
 			String data = new String(parser.body, "ISO-8859-1");
 			String[] elem = data.split(":");
 			parser.body = new byte[64000];
@@ -471,40 +471,30 @@ public class Peer implements InterfaceApp {
 			socket.close();
 			parser.body = Arrays.copyOfRange(parser.body, 0, length);
 		}
-
-		LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo).setBody(parser.body);
-		if(LocalState.getInstance().getBackupFiles().get(parser.fileID).checkIfIHaveAllChunks()) {
-			writeRestoredFile(parser.fileID);
+		Path filepath = Peer.getP().resolve("restoreFile-"+LocalState.getInstance().getBackupFiles().get(parser.fileID).getPathName());
+		if(!Files.exists(filepath)) {
+			Files.createFile(filepath);
 		}
-		
-	}
+		AsynchronousFileChannel channel = AsynchronousFileChannel.open(filepath,StandardOpenOption.WRITE);
+		CompletionHandler<Integer, ByteBuffer> writter = new CompletionHandler<Integer, ByteBuffer>() {
+			@Override
+			public void completed(Integer result, ByteBuffer buffer) {
+				System.out.println("Finished writing!");
+			}
 
-	private static void writeRestoredFile(String fileID) throws IOException {
-		Path filepath = Peer.getP().resolve("restoreFile-"+LocalState.getInstance().getBackupFiles().get(fileID).getPathName());
-		Files.createFile(filepath);
-		int numberOfChunks = LocalState.getInstance().getBackupFiles().get(fileID).getChunks().size();
-		for(int i = 0; i < numberOfChunks; i++) {
-			AsynchronousFileChannel channel = AsynchronousFileChannel.open(filepath,StandardOpenOption.WRITE);
-			CompletionHandler<Integer, ByteBuffer> writter = new CompletionHandler<Integer, ByteBuffer>() {
-				@Override
-				public void completed(Integer result, ByteBuffer buffer) {
-					System.out.println("Finished writing!");
-				}
-
-				@Override
-				public void failed(Throwable arg0, ByteBuffer arg1) {
-					System.err.println("Error: Could not write!");
-					
-				}
+			@Override
+			public void failed(Throwable arg0, ByteBuffer arg1) {
+				System.err.println("Error: Could not write!");
 				
-			};
-			byte[] body = LocalState.getInstance().getBackupFiles().get(fileID).getChunks().get(i).getBody();
-			LocalState.getInstance().getBackupFiles().get(fileID).getChunks().get(i).setBody(null);
-			ByteBuffer src = ByteBuffer.allocate(body.length);
-			src.put(body);
-			src.flip();
-			channel.write(src, i*64000, src, writter);
-		}
-		
+			}
+			
+		};
+		byte[] body = parser.body;
+		ByteBuffer src = ByteBuffer.allocate(body.length);
+		src.put(body);
+		src.flip();
+		channel.write(src, parser.chunkNo*64000, src, writter);
+			
 	}
+
 }
