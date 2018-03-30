@@ -40,6 +40,7 @@ public class SendPutChunk implements Runnable {
 			return;
 		}
 		try {
+			System.out.println("TRY");
 			sendPutChunkMessage(version, senderID, fileID, chunkNo, replicationDeg, body);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
