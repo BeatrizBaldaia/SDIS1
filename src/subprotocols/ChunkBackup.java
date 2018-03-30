@@ -29,7 +29,6 @@ public class ChunkBackup implements Runnable {
 		try {
 			sendConfirmation();
 		} catch (UnsupportedEncodingException | InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}//enviar sempre a mensagem store mesmo quando ja tinhamos este chunk guardado
 		return;

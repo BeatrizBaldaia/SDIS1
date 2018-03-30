@@ -85,7 +85,7 @@ public class Peer implements InterfaceApp {
 
 				// Bind the remote object's stub in the registry
 				Registry registry = LocateRegistry.getRegistry("localhost",1099);
-				registry.rebind("PROTOCOL", protocol); //TODO: see diference bind/rebind
+				registry.rebind("PROTOCOL", protocol);
 
 				System.out.println("Server ready");
 			} catch (Exception e) {
@@ -394,7 +394,6 @@ public class Peer implements InterfaceApp {
 						return false;
 					}
 				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -450,10 +449,9 @@ public class Peer implements InterfaceApp {
 	 */
 	public static void restoreChunk(Parser parser) throws IOException {
 		System.err.println("Estou aqui!");
-		Boolean isEnhancement = false;
-		if(parser.version != 1.0) { //Enhancements 
-			//TODO: Versao Norma 1.0 a versao tem de ser um double de dois numeros ; Ex: 1.1
-			isEnhancement = true;
+		//Boolean isEnhancement = false;
+		if(parser.version != 1.0) { 
+			//isEnhancement = true;
 			String data = new String(parser.body, "ISO-8859-1");
 			String[] elem = data.split(":");
 			parser.body = new byte[64000];
