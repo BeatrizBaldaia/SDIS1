@@ -314,7 +314,7 @@ public class LocalState {
 		info += "\t->Chunks:\n";
 		for (Integer key : file.getChunks().keySet()) {
 			Chunk chunk = file.getChunks().get(key);
-			info += "\t   ID = " + chunk.getID() + " ; Perceived Replication Degree = " + chunk.getReplicationDegree() + "\n";
+			info += "\t   ID = " + chunk.getID() + " ; Perceived Replication Degree = " + chunk.getCurrReplicationDeg() + "\n";
 		}
 	
 		return info;
