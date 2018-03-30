@@ -10,10 +10,11 @@ import java.nio.file.Path;
 import initiator.Peer;
 import message.ChannelMDR;
 import message.Parser;
+import sateInfo.Chunk;
 import sateInfo.LocalState;
 import server.Utils;
 
-public class Chunk implements Runnable {
+public class ChunkRestore implements Runnable {
 
 	public double version = 0.0;
 	public int senderID = 0;
@@ -21,7 +22,7 @@ public class Chunk implements Runnable {
 	public int chunkNo = 0;
 	public byte[] body = null;
 
-	public Chunk(Parser parser) {
+	public ChunkRestore(Parser parser) {
 		version = parser.version;
 		senderID = parser.senderID;
 		fileID = parser.fileID;
@@ -29,18 +30,15 @@ public class Chunk implements Runnable {
 	}
 	@Override
 	public void run() {
-		try {
-			Utils.randonSleep(Utils.TIME_MAX_TO_SLEEP);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if(LocalState.getInstance().seeIfAlreadySent(fileID, chunkNo)) return;
-		try {
-			sendChunkMessage();
-			LocalState.getInstance().notifyThatItWasSent(fileID, chunkNo);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		Chunk chunk = LocalState.getInstance().getBackupFiles().get(this.fileID).getChunks().get(this.chunkNo);
+		if(chunk.getRestoreMode() == Chunk.State.ON) {//enviar CHUNK msg
+			try {
+				sendChunkMessage();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			chunk.setRestoreMode(Chunk.State.OFF);
+		} 
 	}
 
 	private void sendChunkMessage() throws IOException {

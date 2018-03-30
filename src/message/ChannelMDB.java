@@ -129,7 +129,6 @@ public class ChannelMDB {
 			if((parser.body.length + LocalState.getInstance().getUsedStorage()) <= LocalState.getInstance().getStorageCapacity()) {
 				storeChunk(parser);
 				ChunkBackup subprotocol = new ChunkBackup(parser.version, Peer.id, parser.fileID, parser.chunkNo);
-        		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
         		
         		Random r = new Random();
         		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().schedule(subprotocol, (long) r.nextInt(400), TimeUnit.MILLISECONDS);

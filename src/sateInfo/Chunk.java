@@ -3,12 +3,13 @@ package sateInfo;
 import java.util.ArrayList;
 
 
-enum State { OFF, ON, CONTINUE }
+
 
 public class Chunk {
-	
+	public enum State { OFF, ON, RECEIVE }
 	private int id = 0;
 	private int replicationDeg = 0;
+	private State restoreMode = State.OFF;
 	private State reclaimMode = State.OFF;
 	public int getReplicationDeg() {
 		return replicationDeg;
@@ -29,6 +30,43 @@ public class Chunk {
 		this.currReplicationDeg++;
 	}
 	
+	/**
+	 * 
+	 * @return the restore mode: 
+	 * 	OFF = not going to try sent the CHUNK msg;
+	 *  ON = may try to send CHUNK msg after waiting random time;
+	 *  RECEIVE = the one whi asked for restore.
+	 */
+	public State getRestoreMode() {
+		return this.restoreMode;
+	}
+	
+	/**
+	 * 
+	 * @return the reclaim mode: 
+	 * 	OFF = not going to try sent the PUTCHUNK msg;
+	 *  ON = may try to send PUTCHUNK msg after waiting random time;
+	 *  CONTINUE = received a PUTCHUNK msg while waiting so is not going to send PUTCHUNK msg.
+	 */
+	public State getReclaimMode() {
+		return this.reclaimMode;
+	}
+	
+	/**
+	 * Changes the current restore mode
+	 * @param state
+	 */
+	public void setRestoreMode(State state) {
+		this.restoreMode = state;
+	}
+	
+	/**
+	 * Changes the current reclaim mode
+	 * @param state
+	 */
+	public void setReclaimMode(State state) {
+		this.reclaimMode = state;
+	}
 	/**
 	 * 
 	 * @return the chunk id

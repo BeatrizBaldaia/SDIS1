@@ -364,10 +364,20 @@ public class Peer implements InterfaceApp {
 		Chunk chunk = new Chunk(chunkNo, 0, (long) 0, Peer.id);
 		LocalState.getInstance().saveChunk(fileID, filename, Peer.id, 0, chunk);
 		LocalState.getInstance().getRestoring().put(fileID, new Pair<String,Integer>(filename, chunkNo));
+		//TODO:
+		int fileSize = 65000; //TODO: ler o ficheiro para ver o seu tamanho. 65000 foi um tamanho a sorte
+		int totalNumChunks = Math.floorDiv(fileSize, 6400) + 1;//numero total de chunks que o file vai ter
+		for(int i = 0; i < totalNumChunks; i++) {
+			sendGetChunk(fileID, chunkNo,isEnhancement);
+			chunkNo++;
+		}
+		
+		/*
 		sendGetChunk(fileID, chunkNo,isEnhancement);
 		Path filepath = Peer.getP().resolve("restoreFile");
 		Files.deleteIfExists(filepath);
 		Files.createFile(filepath);
+		*/
 	}
 	
 	/* (non-Javadoc)
@@ -451,7 +461,7 @@ public class Peer implements InterfaceApp {
 		if(pair.getR() != parser.chunkNo) { System.out.println("Two CHUNK Messages we sent!");return;}
 		pair.setR(pair.getR()+1);
 		Boolean isEnhancement = false;
-		if(parser.version != 1) { //Enhancements
+		if(parser.version != 1) { //Enhancements //TODO: a versao tem de ser um double de dois numeros ; Ex: 1.1
 			isEnhancement = true;
 			String data = new String(parser.body, "ISO-8859-1");
 			String[] elem = data.split(":");
@@ -475,6 +485,8 @@ public class Peer implements InterfaceApp {
 		FileOutputStream g = new FileOutputStream(filepath.toFile(),true);//true --> append
 		g.write(parser.body);
 		g.close();
+		//TODO: Nao enviar mensagens nesta funcao. Esta funcao quando recebe o ultimo CHUNK msg e que vai juntar todos os chunks ja guardados.
+		
 		if(parser.body.length>=64000)
 			sendGetChunk(parser.fileID, parser.chunkNo+1, isEnhancement);
 	}

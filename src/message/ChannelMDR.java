@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import initiator.Peer;
+import sateInfo.Chunk;
 import sateInfo.LocalState;
 
 public class ChannelMDR {
@@ -101,8 +102,18 @@ private static ChannelMDR instance = null;
 					//System.err.println("Teste");
 					if(parser.senderID != myID) {
 						if(parser.messageType.equals("CHUNK")) {
-							LocalState.getInstance().notifyThatItWasSent(parser.fileID, parser.chunkNo);
-							Peer.restoreChunk(parser);
+							Chunk chunk = LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo);
+							if(chunk != null) {
+								if(chunk.getRestoreMode() == Chunk.State.ON) {
+									chunk.setRestoreMode(Chunk.State.OFF);
+								} else if(chunk.getRestoreMode() == Chunk.State.RECEIVE) {
+									chunk.setRestoreMode(Chunk.State.OFF);
+									Peer.restoreChunk(parser);
+								}
+							}
+							
+							//LocalState.getInstance().notifyThatItWasSent(parser.fileID, parser.chunkNo);
+							//Peer.restoreChunk(parser);
 						}
 					}
 					
