@@ -224,7 +224,10 @@ public class LocalState {
 	 * @param fileID
 	 */
 	public void notifyItWasDeleted(String fileID) {
-		getBackupFiles().get(fileID).notifyItWasDeleted();		
+		BackupFile file = getBackupFiles().get(fileID);
+		if(file != null) {
+			file.notifyItWasDeleted();
+		}	
 	}
 	/**
 	 * @return the backupFiles
