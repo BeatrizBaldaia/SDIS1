@@ -5,9 +5,14 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 import initiator.Peer;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
+import subprotocols.ChunkBackup;
+import subprotocols.StoreChunk;
 
 public class ChannelMDR {
 private static ChannelMDR instance = null;
@@ -108,12 +113,11 @@ private static ChannelMDR instance = null;
 									chunk.setRestoreMode(Chunk.State.OFF);
 								} else if(chunk.getRestoreMode() == Chunk.State.RECEIVE) {
 									chunk.setRestoreMode(Chunk.State.OFF);
-									Peer.restoreChunk(parser);
+									StoreChunk subprotocol = new StoreChunk(parser);
+									SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().submit(subprotocol);
 								}
 							}
 							
-							//LocalState.getInstance().notifyThatItWasSent(parser.fileID, parser.chunkNo);
-							//Peer.restoreChunk(parser);
 						}
 					}
 					

@@ -446,55 +446,5 @@ public class Peer implements InterfaceApp {
 		Peer.p = p;
 	}
 
-	/**
-	 * @param parser
-	 * @throws IOException
-	 */
-	public static void restoreChunk(Parser parser) throws IOException {
-		System.err.println("Estou aqui!");
-		//Boolean isEnhancement = false;
-		if(parser.version != 1.0) { 
-			//isEnhancement = true;
-			String data = new String(parser.body, "ISO-8859-1");
-			String[] elem = data.split(":");
-			parser.body = new byte[64000];
-			Socket socket = new Socket(elem[0], Integer.valueOf(elem[1]));
-			DataInputStream input = new DataInputStream(socket.getInputStream());
-			int length = 0;
-			try {
-				while(true) {
-					byte b = input.readByte();
-					parser.body[length]= b;
-					length++;
-				}
-			} catch (EOFException e) { }
-			socket.close();
-			parser.body = Arrays.copyOfRange(parser.body, 0, length);
-		}
-		Path filepath = Peer.getP().resolve("restoreFile-"+LocalState.getInstance().getBackupFiles().get(parser.fileID).getPathName());
-		if(!Files.exists(filepath)) {
-			Files.createFile(filepath);
-		}
-		AsynchronousFileChannel channel = AsynchronousFileChannel.open(filepath,StandardOpenOption.WRITE);
-		CompletionHandler<Integer, ByteBuffer> writter = new CompletionHandler<Integer, ByteBuffer>() {
-			@Override
-			public void completed(Integer result, ByteBuffer buffer) {
-				System.out.println("Finished writing!");
-			}
-
-			@Override
-			public void failed(Throwable arg0, ByteBuffer arg1) {
-				System.err.println("Error: Could not write!");
-				
-			}
-			
-		};
-		byte[] body = parser.body;
-		ByteBuffer src = ByteBuffer.allocate(body.length);
-		src.put(body);
-		src.flip();
-		channel.write(src, parser.chunkNo*64000, src, writter);
-			
-	}
 
 }
