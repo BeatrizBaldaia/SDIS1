@@ -1,6 +1,7 @@
 package message;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -11,9 +12,10 @@ public class SingletonThreadPoolExecutor {
 	
 	protected SingletonThreadPoolExecutor() {
 		/* ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) */
-		BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(10);
-		thread = new ThreadPoolExecutor(10, 20, 10L, TimeUnit.MILLISECONDS, workQueue);
+		//BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(10);
+//		thread = new ThreadPoolExecutor(10, 20, 10L, TimeUnit.MILLISECONDS, workQueue);
 		//TODO ver threads
+		thread = new ScheduledThreadPoolExecutor(20);
 	}
 
 	public static SingletonThreadPoolExecutor getInstance() {

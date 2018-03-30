@@ -18,6 +18,9 @@ import java.util.TreeSet;
 
 import javax.xml.bind.DatatypeConverter;
 
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -225,27 +228,41 @@ public class Peer implements InterfaceApp {
 			System.out.println("Error: File "+filename+" does not exist: ");
 			return;
 		}
-		byte[] body;
-		try {
-			body = Files.readAllBytes(filePath);
-		} catch (IOException e) {
-			System.out.println("Error: Could not read from file!");
-			e.printStackTrace();
-			return;
-		}
+		
+		Long numberOfChunks = (Files.size(filePath)/64000)+1;
 		String fileID = this.getFileID(filename);
-		//System.out.println("FileID: "+fileID);
 		int chunkNo = 0;
-		while(body.length>=(64000*(chunkNo+1))) { 
-			byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, (chunkNo+1)*64000);
+		while(chunkNo < numberOfChunks) {
+			AsynchronousFileChannel channel = AsynchronousFileChannel.open(filePath);
+			ByteBuffer body = ByteBuffer.allocate(64000);
+			int numberOfChunk = chunkNo;
+			channel.read(body, 64000*chunkNo, body, new CompletionHandler<Integer, ByteBuffer>() {
+				@Override
+				public void completed(Integer result, ByteBuffer buffer) {
+					System.err.println("result = " + result);
 	
-			backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename, isEnhancement);
+					buffer.flip();
+					byte[] data = new byte[buffer.limit()];
+					buffer.get(data);
+					//System.out.println(new String(data));
+					buffer.clear();
+					try {
+						backupChunk(numberOfChunk, replicationDegree, data, fileID, filename, isEnhancement);
+					} catch (UnsupportedEncodingException | InterruptedException e) {
+						e.printStackTrace();
+					} 
+					
+				}
+	
+				@Override
+				public void failed(Throwable arg0, ByteBuffer arg1) {
+					System.err.println("Error: Could not read!");
+					
+				}
+				
+			});
 			chunkNo++;
-
-		}
-		byte[] bodyOfTheChunk = Arrays.copyOfRange(body, chunkNo*64000, body.length);
-		backupChunk(chunkNo, replicationDegree, bodyOfTheChunk, fileID, filename,isEnhancement);
-		//TODO: Enhancement backup
+		}//TODO: Enhancement backup
 	}
 	
 	/**
@@ -258,9 +275,7 @@ public class Peer implements InterfaceApp {
 	 * @throws InterruptedException
 	 * @throws UnsupportedEncodingException
 	 */
-	public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename, Boolean isEnhancement) throws InterruptedException, UnsupportedEncodingException {
-			//System.err.println("Going to backUp cunkN= "+chunkNo);
-	
+	public void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String filename, Boolean isEnhancement) throws InterruptedException, UnsupportedEncodingException {	
 			Chunk chunk = new Chunk(chunkNo, replicationDegree, (long) bodyOfTheChunk.length, Peer.id);
 			LocalState.getInstance().saveChunk(fileID, filename, Peer.id, replicationDegree, chunk);
 			LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id);
