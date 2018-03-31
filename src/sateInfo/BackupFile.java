@@ -139,7 +139,11 @@ public class BackupFile {
 //		} else {
 //			System.out.println("Chunk NO: "+chunkID+" Exist!");
 //		}
-		int freedStorage = (int) getChunks().get(chunkID).getSize();
+		
+		int freedStorage = 0;
+		if(isStoringChunk(chunkID)) {
+			freedStorage = (int) getChunks().get(chunkID).getSize();
+		}
 		getChunks().get(chunkID).decreaseReplicationDeg(peerID);
 		
 		return freedStorage;
@@ -159,8 +163,10 @@ public class BackupFile {
 		int totalSpace = 0;
 
 		for (ConcurrentHashMap.Entry<Integer, Chunk> entry : chunks.entrySet()) {
-		    Chunk value = entry.getValue();
-		    totalSpace += value.getSize();
+			if(isStoringChunk(entry.getKey())) {
+				Chunk value = entry.getValue();
+				totalSpace += value.getSize();
+			}
 		}
 		
 		return totalSpace;
@@ -172,10 +178,14 @@ public class BackupFile {
 	 * @return the size of the chunk
 	 */
 	public long deleteChunk(int chunkID) {
-		long freedSpace = chunks.get((Integer)chunkID).getSize();
-		chunks.remove((Integer)chunkID);
-		
-		return freedSpace;
+		if(isStoringChunk(chunkID)) {
+			long freedSpace = chunks.get((Integer)chunkID).getSize();
+			chunks.remove((Integer)chunkID);
+
+			return freedSpace;
+		}
+
+		return 0;
 	}
 	
 	/**
@@ -187,9 +197,11 @@ public class BackupFile {
 		ArrayList<Pair<Pair<String, Integer>, Integer>> result = new ArrayList<Pair<Pair<String, Integer>, Integer>>();
 		
 		for(ConcurrentHashMap.Entry<Integer, Chunk> entry : chunks.entrySet()) {
-			Pair<String, Integer> file_chunk = new Pair<String, Integer>(fileID, entry.getKey());
-			Pair<Pair<String, Integer>, Integer> file_chunk_size = new Pair<Pair<String, Integer>, Integer> (file_chunk, entry.getValue().getexceededAmount());
-			result.add(file_chunk_size);
+			if(isStoringChunk(entry.getKey())) {
+				Pair<String, Integer> file_chunk = new Pair<String, Integer>(fileID, entry.getKey());
+				Pair<Pair<String, Integer>, Integer> file_chunk_size = new Pair<Pair<String, Integer>, Integer> (file_chunk, entry.getValue().getexceededAmount());
+				result.add(file_chunk_size);
+			}
 		}
 		
 		return result;
@@ -219,6 +231,10 @@ public class BackupFile {
 			}
 		}
 		return true;
+	}
+	
+	public boolean isStoringChunk(int chunkID) {
+		return chunks.get(chunkID).isStoringChunk();
 	}
 
 	

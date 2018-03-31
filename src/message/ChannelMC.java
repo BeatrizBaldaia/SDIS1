@@ -106,6 +106,8 @@ public class ChannelMC {
 					if(parser.senderID != myID) {
 						//Receber mensagens STORED, GETCHUNK, DELETE e REMOVED
 						if(parser.messageType.equals("STORED")) {
+							System.out.println("Recebeu STORE para chunk " + parser.chunkNo);
+							//saveChunkInfo(parser);
 							LocalState.getInstance().updateReplicationInfo(parser.senderID, parser.fileID, parser.chunkNo);
 						} else if(parser.messageType.equals("DELETE")) {
 							System.err.println("ESTOU A APAGAR!!!");
@@ -119,7 +121,7 @@ public class ChannelMC {
 						} else if(parser.messageType.equals("GETCHUNK")) {
 							if(LocalState.getInstance().getBackupFiles().get(parser.fileID) != null) {
 								Chunk chunk = LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo);
-								if(chunk != null) {
+								if(chunk != null && chunk.isStoringChunk()) {
 									chunk.setRestoreMode(Chunk.State.ON);
 									ChunkRestore subprotocol = new ChunkRestore(parser);
 									Random r = new Random();
@@ -166,6 +168,22 @@ public class ChannelMC {
 			}
 		}).start();
 
+	}
+	
+	public void saveChunkInfo(Parser parser) {
+		BackupFile file = LocalState.getInstance().getBackupFiles().get(parser.fileID);
+		if(file == null) {
+			Chunk chunk = new Chunk(parser.chunkNo, parser.replicationDeg, (long) parser.body.length, myID);
+			LocalState.getInstance().saveChunk(parser.fileID, null, parser.senderID, parser.replicationDeg, chunk);
+			LocalState.getInstance().decreaseReplicationDegree(parser.fileID, parser.chunkNo, parser.senderID, myID);
+		} else {
+			Chunk chunk = file.getChunks().get(parser.chunkNo);
+			if(chunk == null) {
+				chunk = new Chunk(parser.chunkNo, parser.replicationDeg, (long) parser.body.length, myID);
+				LocalState.getInstance().saveChunk(parser.fileID, null, parser.senderID, parser.replicationDeg, chunk);
+				LocalState.getInstance().decreaseReplicationDegree(parser.fileID, parser.chunkNo, parser.senderID, myID);
+			}
+		}
 	}
 
 }

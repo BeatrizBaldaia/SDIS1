@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import initiator.Peer;
 
 /**
- * @author anabela
+ * @author beatriz
  *
  */
 public class LocalState {
@@ -114,19 +114,6 @@ public class LocalState {
 
 		return;
 	}}
-//	
-//	private BackupFile computeSaveChunk(String k, BackupFile v, String pathName, int serviceID, int replicationdeg,
-//			Chunk chunk) {
-//		System.err.println("ATOMIC");
-//		BackupFile file = v;
-//		if(file == null) {
-//			System.err.println("UMA VEZ!!");
-//			file = new BackupFile(pathName, serviceID, replicationdeg);
-//		}
-//		file.addChunk(chunk);
-//		System.err.println("   ATOMIC");
-//		return file;
-//	}
 
 	/**
 	 * Creates a new BackupFile object to be saved in the hashmap
@@ -140,7 +127,7 @@ public class LocalState {
 	private BackupFile createNewBackupFile(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
 		BackupFile file = new BackupFile(pathName, serviceID, replicationDeg);
 		file.addChunk(chunk);
-		System.err.println("UMA VEZ");
+		System.err.println("CRIOU BACKUP FILE de id " + fileID);
 		return file;
 	}
 	/**
@@ -287,7 +274,7 @@ public class LocalState {
 			if(backupFiles.get(key).isBackupInitiator()) {
 				fileInfo = backupInitiatorInfo(backupFiles.get(key));
 			} else {
-				fileInfo = backupInitiatorInfo(backupFiles.get(key));
+				fileInfo = storedBackupChunksInfo(backupFiles.get(key));
 			}
 			info += fileInfo + "\n";
 		}
@@ -332,10 +319,12 @@ public class LocalState {
 	public String storedBackupChunksInfo(BackupFile file) {
 		String info = "I'm storing the following chunks:\n";
 		for (Integer key : file.getChunks().keySet()) {
-			Chunk chunk = file.getChunks().get(key);
-			info += "\tID = " + chunk.getID() + " ; Size = " + chunk.getSize() + " ; Perceived Replication Degree = " + chunk.getReplicationDegree() + "\n";
+			if(file.isStoringChunk(key)) {
+				Chunk chunk = file.getChunks().get(key);
+				info += "\tID = " + chunk.getID() + " ; Size = " + chunk.getSize() + " ; Perceived Replication Degree = " + chunk.getReplicationDegree() + "\n";
+			}
 		}
-		
+
 		return info;
 	}
 	
@@ -384,7 +373,6 @@ public class LocalState {
 
 			deletedChunks.add(pair.getL());
 			int freedStorage = (int) backupFiles.get(file_id).deleteChunk(chunk_id);
-			//long freedStorage = backupFiles.get(file_id).getChunks().get(chunk_id).getSize();
 			this.usedStorage -= freedStorage;
 			 
 		}
@@ -399,6 +387,10 @@ public class LocalState {
 	 */
 	public boolean isReplicationDegreeZero(String fileName) {
 		return this.backupFiles.get(fileName).isReplicationDegreeZero();
+	}
+	
+	public boolean isStoringChunk(String fileID, int chunkID) {
+		return backupFiles.get(fileID).isStoringChunk(chunkID);
 	}
 
 }

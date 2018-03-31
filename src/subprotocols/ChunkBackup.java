@@ -55,8 +55,8 @@ public class ChunkBackup implements Runnable {
 					Chunk chunk = file.getChunks().get(this.chunkNo);
 					if(chunk != null) {
 						if(chunk.desireReplicationDeg()) {
-							System.err.println("NAO FAZER STORE do chunk porque ja temos o rep. deg. pedido");
-							LocalState.getInstance().getBackupFiles().remove(this.fileID);
+							System.err.println("NAO FAZER STORE do chunk" + chunkNo + "porque ja temos o rep. deg. pedido");
+							//LocalState.getInstance().getBackupFiles().remove(this.fileID);
 							return;
 						}
 					}

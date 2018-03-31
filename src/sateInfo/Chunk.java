@@ -2,6 +2,8 @@ package sateInfo;
 
 import java.util.ArrayList;
 
+import initiator.Peer;
+
 
 
 
@@ -38,7 +40,13 @@ public class Chunk {
 		this.currReplicationDeg = currReplicationDeg;
 	}
 
-
+	/**
+	 * Changes the desired replication degree
+	 * @param replicationDeg
+	 */
+	public void setReplicationDeg(int replicationDeg) {
+		this.replicationDeg = replicationDeg;
+	}
 	
 	public Chunk(int id, int replicationDeg, Long size2, int peerID) {
 		this.id = id;
@@ -136,6 +144,7 @@ public class Chunk {
 	 * @return
 	 */
 	public boolean desireReplicationDeg() {
+		System.out.println("\n\t>>>>Desired Replication Deg. = "+this.replicationDeg);
 		return this.replicationDeg <= this.currReplicationDeg;
 	}
 
@@ -151,6 +160,14 @@ public class Chunk {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Verifies if I'm storing this chunk
+	 * @return
+	 */
+	public boolean isStoringChunk() {
+		return peersStoring.contains(Peer.id);
 	}
 
 	public boolean seeIfAlreadySent() {
