@@ -56,7 +56,13 @@ public class ChunkBackup implements Runnable {
 					if(chunk != null) {
 						if(chunk.desireReplicationDeg()) {
 							System.err.println("NAO FAZER STORE do chunk" + chunkNo + "porque ja temos o rep. deg. pedido");
-							//LocalState.getInstance().getBackupFiles().remove(this.fileID);
+							if(LocalState.getInstance().isStoringChunk(fileID, chunkNo)) {
+								try {
+									sendConfirmation();
+								} catch (UnsupportedEncodingException | InterruptedException e) {
+									e.printStackTrace();
+								}//enviar sempre a mensagem store mesmo quando ja tinhamos este chunk guardado
+							}
 							return;
 						}
 					}
@@ -72,6 +78,15 @@ public class ChunkBackup implements Runnable {
 			} catch (UnsupportedEncodingException | InterruptedException e) {
 				e.printStackTrace();
 			}//enviar sempre a mensagem store mesmo quando ja tinhamos este chunk guardado
+		}else {
+
+			if(LocalState.getInstance().isStoringChunk(fileID, chunkNo)) {
+				try {
+					sendConfirmation();
+				} catch (UnsupportedEncodingException | InterruptedException e) {
+					e.printStackTrace();
+				}//enviar sempre a mensagem store mesmo quando ja tinhamos este chunk guardado
+			}
 		}
 		
 		return;

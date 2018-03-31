@@ -59,15 +59,22 @@ public class BackupFile {
 	 * @param chunk
 	 */
 	public BackupFile addChunk(Chunk chunk) {
-		if(getChunks().computeIfAbsent(chunk.getID(), k -> chunk) != null) {
-			LocalState.getInstance().setUsedStorage(chunk.getSize());
-			return this;
+		synchronized(chunks) {
+			System.out.println("OOOOOOOOOLLLLLLLLLLLLLLLAAAAAAAAAAAA");
+			if(chunks.get(chunk.getID()) ==  null){
+				chunks.put(chunk.getID(), chunk);
+				LocalState.getInstance().setUsedStorage(chunk.getSize());
+				return this;
+			} else {
+				System.out.println("\t\tdeu null no absent");
+				if(chunks.get(chunk.getID()).isNewPeerStoring(Peer.id)) {
+					LocalState.getInstance().setUsedStorage(chunk.getSize());
+					System.out.println("\n\n\t>>>>>>Estou a guardar o CHUNK "+chunk.getID() + "\n");
+				}
+				return null;
+			}
 		}
-		if(chunks.get(chunk.getID()).isNewPeerStoring(Peer.id)) {
-			LocalState.getInstance().setUsedStorage(chunk.getSize());
-		}
-		
-		return null;
+
 	}
 	
 	/**

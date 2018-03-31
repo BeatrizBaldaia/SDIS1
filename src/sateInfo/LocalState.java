@@ -87,33 +87,25 @@ public class LocalState {
 	 */
 	
 	public void saveChunk(String fileID, String pathName, int serviceID, int replicationdeg, Chunk chunk) {
-		synchronized (instance) {
-			//System.out.println("SINCHONIZED");
-//		if(getBackupFiles().compute(fileID, (k,v) -> computeSaveChunk(k,v,pathName,serviceID,replicationdeg,chunk)) == null) {
-//			if(getBackupFiles().get(fileID).getChunks().get(chunk.getID())==null) {
-//				System.err.println("Chunk Nao salvado1 "+chunk.getID());
-//			} else {
-//				System.out.println("1GUARDAR CHUNK NO :"+getBackupFiles().get(fileID).getChunks().get(chunk.getID()).getID() );
-//			}
-		
-//		if(getBackupFiles().get(fileID).getChunks().get(chunk.getID())==null) {
-//			System.err.println("Chunk Nao salvado2 "+chunk.getID());
-//		} else {
-//			System.out.println("2GUARDAR CHUNK NO :"+getBackupFiles().get(fileID).getChunks().get(chunk.getID()).getID() );
-//		}
+		synchronized (backupFiles) {
+			if(backupFiles.get(fileID) == null) {
+				BackupFile file = new BackupFile(pathName, serviceID, replicationdeg);
+				file.addChunk(chunk);
+				backupFiles.put(fileID, file);
+			} else {
+				backupFiles.get(fileID).addChunk(chunk);
+			}
+			//		if(backupFiles.computeIfPresent(fileID, (k,v) -> v.addChunk(chunk)) == null) {
+//			backupFiles.computeIfAbsent(fileID, k -> createNewBackupFile(k,pathName, serviceID, replicationdeg, chunk));
+//			//System.out.println("   1SINCHONIZED");
 //
-		//System.out.println("   SINCHONIZED");
+//			return;
 //		}
-		if(backupFiles.computeIfPresent(fileID, (k,v) -> v.addChunk(chunk)) == null) {
-			backupFiles.computeIfAbsent(fileID, k -> createNewBackupFile(k,pathName, serviceID, replicationdeg, chunk));
-			//System.out.println("   1SINCHONIZED");
-
-			return;
+//		//System.out.println("   2SINCHONIZED");
+//
+//		return;
 		}
-		//System.out.println("   2SINCHONIZED");
-
-		return;
-	}}
+	}
 
 	/**
 	 * Creates a new BackupFile object to be saved in the hashmap
