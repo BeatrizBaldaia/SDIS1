@@ -18,6 +18,11 @@ public class Chunk {
 	
 	private int currReplicationDeg = 0;
 	
+	private Long size = (long) 0;
+	
+	private boolean sentWithGetChunk =false;
+	
+	private ArrayList<Integer> peersStoring = new ArrayList<Integer>();
 	
 	/**
 	 * @return the currReplicationDeg
@@ -33,17 +38,7 @@ public class Chunk {
 		this.currReplicationDeg = currReplicationDeg;
 	}
 
-	private Long size = (long) 0;
-	
-	private boolean sentWithGetChunk =false;
-	
-	private ArrayList<Integer> peersStoring = new ArrayList<Integer>();
 
-	
-	/**
-	 * To use in the restore protocol, keeps the body until i can write to the file
-	 */
-	private byte[] body;
 	
 	public Chunk(int id, int replicationDeg, Long size2, int peerID) {
 		this.id = id;
@@ -190,17 +185,5 @@ public class Chunk {
 		return currReplicationDeg <= 0;
 	}
 
-	/**
-	 * @return the body
-	 */
-	public byte[] getBody() {
-		return body;
-	}
-
-	/**
-	 * @param body the body to set
-	 */
-	public void setBody(byte[] body) {
-		this.body = body;
-	}
+	
 }

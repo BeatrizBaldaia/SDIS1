@@ -114,12 +114,19 @@ public class ChannelMDB {
                 	if(parser.senderID != myID) { //
 	                	if(parser.messageType.equals("PUTCHUNK")) {
 	                		BackupFile file = LocalState.getInstance().getBackupFiles().get(parser.fileID);
-	                		if(file != null) {
-	                			Chunk chunk = file.getChunks().get(parser.chunkNo);
-		                		if(chunk != null) {
-		                			chunk.setReclaimMode(Chunk.State.OFF);
-		                		}
-	                		}
+							if(file == null) {
+								Chunk chunk = new Chunk(parser.chunkNo, parser.replicationDeg, (long) parser.body.length, myID);
+								LocalState.getInstance().saveChunk(parser.fileID, null, parser.senderID, parser.replicationDeg, chunk);
+								LocalState.getInstance().decreaseReplicationDegree(parser.fileID, parser.chunkNo, parser.senderID, myID);
+							} else {
+								Chunk chunk = file.getChunks().get(parser.chunkNo);
+								if(chunk == null) {
+									chunk = new Chunk(parser.chunkNo, parser.replicationDeg, (long) parser.body.length, myID);
+									LocalState.getInstance().saveChunk(parser.fileID, null, parser.senderID, parser.replicationDeg, chunk);
+									LocalState.getInstance().decreaseReplicationDegree(parser.fileID, parser.chunkNo, parser.senderID, myID);
+								}
+								chunk.setReclaimMode(Chunk.State.OFF);
+							}
 
 	                		handlePutChunkMsg(parser);
 	                	}
@@ -138,52 +145,11 @@ public class ChannelMDB {
      * @param parser
      */
     public void handlePutChunkMsg(Parser parser) {
-		if((parser.body.length + LocalState.getInstance().getUsedStorage()) <= LocalState.getInstance().getStorageCapacity()) {
-			try {
-				storeChunk(parser);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			ChunkBackup subprotocol = new ChunkBackup(parser.version, Peer.id, parser.fileID, parser.chunkNo);
-			Random r = new Random();
-			SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().schedule(subprotocol, (long) r.nextInt(400), TimeUnit.MILLISECONDS);
-		}
-
+    	Random r = new Random();
+    	ChunkBackup subprotocol = new ChunkBackup(parser.version, Peer.id, parser.senderID, parser.fileID, parser.chunkNo, parser.body, parser.replicationDeg);
+    	SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().schedule(subprotocol, (long) r.nextInt(400), TimeUnit.MILLISECONDS);
     }
     
-    /**
-     * Stores the chunk if it doesn't exists
-     * @param parser
-     * @throws IOException
-     */
-    public void storeChunk(Parser parser) throws IOException {
-    	byte[] body = Arrays.copyOf(parser.body, parser.body.length);
-    	Chunk chunk = new Chunk(parser.chunkNo, parser.replicationDeg, (long) body.length, Peer.id);
-		LocalState.getInstance().saveChunk(parser.fileID, null, parser.senderID, parser.replicationDeg, chunk);
-
-		Path filePath = Peer.getP().resolve(parser.fileID + "_" + parser.chunkNo);
-		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
-			System.out.println("Criar ficheiro: "+filePath);
-			Files.createFile(filePath);
-			AsynchronousFileChannel channel = AsynchronousFileChannel.open(filePath,StandardOpenOption.WRITE);
-			CompletionHandler<Integer, ByteBuffer> writter = new CompletionHandler<Integer, ByteBuffer>() {
-				@Override
-				public void completed(Integer result, ByteBuffer buffer) {
-					System.out.println("Finished writing!");
-				}
-	
-				@Override
-				public void failed(Throwable arg0, ByteBuffer arg1) {
-					System.err.println("Error: Could not write!");
-					
-				}
-				
-			};
-			ByteBuffer src = ByteBuffer.allocate(parser.body.length);
-			src.put(parser.body);
-			src.flip();
-			channel.write(src, 0, src, writter);
-		}
-    }
+    
     
 }

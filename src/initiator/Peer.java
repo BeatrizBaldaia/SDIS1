@@ -324,6 +324,9 @@ public class Peer implements InterfaceApp {
 		//System.out.println("SAVACHUNK!!!: "+fileID+" CHUNKNO: "+chunk.getID());
 		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id, Peer.id);
 		double version = Peer.protocolVersion; //TODO: isEnhancement
+		if(isEnhancement) {
+			version = 1.1;
+		}
 		SendPutChunk subprotocol = new SendPutChunk(version, Peer.id, fileID, fileName, chunkNo, replicationDegree, bodyOfTheChunk);
 		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().submit(subprotocol);
 		return;

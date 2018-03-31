@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import initiator.Peer;
 import sateInfo.Chunk.State;
 
 
@@ -62,6 +63,10 @@ public class BackupFile {
 			LocalState.getInstance().setUsedStorage(chunk.getSize());
 			return this;
 		}
+		if(chunks.get(chunk.getID()).isNewPeerStoring(Peer.id)) {
+			LocalState.getInstance().setUsedStorage(chunk.getSize());
+		}
+		
 		return null;
 	}
 	
@@ -121,9 +126,12 @@ public class BackupFile {
 	public void increaseReplicationDegree(int chunkID) {
 		chunks.get(chunkID).increaseReplicationDeg();
 	}
+	
 	/**
 	 * decreases by one the current replication degree
 	 * @param chunkID
+	 * @param peerID who is going to stop storing the chunk
+	 * @return the size of the chunk (freed space)
 	 */
 	public int decreaseReplicationDegree(int chunkID, int peerID) {
 //		if(getChunks().get(chunkID)==null) {
@@ -132,7 +140,6 @@ public class BackupFile {
 //			System.out.println("Chunk NO: "+chunkID+" Exist!");
 //		}
 		int freedStorage = (int) getChunks().get(chunkID).getSize();
-		//LocalState.getInstance().setUsedStorage(-(chunks.get(chunkID).getSize()));//Frees storage
 		getChunks().get(chunkID).decreaseReplicationDeg(peerID);
 		
 		return freedStorage;
