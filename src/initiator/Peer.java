@@ -44,7 +44,7 @@ import subprotocols.SendPutChunk;
 public class Peer implements InterfaceApp {
 	private static double protocolVersion;
 	public static int id;
-	private static int serviceAccessPoint;
+	private static String serviceAccessPoint;
 	private static Path p;
 	
 	private static ChannelMC mc;
@@ -59,7 +59,10 @@ public class Peer implements InterfaceApp {
 
 			protocolVersion = Integer.parseInt(args[0]);
 			id = Integer.parseInt(args[1]);
-			serviceAccessPoint = Integer.parseInt(args[2]);
+			serviceAccessPoint = args[2];
+
+			String host = serviceAccessPoint.split(":")[0];
+			Integer port = Integer.valueOf(serviceAccessPoint.split(":")[1]);
 			
 			mc = ChannelMC.getInstance();
 			mc.createMulticastSocket(args[3], args[4], id);
@@ -84,8 +87,8 @@ public class Peer implements InterfaceApp {
 				InterfaceApp protocol = (InterfaceApp) UnicastRemoteObject.exportObject(obj, 0);
 
 				// Bind the remote object's stub in the registry
-				Registry registry = LocateRegistry.getRegistry("localhost",1099);
-				registry.rebind("PROTOCOL", protocol);
+				Registry registry = LocateRegistry.getRegistry(host,port);
+				registry.rebind("peer_"+id, protocol);
 
 				System.out.println("Server ready");
 			} catch (Exception e) {
