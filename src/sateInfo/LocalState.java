@@ -167,24 +167,25 @@ public class LocalState {
 		System.err.println("deleteFileChunks");
 		BackupFile file = null; 
 		if((file = backupFiles.get(fileID)) != null) {
-			//System.err.println("If");
+			System.err.println("If");
 			int recoveredSpace = file.deleteChunks();
 			if(recoveredSpace > 0) {
-				//System.err.println("recover");
+				System.err.println("recover");
 				this.usedStorage -= recoveredSpace;
 				//File directory = new File(".");
 				Path dir = Peer.getP();
 				File directory = dir.toFile();
-				String pattern = Peer.getP().toString() + File.separator + fileID + "*";
+				String pattern = Peer.getP().toString() + "/" + fileID + "*";//File.separator + fileID + "*";
+				System.err.println("Patter: "+pattern);
 				PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
 				File[] files = directory.listFiles();
 				for(int i = 0; i<files.length; i++) {
 					String filename = files[i].getName();
-					//System.err.println("FILE: "+filename);
+					System.err.println("FILE: "+filename);
 					Path name = Peer.getP().resolve(filename);
-					//System.err.println("PATHS: "+name.toString());
+					System.err.println("PATHS: "+name.toString());
 					if (name != null && matcher.matches(name)) {
-						//System.err.println("  Pertence");
+						System.err.println("  Pertence");
 						try {
 							Files.delete(name);
 						} catch (IOException e) {
