@@ -172,6 +172,12 @@ public class BackupFile {
 	 * @return the size of the chunk
 	 */
 	public long deleteChunk(int chunkID) {
+		if(chunks.get((Integer)chunkID) == null) {
+			System.err.println("Chunk == null");
+		}else {
+			System.err.println("Chunk != null");
+		}
+		System.out.println("VAI DAR ERRO!!");
 		long freedSpace = chunks.get((Integer)chunkID).getSize();
 		chunks.remove((Integer)chunkID);
 		

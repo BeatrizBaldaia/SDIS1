@@ -146,8 +146,12 @@ public class ChannelMC {
 								}
 							}
 						} else if(parser.messageType.equals("REMOVED")) {
+							try {
 							LocalState.getInstance().decreaseReplicationDegree(parser.fileID, parser.chunkNo, parser.senderID, Peer.id);
-							if(LocalState.getInstance().getBackupFiles().get(parser.fileID).desireReplicationDeg(parser.chunkNo)) {
+							} catch(NullPointerException e) {
+								continue;
+							}
+							if(!LocalState.getInstance().getBackupFiles().get(parser.fileID).desireReplicationDeg(parser.chunkNo)) {
 								Chunk chunk = LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo);
 								chunk.setReclaimMode(Chunk.State.ON);
 								Reclaiming subprotocol = new Reclaiming(parser);

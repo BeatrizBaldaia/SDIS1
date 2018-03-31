@@ -186,7 +186,7 @@ public class Peer implements InterfaceApp {
 	 * @return the REMOVED message to be sent
 	 */
 	public String createRemovedMessage(double version, int senderID, String fileID, int chunkNo) {
-		String msg = "REMOVED"+ version + " " + senderID + " " + fileID + " " + chunkNo + " \r\n\r\n";
+		String msg = "REMOVED "+ version + " " + senderID + " " + fileID + " " + chunkNo + " \r\n\r\n";
 		return msg;
 	}
 	

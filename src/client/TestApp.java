@@ -62,13 +62,15 @@ public class TestApp {
 				break;
 			}
 			case "RECLAIM":{
-				System.err.println("Implement RECLAIM");//TODO: reclaim
+				Integer space = Integer.valueOf(args[2]);
+				protocol.reclaimStorage(space);
+				System.out.println("Returned: Reclaim Done!");//TODO: reclaim
 				break;
 			}
 			case "STATE":{
 				String state = protocol.getState();
 				System.out.println(state);
-				System.err.println("Returned: State Done!");
+				System.out.println("Returned: State Done!");
 				break;
 			}
 			default: {

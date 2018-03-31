@@ -1,7 +1,11 @@
 package subprotocols;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.CompletionHandler;
+import java.nio.file.Paths;
 
 import initiator.Peer;
 import message.Parser;
@@ -19,24 +23,96 @@ public class Reclaiming implements Runnable{
 	public Reclaiming (Parser parser) {
 		version = parser.version;
 		senderID = parser.senderID;
+		chunkNo = parser.chunkNo;
 		fileID = parser.fileID;
 		fileName = new String(parser.fileID);
-		chunkNo = parser.chunkNo;
-		this.body = Arrays.copyOf(body, body.length);
+		fileName = fileName + "_" + chunkNo;
+		
+		
 	}
 	
 	@Override
 	public void run() {
-		Chunk chunk = LocalState.getInstance().getBackupFiles().get(this.fileID).getChunks().get(this.chunkNo);
-		if(chunk.getReclaimMode() == Chunk.State.ON) {
-			chunk.setReclaimMode(Chunk.State.OFF);
+		if(LocalState.getInstance().getBackupFiles().get(fileID).getPathName() == null) {
+			AsynchronousFileChannel channel;
 			try {
-				boolean isEnhancement = (this.version == 1.2) ? true : false;
-				
-				Peer.backupChunk(this.chunkNo, chunk.getReplicationDegree(), this.body, this.fileID, this.fileName, isEnhancement);
-			} catch (UnsupportedEncodingException | InterruptedException e) {
-				e.printStackTrace();
+				channel = AsynchronousFileChannel.open(Peer.getP().resolve(fileName));
+				ByteBuffer body = ByteBuffer.allocate(64000);
+				CompletionHandler<Integer, ByteBuffer> reader =new CompletionHandler<Integer, ByteBuffer>() {
+					@Override
+					public void completed(Integer result, ByteBuffer buffer) {
+
+						buffer.flip();
+						byte[] data = new byte[buffer.limit()];
+						buffer.get(data);
+						//System.out.println(new String(data));
+						buffer.clear();
+						Chunk chunk = LocalState.getInstance().getBackupFiles().get(fileID).getChunks().get(chunkNo);
+						if(chunk.getReclaimMode() == Chunk.State.ON) {
+							chunk.setReclaimMode(Chunk.State.OFF);
+							try {
+								boolean isEnhancement = (version == 1.2) ? true : false;
+								
+								Peer.backupChunk(chunkNo, chunk.getReplicationDegree(), data, fileID, fileName, isEnhancement);
+							} catch (UnsupportedEncodingException | InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+						
+					}
+
+					@Override
+					public void failed(Throwable arg0, ByteBuffer arg1) {
+						System.err.println("Error: Could not read!");
+						
+					}
+					
+				};
+				channel.read(body, 0, body, reader);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		} else {
+			AsynchronousFileChannel channel;
+			try {
+				channel = AsynchronousFileChannel.open(Paths.get(LocalState.getInstance().getBackupFiles().get(fileID).getPathName()));
+				ByteBuffer body = ByteBuffer.allocate(64000);
+				CompletionHandler<Integer, ByteBuffer> reader =new CompletionHandler<Integer, ByteBuffer>() {
+					@Override
+					public void completed(Integer result, ByteBuffer buffer) {
+
+						buffer.flip();
+						byte[] data = new byte[buffer.limit()];
+						buffer.get(data);
+						//System.out.println(new String(data));
+						buffer.clear();
+						Chunk chunk = LocalState.getInstance().getBackupFiles().get(fileID).getChunks().get(chunkNo);
+						if(chunk.getReclaimMode() == Chunk.State.ON) {
+							chunk.setReclaimMode(Chunk.State.OFF);
+							try {
+								boolean isEnhancement = (version == 1.2) ? true : false;
+								
+								Peer.backupChunk(chunkNo, chunk.getReplicationDegree(), data, fileID, fileName, isEnhancement);
+							} catch (UnsupportedEncodingException | InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+						
+					}
+
+					@Override
+					public void failed(Throwable arg0, ByteBuffer arg1) {
+						System.err.println("Error: Could not read!");
+						
+					}
+					
+				};
+				channel.read(body, 64000*chunkNo, body, reader);
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
 		}
+
+		
 	}
 }
