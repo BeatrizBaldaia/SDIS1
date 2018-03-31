@@ -11,10 +11,6 @@ java -cp bin Initiator.Peer 1 226.0.0.1 8080 226.0.0.2 8081 teste.txt 1
 java -jar McastSnooper.jar 226.0.0.1:8080 226.0.0.2:8081 226.0.0.0:8082
 
 
-Version 1.0 Normal
-Version 1.1 Enhancement RESTORE
-Version 1.2 Enhencement DELETE
-
 java -cp bin client.TestApp localhost:1099:peer_1 BACKUP a.png 1
 
 Alterar permissões:
@@ -27,3 +23,6 @@ kill -kill <PID>
 java -cp bin client.TestApp localhost:1099:peer_1 BACKUP a.png 1
 java -cp bin client.TestApp localhost:1099:peer_1 RECLAIM 0
 java -cp bin client.TestApp localhost:1099:peer_2 RESTORE a.png
+java -cp bin client.TestApp localhost:1099:peer_2 DELETE a.png
+java -cp bin client.TestApp localhost:1099:peer_2 STATE a.png
+

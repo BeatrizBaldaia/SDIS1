@@ -12,7 +12,7 @@ import server.InterfaceApp;
 public class TestApp {
 	public static void main(String[] args) throws RemoteException, NoSuchAlgorithmException, IOException, InterruptedException {
 		if (args.length < 2) {
-			System.out.println("Error: Not enougth arguments.");
+			System.out.println("Usage: java TestApp <peer_ap> <sub_protocol> [<opnd_1> [<opnd_2>]]");
 			return;
 		}
 		String peerAccessPoint = args[0];
