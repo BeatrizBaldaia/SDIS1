@@ -1,4 +1,4 @@
-# Project 1 -- Distributed Backup Service
+# Project 1 - Distributed Backup Service
 
 In this project you will develop a distributed backup service for a local area network (LAN). The idea is to use the free disk space of the computers in a LAN for backing up files in other computers in the same LAN. The service is provided by servers in an environment that is assumed cooperative (rather than hostile). Nevertheless, each server retains control over its own disks and, if needed, may reclaim the space it made available for backing up other computers' files.
 
@@ -15,8 +15,13 @@ Version 1.0 Normal
 Version 1.1 Enhancement RESTORE
 Version 1.2 Enhencement DELETE
 
-java -cp bin initiator.Peer 1 1 2 226.0.0.1 8080 226.0.0.2 8081 226.0.0.0 8082
-java -cp bin initiator.Peer 1 2 2 226.0.0.1 8080 226.0.0.2 8081 226.0.0.0 8082
-java -cp bin initiator.Peer 1 3 2 226.0.0.1 8080 226.0.0.2 8081 226.0.0.0 8082
+java -cp bin initiator.Peer 1 1 localhost:1099 226.0.0.1 8080 226.0.0.2 8081 226.0.0.0 8082
+java -cp bin initiator.Peer 1 2 localhost:1099 226.0.0.1 8080 226.0.0.2 8081 226.0.0.0 8082
+java -cp bin initiator.Peer 1 3 localhost:1099 226.0.0.1 8080 226.0.0.2 8081 226.0.0.0 8082
 java -cp bin client.TestApp localhost:1099:PROTOCOL BACKUP a.png 1
 
+Alterar permissões:
+chmod +x script.sh
+
+pidof rmiregistry
+kill -kill <PID>
