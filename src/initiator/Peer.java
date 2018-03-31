@@ -22,8 +22,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -401,13 +403,14 @@ public class Peer implements InterfaceApp {
 			ArrayList<Pair<String, Integer>> deletedChunks = LocalState.getInstance().manageStorage();//enviar uma mensagem REMOVED para cada chunk apagado
 			for(Pair<String, Integer> pair : deletedChunks) {
 				try {
+					Files.delete(Peer.getP().resolve(pair.getL()+"_"+pair.getR()));
 					if(sendRemovedMessage(Peer.protocolVersion, Peer.id, pair.getL(), pair.getR()) == -1) {
 						System.err.println("Error: Could not send REMOVED message.");
 						return false;
 					}
-				} catch (UnsupportedEncodingException e) {
+				} catch (IOException e) {
 					e.printStackTrace();
-				}
+				} 
 			}
 				
 			return true;
