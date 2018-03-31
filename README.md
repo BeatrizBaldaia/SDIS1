@@ -26,3 +26,4 @@ kill -kill <PID>
 
 java -cp bin client.TestApp localhost:1099:peer_1 BACKUP a.png 1
 java -cp bin client.TestApp localhost:1099:peer_1 RECLAIM 0
+java -cp bin client.TestApp localhost:1099:peer_2 RESTORE a.png
