@@ -91,6 +91,7 @@ public class ChunkRestore implements Runnable {
 			ServerSocket machine = new ServerSocket(1040);
 			byte[] data  = this.body;
 			//String address = machine.getInetAddress().getHostAddress()+":"+1040;
+			System.out.println("ADDRESS: "+InetAddress.getLocalHost().getHostAddress());
 			String address =InetAddress.getLocalHost().getHostAddress()+":"+1040;
 			this.body = address.getBytes();
 			System.err.println(address);
