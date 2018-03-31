@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -33,9 +34,12 @@ public class StoreChunk implements Runnable {
 			}
 			
 			Path filepath = Peer.getP().resolve("restoreFile-"+LocalState.getInstance().getBackupFiles().get(parser.fileID).getPathName());
-			if(!Files.exists(filepath)) {
+			
+			try {
 				Files.createFile(filepath);
+			} catch(FileAlreadyExistsException e) {
 			}
+			
 			
 			AsynchronousFileChannel channel;
 			channel = AsynchronousFileChannel.open(filepath,StandardOpenOption.WRITE);

@@ -12,7 +12,7 @@ import server.InterfaceApp;
 public class TestApp {
 	public static void main(String[] args) throws RemoteException, NoSuchAlgorithmException, IOException, InterruptedException {
 		if (args.length < 2) {
-			System.out.println("Error: Not enougth arguments.");
+			System.out.println("Usage: java TestApp <peer_ap> <sub_protocol> [<opnd_1> [<opnd_2>]]");
 			return;
 		}
 		String peerAccessPoint = args[0];
@@ -62,13 +62,15 @@ public class TestApp {
 				break;
 			}
 			case "RECLAIM":{
-				System.err.println("Implement RECLAIM");//TODO: reclaim
+				Integer space = Integer.valueOf(args[2]);
+				protocol.reclaimStorage(space);
+				System.out.println("Returned: Reclaim Done!");//TODO: reclaim
 				break;
 			}
 			case "STATE":{
 				String state = protocol.getState();
 				System.out.println(state);
-				System.err.println("Returned: State Done!");
+				System.out.println("Returned: State Done!");
 				break;
 			}
 			default: {

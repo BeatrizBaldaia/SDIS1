@@ -366,7 +366,7 @@ public class LocalState {
 		Collections.sort(arr);		
 		
 		int i = 0;
-		while(this.usedStorage > this.storageCapacity) {
+		while((this.usedStorage > this.storageCapacity) && (i < arr.size())) {
 			Pair<Pair<String, Integer>, Integer> pair = arr.get(i);
 			String file_id = pair.getL().getL();
 			Integer chunk_id = pair.getL().getR();
@@ -374,7 +374,7 @@ public class LocalState {
 			deletedChunks.add(pair.getL());
 			int freedStorage = (int) backupFiles.get(file_id).deleteChunk(chunk_id);
 			this.usedStorage -= freedStorage;
-			 
+			i++;
 		}
 		
 		return deletedChunks;

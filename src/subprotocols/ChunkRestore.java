@@ -3,6 +3,7 @@ package subprotocols;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -89,11 +90,13 @@ public class ChunkRestore implements Runnable {
 			
 			ServerSocket machine = new ServerSocket(1040);
 			byte[] data  = this.body;
-			String address = machine.getInetAddress().getHostAddress()+":"+1040;
+			//String address = machine.getInetAddress().getHostAddress()+":"+1040;
+			System.out.println("ADDRESS: "+InetAddress.getLocalHost().getHostAddress());
+			String address =InetAddress.getLocalHost().getHostAddress()+":"+1040;
 			this.body = address.getBytes();
 			System.err.println(address);
-			System.err.println("Socket address: "+this.body.toString());
-			System.err.println("Socket address: "+data.toString());
+			//System.err.println("Socket address: "+this.body.toString());
+			//System.err.println("Socket address: "+data.toString());
 			new Thread(() -> {
 				try {
 					Socket socket = machine.accept();
