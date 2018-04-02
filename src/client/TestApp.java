@@ -20,7 +20,6 @@ public class TestApp {
 		String host = elems[0];
 		Integer port = Integer.valueOf(elems[1]);
 		String name = elems[2];
-		System.out.println("Peer Access Point: " + peerAccessPoint);
 		String subprotocol = args[1];
 		Registry registry;
 		InterfaceApp protocol;
@@ -31,6 +30,7 @@ public class TestApp {
 			e1.printStackTrace();
 			return;
 		}
+		System.out.println("Connected to "+name+"!");
 		Boolean isEnhancement = false;
 		switch (subprotocol) {
 			case "BACKUPENH":{
@@ -64,7 +64,7 @@ public class TestApp {
 			case "RECLAIM":{
 				Integer space = Integer.valueOf(args[2]);
 				protocol.reclaimStorage(space);
-				System.out.println("Returned: Reclaim Done!");//TODO: reclaim
+				System.out.println("Returned: Reclaim Done!");
 				break;
 			}
 			case "STATE":{

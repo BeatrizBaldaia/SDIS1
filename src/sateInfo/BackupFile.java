@@ -60,16 +60,13 @@ public class BackupFile {
 	 */
 	public BackupFile addChunk(Chunk chunk) {
 		synchronized(chunks) {
-			System.out.println("OOOOOOOOOLLLLLLLLLLLLLLLAAAAAAAAAAAA");
 			if(chunks.get(chunk.getID()) ==  null){
 				chunks.put(chunk.getID(), chunk);
 				LocalState.getInstance().setUsedStorage(chunk.getSize());
 				return this;
 			} else {
-				System.out.println("\t\tdeu null no absent");
 				if(chunks.get(chunk.getID()).isNewPeerStoring(Peer.id)) {
 					LocalState.getInstance().setUsedStorage(chunk.getSize());
-					System.out.println("\n\n\t>>>>>>Estou a guardar o CHUNK "+chunk.getID() + "\n");
 				}
 				return null;
 			}
@@ -94,7 +91,6 @@ public class BackupFile {
 	public boolean updateReplicationInfo(int chunkID, int senderID) {
 		Chunk chunk = getChunks().get(chunkID);
 		if(chunk == null) {
-			System.out.println("This peer is not saving this chunk.\n");
 			return false;
 		} 
 		return chunk.isNewPeerStoring(senderID);
@@ -141,12 +137,6 @@ public class BackupFile {
 	 * @return the size of the chunk (freed space)
 	 */
 	public int decreaseReplicationDegree(int chunkID, int peerID) {
-//		if(getChunks().get(chunkID)==null) {
-//			System.out.println("Chunk NO: "+chunkID+" Does not exist!");
-//		} else {
-//			System.out.println("Chunk NO: "+chunkID+" Exist!");
-//		}
-		
 		int freedStorage = 0;
 		if(isStoringChunk(chunkID)) {
 			freedStorage = (int) getChunks().get(chunkID).getSize();

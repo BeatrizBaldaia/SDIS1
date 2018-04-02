@@ -33,6 +33,7 @@ import sateInfo.Chunk.State;
 import sateInfo.LocalState;
 import sateInfo.Pair;
 import server.InterfaceApp;
+import server.Utils;
 import subprotocols.SendPutChunk;
 
 public class Peer implements InterfaceApp {
@@ -130,7 +131,7 @@ public class Peer implements InterfaceApp {
 
 	private static void sendCheckDeleteMessage(String fileID) throws UnsupportedEncodingException {
 		String msg = createCheckDeleteMessage(fileID);
-		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+		ChannelMC.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 		System.out.println(msg);
 	}
 
@@ -151,9 +152,7 @@ public class Peer implements InterfaceApp {
 	 * @throws UnsupportedEncodingException 
 	 */
 	public static String createPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
-		String bodyStr = new String(body, "ISO-8859-1"); // for ISO-8859-1 encoding
-//		System.err.println("bodyStr.lenght:"+bodyStr.length());
-//		System.err.println("bodyStr.getBytes.size:"+bodyStr.getBytes("ISO-8859-1").length);
+		String bodyStr = new String(body, Utils.ENCODING_TYPE);
 		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID+ " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
 		return msg;
 	}
@@ -205,8 +204,7 @@ public class Peer implements InterfaceApp {
 			return -1;
 		}
 		
-		ChannelMDB.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
-		//System.out.println("SENT --> "+msg);
+		ChannelMDB.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 		System.out.println("SENT --> "+ msg.split("\r\n")[0]);//PUTCHUNK
 		return 0;
 	}
@@ -228,7 +226,7 @@ public class Peer implements InterfaceApp {
 				return -1;
 			}
 			
-			ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+			ChannelMC.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 			System.out.println("SENT --> "+msg);//DELETE
 			return 0;
 		}
@@ -246,7 +244,7 @@ public class Peer implements InterfaceApp {
 		String msg = null;
 		msg = createRemovedMessage(version, senderID, fileID, chunkNo) ;
 		
-		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+		ChannelMC.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 		System.out.println("SENT --> "+msg);//REMOVED
 		return 0;
 	}
@@ -257,28 +255,25 @@ public class Peer implements InterfaceApp {
 	@Override
 	public void backupFile(String filename, Integer replicationDegree, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException, InterruptedException {
 		Path filePath = Paths.get(filename);
-		if(!Files.exists(filePath)) { //NOTE: O ficheiro nao existe
+		if(!Files.exists(filePath)) { 
 			System.out.println("Error: File "+filename+" does not exist: ");
 			return;
 		}
-		Long numberOfChunks = (Math.floorDiv(Files.size(filePath), 64000))+1;
+		Long numberOfChunks = (Math.floorDiv(Files.size(filePath), Utils.MAX_LENGTH_CHUNK))+1;
 		String fileID = this.getFileID(filename);
 		LocalState.getInstance().getBackupFiles().put(fileID, new BackupFile(filename, Peer.id, replicationDegree));
 		int chunkNo = 0;
 		while(chunkNo < numberOfChunks) {
 			
 			AsynchronousFileChannel channel = AsynchronousFileChannel.open(filePath);
-			ByteBuffer body = ByteBuffer.allocate(64000);
+			ByteBuffer body = ByteBuffer.allocate(Utils.MAX_LENGTH_CHUNK);
 			int numberOfChunk = chunkNo;
 			CompletionHandler<Integer, ByteBuffer> reader =new CompletionHandler<Integer, ByteBuffer>() {
 				@Override
 				public void completed(Integer result, ByteBuffer buffer) {
-					//System.err.println("result = " + result);
-	
 					buffer.flip();
 					byte[] data = new byte[buffer.limit()];
 					buffer.get(data);
-					//System.out.println(new String(data));
 					buffer.clear();
 					try {
 						backupChunk(numberOfChunk, replicationDegree, data, fileID, filename, isEnhancement);
@@ -295,9 +290,9 @@ public class Peer implements InterfaceApp {
 				}
 				
 			};
-			channel.read(body, 64000*chunkNo, body, reader);
+			channel.read(body, Utils.MAX_LENGTH_CHUNK*chunkNo, body, reader);
 			chunkNo++;
-		}//TODO: Enhancement backup
+		}
 	}
 	
 	/**
@@ -313,11 +308,9 @@ public class Peer implements InterfaceApp {
 	public static void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String fileName, Boolean isEnhancement) throws InterruptedException, UnsupportedEncodingException {
 
 		Chunk chunk = new Chunk(chunkNo, replicationDegree, (long) bodyOfTheChunk.length, Peer.id);
-		//System.out.println("A Guardar file: "+fileID+" CHUNKNO: "+chunk.getID());
 		LocalState.getInstance().saveChunk(fileID, fileName, Peer.id, replicationDegree, chunk);
-		//System.out.println("SAVACHUNK!!!: "+fileID+" CHUNKNO: "+chunk.getID());
 		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id, Peer.id);
-		double version = Peer.protocolVersion; //TODO: isEnhancement
+		double version = Peer.protocolVersion;
 		if(isEnhancement) {
 			version = 1.1;
 		}
@@ -357,7 +350,6 @@ public class Peer implements InterfaceApp {
 	public String getFileID(String filename) throws IOException, NoSuchAlgorithmException {
 		Path filePath = Paths.get(filename); //The filename, not FileID
 		BasicFileAttributes attr = Files.readAttributes(filePath, BasicFileAttributes.class);
-		//System.out.println("lastModifiedTime: " + attr.lastModifiedTime());
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
 		byte[] hash = digest.digest((filename + attr.lastModifiedTime()).getBytes(StandardCharsets.UTF_8));
 		return DatatypeConverter.printHexBinary(hash);
@@ -373,7 +365,7 @@ public class Peer implements InterfaceApp {
 		String fileID = getFileID(filename);
 		Integer chunkNo = 0;
 		long fileSize = (Long) Files.getAttribute(Paths.get(filename), "size");
-		int totalNumChunks = (int) (Math.floorDiv(fileSize, 64000) + 1);//numero total de chunks que o file vai ter
+		int totalNumChunks = (int) (Math.floorDiv(fileSize, Utils.MAX_LENGTH_CHUNK) + 1);//numero total de chunks que o file vai ter
 		for(int i = 0; i < totalNumChunks; i++) {
 			LocalState.getInstance().getBackupFiles().get(fileID).getChunks().get(chunkNo).setRestoreMode(State.RECEIVE);
 			sendGetChunk(fileID, chunkNo,isEnhancement);
@@ -421,7 +413,7 @@ public class Peer implements InterfaceApp {
 	private static void sendGetChunk(String fileID, Integer chunkNo, Boolean isEnhancement) throws UnsupportedEncodingException {
 		String msg = null;
 		msg = createGetChunkMessage(fileID, chunkNo,isEnhancement) ;
-		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+		ChannelMC.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 		System.out.println("SENT --> "+msg);//GETCHUNk
 	}
 	

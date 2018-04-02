@@ -10,13 +10,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.file.Path;
-import java.util.Random;
 
 import initiator.Peer;
 import message.ChannelMDR;
 import message.Parser;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
+import server.Utils;
 
 public class ChunkRestore implements Runnable {
 
@@ -48,16 +48,15 @@ public class ChunkRestore implements Runnable {
 	private void sendChunkMessage() throws IOException {
 		Path filePath = Peer.getP().resolve(this.fileID+"_"+this.chunkNo);
 		AsynchronousFileChannel channel = AsynchronousFileChannel.open(filePath);
-		ByteBuffer body = ByteBuffer.allocate(64000);
+		ByteBuffer body = ByteBuffer.allocate(Utils.MAX_LENGTH_CHUNK);
 		CompletionHandler<Integer, ByteBuffer> reader =new CompletionHandler<Integer, ByteBuffer>() {
 			@Override
 			public void completed(Integer result, ByteBuffer buffer) {
-				//System.err.println("result = " + result);
+
 				String msg=null;
 				buffer.flip();
 				byte[] data = new byte[buffer.limit()];
 				buffer.get(data);
-				//System.out.println(new String(data));
 				buffer.clear();
 				try {
 					msg = createChunkMessage(data);
@@ -66,7 +65,7 @@ public class ChunkRestore implements Runnable {
 				}
 				
 				try {
-					ChannelMDR.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+					ChannelMDR.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
@@ -93,11 +92,9 @@ public class ChunkRestore implements Runnable {
 			ServerSocket machine = new ServerSocket(0);
 
 			byte[] data  = this.body;
-			System.out.println("ADDRESS: "+InetAddress.getLocalHost().getHostAddress());
 			
 			String address =InetAddress.getLocalHost().getHostAddress()+":"+machine.getLocalPort();
 			this.body = address.getBytes();
-			System.err.println(address);
 			new Thread(() -> {
 				try {
 					Socket socket = machine.accept();
@@ -110,7 +107,7 @@ public class ChunkRestore implements Runnable {
 				}
 			}).start();
 		}
-		String bodyStr = new String(this.body,"ISO-8859-1"); // for "ISO-8859-1" encoding
+		String bodyStr = new String(this.body,Utils.ENCODING_TYPE); 
 		String msg = "CHUNK "+ this.version + " " + Peer.id + " " + this.fileID+ " " + chunkNo + " \r\n\r\n" + bodyStr;
 		return msg;
 	}

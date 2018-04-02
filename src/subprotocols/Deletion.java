@@ -5,6 +5,7 @@ import initiator.Peer;
 import message.ChannelMC;
 import message.Parser;
 import sateInfo.LocalState;
+import server.Utils;
 
 public class Deletion implements Runnable {
 	public String fileID = null;
@@ -16,7 +17,6 @@ public class Deletion implements Runnable {
 	}
 	@Override
 	public void run() {
-		System.err.println("DELECTION PROTOCOL");
 		LocalState.getInstance().deleteFileChunks(fileID);
 		if(this.version == 1.2) { //Enhancement
 			try {
@@ -29,7 +29,7 @@ public class Deletion implements Runnable {
 	private void sendDeletedMessage() throws UnsupportedEncodingException {
 		String msg = null;
 		msg = createDeletedMessage();
-		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+		ChannelMC.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 		System.out.println("SENT --> "+msg);//DELETED
 	}
 	private String createDeletedMessage() {
