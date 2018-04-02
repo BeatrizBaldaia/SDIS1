@@ -85,7 +85,6 @@ public class LocalState {
 	 * @param replicationDeg
 	 * @param chunk
 	 */
-	
 	public void saveChunk(String fileID, String pathName, int serviceID, int replicationdeg, Chunk chunk) {
 		synchronized (backupFiles) {
 			if(backupFiles.get(fileID) == null) {
@@ -146,7 +145,6 @@ public class LocalState {
 		System.err.println("deleteFileChunks");
 		BackupFile file = null; 
 		if((file = backupFiles.get(fileID)) != null) {
-			System.err.println("If");
 			int recoveredSpace = file.deleteChunks();
 			if(recoveredSpace > 0) {
 				System.err.println("recover");
@@ -208,6 +206,15 @@ public class LocalState {
 		if(file != null) {
 			file.notifyItWasDeleted();
 		}	
+	}
+	
+	/**
+	 * Check if file is marked as deleted
+	 * @param fileID
+	 * @return if true, this peer was the one asking for deletion
+	 */
+	public boolean wasFileDeleted(String fileID) {
+		return getBackupFiles().get(fileID).wasDeleted();
 	}
 	/**
 	 * @return the backupFiles

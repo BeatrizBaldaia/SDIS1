@@ -20,7 +20,7 @@ public class BackupFile {
 	/**
 	 * @return the wasDeleted
 	 */
-	public Boolean getWasDeleted() {
+	public Boolean wasDeleted() {
 		return wasDeleted;
 	}
 
@@ -219,6 +219,9 @@ public class BackupFile {
 		return pathName != null;
 	}
 
+	/**
+	 * Mark that this file was deleted
+	 */
 	public void notifyItWasDeleted() {
 		wasDeleted = true;
 	}

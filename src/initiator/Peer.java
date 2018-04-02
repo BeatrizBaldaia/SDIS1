@@ -345,7 +345,9 @@ public class Peer implements InterfaceApp {
 			LocalState.getInstance().getBackupFiles().put(fileID, new BackupFile(filename, Peer.id, 0));
 		}
 		
-		if(isEnhancement) { version = 1.2; LocalState.getInstance().notifyItWasDeleted(fileID);
+		if(isEnhancement) { 
+			version = 1.2;
+			LocalState.getInstance().notifyItWasDeleted(fileID);
 		}else {
 			LocalState.getInstance().getBackupFiles().remove(fileID);
 		}

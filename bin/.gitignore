@@ -1,6 +1,7 @@
-/subprotocols/
-/client/
+/data/
 /initiator/
 /message/
 /sateInfo/
+/subprotocols/
 /server/
+/client/
