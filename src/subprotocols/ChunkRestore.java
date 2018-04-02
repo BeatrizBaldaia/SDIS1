@@ -16,6 +16,7 @@ import message.ChannelMDR;
 import message.Parser;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
+import server.Utils;
 
 public class ChunkRestore implements Runnable {
 
@@ -64,7 +65,7 @@ public class ChunkRestore implements Runnable {
 				}
 				
 				try {
-					ChannelMDR.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+					ChannelMDR.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
@@ -106,7 +107,7 @@ public class ChunkRestore implements Runnable {
 				}
 			}).start();
 		}
-		String bodyStr = new String(this.body,"ISO-8859-1"); // for "ISO-8859-1" encoding
+		String bodyStr = new String(this.body,Utils.ENCODING_TYPE); 
 		String msg = "CHUNK "+ this.version + " " + Peer.id + " " + this.fileID+ " " + chunkNo + " \r\n\r\n" + bodyStr;
 		return msg;
 	}

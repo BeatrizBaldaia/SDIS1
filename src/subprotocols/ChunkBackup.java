@@ -14,6 +14,7 @@ import message.*;
 import sateInfo.BackupFile;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
+import server.Utils;
 
 public class ChunkBackup implements Runnable {	
 
@@ -38,7 +39,7 @@ public class ChunkBackup implements Runnable {
 
 	public void sendConfirmation () throws InterruptedException, UnsupportedEncodingException  {
 		String msg = "STORED "+ this.version + " " + this.myID + " " + this.fileID + " " + this.chunkNo + " \r\n\r\n";
-		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+		ChannelMC.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 		System.out.println("SENT --> "+ msg);
 	}
 	

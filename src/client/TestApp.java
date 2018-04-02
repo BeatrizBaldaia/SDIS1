@@ -30,6 +30,7 @@ public class TestApp {
 			e1.printStackTrace();
 			return;
 		}
+		System.out.println("Connected to "+name+"!");
 		Boolean isEnhancement = false;
 		switch (subprotocol) {
 			case "BACKUPENH":{

@@ -17,6 +17,7 @@ import java.util.Arrays;
 import initiator.Peer;
 import message.Parser;
 import sateInfo.LocalState;
+import server.Utils;
 
 public class StoreChunk implements Runnable {
 	private Parser parser;
@@ -68,7 +69,7 @@ public class StoreChunk implements Runnable {
 	}
 	
 	public void getChunkWithTCP() throws NumberFormatException, UnknownHostException, IOException {
-		String data = new String(this.parser.body, "ISO-8859-1");
+		String data = new String(this.parser.body, Utils.ENCODING_TYPE);
 		String[] elem = data.split(":");
 		this.parser.body = new byte[64000];
 		Socket socket = new Socket(elem[0], Integer.valueOf(elem[1]));

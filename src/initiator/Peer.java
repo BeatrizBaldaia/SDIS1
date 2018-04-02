@@ -33,6 +33,7 @@ import sateInfo.Chunk.State;
 import sateInfo.LocalState;
 import sateInfo.Pair;
 import server.InterfaceApp;
+import server.Utils;
 import subprotocols.SendPutChunk;
 
 public class Peer implements InterfaceApp {
@@ -130,7 +131,7 @@ public class Peer implements InterfaceApp {
 
 	private static void sendCheckDeleteMessage(String fileID) throws UnsupportedEncodingException {
 		String msg = createCheckDeleteMessage(fileID);
-		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+		ChannelMC.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 		System.out.println(msg);
 	}
 
@@ -151,7 +152,7 @@ public class Peer implements InterfaceApp {
 	 * @throws UnsupportedEncodingException 
 	 */
 	public static String createPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
-		String bodyStr = new String(body, "ISO-8859-1"); // for ISO-8859-1 encoding
+		String bodyStr = new String(body, Utils.ENCODING_TYPE); // for ISO-8859-1 encoding
 		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID+ " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
 		return msg;
 	}
@@ -203,7 +204,7 @@ public class Peer implements InterfaceApp {
 			return -1;
 		}
 		
-		ChannelMDB.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+		ChannelMDB.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 		System.out.println("SENT --> "+ msg.split("\r\n")[0]);//PUTCHUNK
 		return 0;
 	}
@@ -225,7 +226,7 @@ public class Peer implements InterfaceApp {
 				return -1;
 			}
 			
-			ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+			ChannelMC.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 			System.out.println("SENT --> "+msg);//DELETE
 			return 0;
 		}
@@ -243,7 +244,7 @@ public class Peer implements InterfaceApp {
 		String msg = null;
 		msg = createRemovedMessage(version, senderID, fileID, chunkNo) ;
 		
-		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+		ChannelMC.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 		System.out.println("SENT --> "+msg);//REMOVED
 		return 0;
 	}
@@ -410,7 +411,7 @@ public class Peer implements InterfaceApp {
 	private static void sendGetChunk(String fileID, Integer chunkNo, Boolean isEnhancement) throws UnsupportedEncodingException {
 		String msg = null;
 		msg = createGetChunkMessage(fileID, chunkNo,isEnhancement) ;
-		ChannelMC.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+		ChannelMC.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 		System.out.println("SENT --> "+msg);//GETCHUNk
 	}
 	

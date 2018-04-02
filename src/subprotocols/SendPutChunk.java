@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import message.ChannelMDB;
 import message.SingletonThreadPoolExecutor;
 import sateInfo.LocalState;
+import server.Utils;
 
 public class SendPutChunk implements Runnable {
 
@@ -58,7 +59,7 @@ public class SendPutChunk implements Runnable {
 	 * @throws UnsupportedEncodingException 
 	 */
 	public static String createPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
-		String bodyStr = new String(body, "ISO-8859-1"); // for ISO-8859-1 encoding
+		String bodyStr = new String(body, Utils.ENCODING_TYPE);
 		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID+ " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
 		return msg;
 	}
@@ -84,7 +85,7 @@ public class SendPutChunk implements Runnable {
 			return -1;
 		}
 		
-		ChannelMDB.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
+		ChannelMDB.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
 		System.out.println("SENT --> "+ msg.split("\r\n")[0]);//PUTCHUNK
 		return 0;
 	}
