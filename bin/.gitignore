@@ -1,7 +1,12 @@
 /data/
+<<<<<<< HEAD
+=======
 /subprotocols/
 /client/
+>>>>>>> branch 'master' of https://github.com/BeatrizBaldaia/SDIS1.git
 /initiator/
 /message/
 /sateInfo/
+/subprotocols/
 /server/
+/client/

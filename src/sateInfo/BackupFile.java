@@ -15,12 +15,12 @@ public class BackupFile {
 	private int serviceID = 0;
 	private int replicationDeg = 0;
 	private Map<Integer,Chunk> chunks = new ConcurrentHashMap<Integer, Chunk>();
-	private Boolean wasDeleted = false;
+	private boolean wasDeleted = false;
 	
 	/**
 	 * @return the wasDeleted
 	 */
-	public Boolean getWasDeleted() {
+	public boolean wasDeleted() {
 		return wasDeleted;
 	}
 
@@ -209,6 +209,9 @@ public class BackupFile {
 		return pathName != null;
 	}
 
+	/**
+	 * Mark that this file was deleted
+	 */
 	public void notifyItWasDeleted() {
 		wasDeleted = true;
 	}

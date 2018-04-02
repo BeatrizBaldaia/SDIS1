@@ -107,17 +107,11 @@ public class ChannelMC {
 						//Receber mensagens STORED, GETCHUNK, DELETE e REMOVED
 						if(parser.messageType.equals("STORED")) {
 							System.out.println("Recebeu STORE para chunk " + parser.chunkNo);
-							//saveChunkInfo(parser);
 							LocalState.getInstance().updateReplicationInfo(parser.senderID, parser.fileID, parser.chunkNo);
 						} else if(parser.messageType.equals("DELETE")) {
 							System.err.println("ESTOU A APAGAR!!!");
 							Deletion subprotocol = new Deletion(parser);
 							SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().execute(subprotocol);
-//							System.out.println("Apagou ficheiro " + parser.fileName);
-//							System.out.println("Agora tem os seguintes ficheiros guardados:");
-//							for (Entry<String, BackupFile> entry : LocalState.getInstance().getBackupFiles().entrySet()) {
-//							    System.out.println(entry.getKey());
-//							}
 						} else if(parser.messageType.equals("GETCHUNK")) {
 							if(LocalState.getInstance().getBackupFiles().get(parser.fileID) != null) {
 								Chunk chunk = LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo);
@@ -126,21 +120,20 @@ public class ChannelMC {
 									ChunkRestore subprotocol = new ChunkRestore(parser);
 									Random r = new Random();
 					        		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().schedule(subprotocol, (long) r.nextInt(400), TimeUnit.MILLISECONDS);
-									//LocalState.getInstance().returnToFalse(parser.fileID, parser.chunkNo);
 								}
 							}
 						} else if(parser.messageType.equals("DELETED")) {
-							if(LocalState.getInstance().getBackupFiles().get(parser.fileID) != null) {
-								LocalState.getInstance().decreaseReplicationDegree(parser.fileID, parser.senderID);
-								if(LocalState.getInstance().isReplicationDegreeZero(parser.fileID)) {
-									LocalState.getInstance().getBackupFiles().remove(parser.fileID);
+							if(LocalState.getInstance().wasFileDeleted(parser.fileID)) {
+								if(LocalState.getInstance().getBackupFiles().get(parser.fileID) != null) {
+									LocalState.getInstance().decreaseReplicationDegree(parser.fileID, parser.senderID);
+									if(LocalState.getInstance().isReplicationDegreeZero(parser.fileID)) {
+										LocalState.getInstance().getBackupFiles().remove(parser.fileID);
+									}
 								}
-								//System.err.println("decreaseReplicationDegree");
 							}
-							//System.err.println("TO DO");
 						} else if(parser.messageType.equals("CHECKDELETE")) {
 							if(LocalState.getInstance().getBackupFiles().get(parser.fileID) != null) {
-								if(LocalState.getInstance().getBackupFiles().get(parser.fileID).getWasDeleted()) {
+								if(LocalState.getInstance().wasFileDeleted(parser.fileID)) {
 									if(Peer.sendDeleteMessage(1.2, Peer.id, parser.fileID) == -1) {
 										System.err.println("Error: Could not send DELETE message.");
 										return;
