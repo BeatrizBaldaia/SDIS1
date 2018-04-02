@@ -1,5 +1,4 @@
 #!/bin/bash
-echo Hello World
 javac -d bin/ -cp src src/initiator/Peer.java
 javac -d bin/ -cp src src/client/TestApp.java
 cd bin
