@@ -16,7 +16,7 @@ public class UpdateRepDeg implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("Recebeu do peer " + this.senderID + " msg STORE para chunk " + this.chunkNo);
+		System.out.println("Recebeu do peer " + this.senderID + " msg STORE para o ficheiro " + this.fileID + ", chunk " + this.chunkNo);
 		LocalState.getInstance().updateReplicationInfo(this.senderID, this.fileID, this.chunkNo);		
 	}
 }
