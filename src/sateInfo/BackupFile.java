@@ -59,21 +59,19 @@ public class BackupFile {
 	 * @param chunk
 	 */
 	public BackupFile addChunk(Chunk chunk) {
-		synchronized(chunks) {
-			if(chunks.get(chunk.getID()) ==  null){
-				chunks.put(chunk.getID(), chunk);
+		if(chunks.get(chunk.getID()) ==  null){
+			chunks.put(chunk.getID(), chunk);
+			LocalState.getInstance().setUsedStorage(chunk.getSize());
+			return this;
+		} else {
+			if(chunks.get(chunk.getID()).isNewPeerStoring(Peer.id)) {
 				LocalState.getInstance().setUsedStorage(chunk.getSize());
-				return this;
-			} else {
-				if(chunks.get(chunk.getID()).isNewPeerStoring(Peer.id)) {
-					LocalState.getInstance().setUsedStorage(chunk.getSize());
-				}
-				return null;
 			}
+			return null;
 		}
 
 	}
-	
+
 	/**
 	 * verifies if  the actual replication degree of a chunk is lower than the one that is desired
 	 * @return

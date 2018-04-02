@@ -132,7 +132,7 @@ public class Peer implements InterfaceApp {
 	private static void sendCheckDeleteMessage(String fileID) throws UnsupportedEncodingException {
 		String msg = createCheckDeleteMessage(fileID);
 		ChannelMC.getInstance().sendMessage(msg.getBytes(Utils.ENCODING_TYPE));
-		System.out.println(msg);
+		System.out.println("SENT --> "+ msg);
 	}
 
 	private static String createCheckDeleteMessage(String fileID) {
@@ -384,6 +384,7 @@ public class Peer implements InterfaceApp {
 	
 	@Override
 	public boolean reclaimStorage(int space) {
+		space = space * Utils.BYTE_TO_KBYTE;
 		if(LocalState.getInstance().setStorageCapacity(space)) {
 			//apagar chunks
 			ArrayList<Pair<String, Integer>> deletedChunks = LocalState.getInstance().manageStorage();//enviar uma mensagem REMOVED para cada chunk apagado
