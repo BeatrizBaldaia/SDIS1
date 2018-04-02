@@ -106,7 +106,7 @@ public class ChannelMDB {
                 	}
                 	if(parser.senderID != myID) { //
 	                	if(parser.messageType.equals("PUTCHUNK")) {
-	                		System.out.println("Recebeu PUTCHUNK para chunk " + parser.chunkNo);
+	                		System.out.println("Recebeu PUTCHUNK para file " + parser.fileID + ", chunk " + parser.chunkNo);
 	                		SaveChunkInfo subprotocol = new SaveChunkInfo(parser.version, Peer.id, parser.senderID, parser.fileID, parser.chunkNo, parser.body, parser.replicationDeg);
 	                    	SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().submit(subprotocol);
 	                	}

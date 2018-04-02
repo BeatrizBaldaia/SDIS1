@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import initiator.Peer;
+import server.Utils;
 
 /**
  * @author beatriz
@@ -86,18 +87,18 @@ public class LocalState {
 	 * @param chunk
 	 */
 	public void saveChunk(String fileID, String pathName, int serviceID, int replicationdeg, Chunk chunk) {
-		synchronized (backupFiles) {
-			if(backupFiles.get(fileID) == null) {
-				BackupFile file = new BackupFile(pathName, serviceID, replicationdeg);
-				file.addChunk(chunk);
-				backupFiles.put(fileID, file);
-			} else {
-				backupFiles.get(fileID).addChunk(chunk);
-			}
-		}
+		backupFiles.compute(fileID, (k,v)->computeSaveChunk(k, v, pathName, serviceID, replicationdeg, chunk));
 	}
 
-
+	private BackupFile computeSaveChunk(String k, BackupFile v, String pathName, int serviceID, int replicationdeg, Chunk chunk) {
+		BackupFile file = v;
+		if(file == null) {
+			file = new BackupFile(pathName, serviceID, replicationdeg);
+		}
+		file.addChunk(chunk);
+		return file;
+	}
+	
 	/**
 	 * Updates the current replication degree related to a file
 	 * @param senderID
@@ -293,7 +294,7 @@ public class LocalState {
 		for (Integer key : file.getChunks().keySet()) {
 			if(file.isStoringChunk(key)) {
 				Chunk chunk = file.getChunks().get(key);
-				info += "\tID = " + chunk.getID() + " ; Size = " + chunk.getSize() + " ; Perceived Replication Degree = " + chunk.getCurrReplicationDeg() + "\n";
+				info += "\tID = " + chunk.getID() + " ; Size = " + chunk.getSize()/Utils.BYTE_TO_KBYTE + " ; Perceived Replication Degree = " + chunk.getCurrReplicationDeg() + "\n";
 			}
 		}
 
@@ -307,8 +308,8 @@ public class LocalState {
 	 */
 	public String storageCapacityInfo() {
 		String info = "Storage Capacity:\n";
-		info += "\t->Maximum Amount of disk Space: " + this.storageCapacity + "\n";
-		info += "\t->Amount of Storage Used: " + this.usedStorage + "\n";
+		info += "\t->Maximum Amount of disk Space: " + this.storageCapacity/Utils.BYTE_TO_KBYTE + "\n";
+		info += "\t->Amount of Storage Used: " + this.usedStorage/Utils.BYTE_TO_KBYTE + "\n";
 		
 		return info;
 	}
