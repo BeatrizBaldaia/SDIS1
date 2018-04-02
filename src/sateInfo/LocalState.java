@@ -313,7 +313,7 @@ public class LocalState {
 		for (Integer key : file.getChunks().keySet()) {
 			if(file.isStoringChunk(key)) {
 				Chunk chunk = file.getChunks().get(key);
-				info += "\tID = " + chunk.getID() + " ; Size = " + chunk.getSize() + " ; Perceived Replication Degree = " + chunk.getReplicationDegree() + "\n";
+				info += "\tID = " + chunk.getID() + " ; Size = " + chunk.getSize() + " ; Perceived Replication Degree = " + chunk.getCurrReplicationDeg() + "\n";
 			}
 		}
 

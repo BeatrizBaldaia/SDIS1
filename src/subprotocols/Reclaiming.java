@@ -18,7 +18,7 @@ public class Reclaiming implements Runnable{
 	public String fileID = null;
 	public String fileName = null;
 	public int chunkNo = 0;
-	private byte[] body = null;
+
 	
 	public Reclaiming (Parser parser) {
 		version = parser.version;
