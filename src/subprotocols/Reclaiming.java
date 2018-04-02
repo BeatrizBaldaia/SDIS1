@@ -45,7 +45,6 @@ public class Reclaiming implements Runnable{
 						buffer.flip();
 						byte[] data = new byte[buffer.limit()];
 						buffer.get(data);
-						//System.out.println(new String(data));
 						buffer.clear();
 						Chunk chunk = LocalState.getInstance().getBackupFiles().get(fileID).getChunks().get(chunkNo);
 						if(chunk.getReclaimMode() == Chunk.State.ON) {
@@ -84,7 +83,6 @@ public class Reclaiming implements Runnable{
 						buffer.flip();
 						byte[] data = new byte[buffer.limit()];
 						buffer.get(data);
-						//System.out.println(new String(data));
 						buffer.clear();
 						Chunk chunk = LocalState.getInstance().getBackupFiles().get(fileID).getChunks().get(chunkNo);
 						if(chunk.getReclaimMode() == Chunk.State.ON) {

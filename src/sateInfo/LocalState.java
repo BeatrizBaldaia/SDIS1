@@ -95,33 +95,10 @@ public class LocalState {
 			} else {
 				backupFiles.get(fileID).addChunk(chunk);
 			}
-			//		if(backupFiles.computeIfPresent(fileID, (k,v) -> v.addChunk(chunk)) == null) {
-//			backupFiles.computeIfAbsent(fileID, k -> createNewBackupFile(k,pathName, serviceID, replicationdeg, chunk));
-//			//System.out.println("   1SINCHONIZED");
-//
-//			return;
-//		}
-//		//System.out.println("   2SINCHONIZED");
-//
-//		return;
 		}
 	}
 
-	/**
-	 * Creates a new BackupFile object to be saved in the hashmap
-	 * @param fileID
-	 * @param pathName
-	 * @param serviceID
-	 * @param replicationDeg
-	 * @param chunk
-	 * @return
-	 */
-	private BackupFile createNewBackupFile(String fileID, String pathName, int serviceID, int replicationDeg, Chunk chunk) {
-		BackupFile file = new BackupFile(pathName, serviceID, replicationDeg);
-		file.addChunk(chunk);
-		System.err.println("CRIOU BACKUP FILE de id " + fileID);
-		return file;
-	}
+
 	/**
 	 * Updates the current replication degree related to a file
 	 * @param senderID
@@ -130,10 +107,7 @@ public class LocalState {
 	 * @return
 	 */
 	public boolean updateReplicationInfo(int senderID, String fileID, int chunkID) {
-		System.out.println("Recebeu fileID = " + fileID + ", mas so temos guardadas as chaves:");
-		for (String key : backupFiles.keySet()) {
-		    System.out.println(key + " " + backupFiles.get(key).getChunks().size());
-		}
+
 		return getBackupFiles().get(fileID).updateReplicationInfo(chunkID, senderID);
 	}
 	
@@ -143,28 +117,26 @@ public class LocalState {
 	 * @return
 	 */
 	public boolean deleteFileChunks(String fileID) {
-		System.err.println("deleteFileChunks");
+
 		BackupFile file = null; 
 		if((file = backupFiles.get(fileID)) != null) {
-			System.err.println("If");
+
 			int recoveredSpace = file.deleteChunks();
 			if(recoveredSpace > 0) {
-				System.err.println("recover");
+
 				this.usedStorage -= recoveredSpace;
 				//File directory = new File(".");
 				Path dir = Peer.getP();
 				File directory = dir.toFile();
 				String pattern = Peer.getP().toString() + "/" + fileID + "*";//File.separator + fileID + "*";
-				System.err.println("Patter: "+pattern);
+
 				PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
 				File[] files = directory.listFiles();
 				for(int i = 0; i<files.length; i++) {
 					String filename = files[i].getName();
-					System.err.println("FILE: "+filename);
+
 					Path name = Peer.getP().resolve(filename);
-					System.err.println("PATHS: "+name.toString());
 					if (name != null && matcher.matches(name)) {
-						System.err.println("  Pertence");
 						try {
 							Files.delete(name);
 						} catch (IOException e) {

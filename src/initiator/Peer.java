@@ -152,8 +152,6 @@ public class Peer implements InterfaceApp {
 	 */
 	public static String createPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
 		String bodyStr = new String(body, "ISO-8859-1"); // for ISO-8859-1 encoding
-//		System.err.println("bodyStr.lenght:"+bodyStr.length());
-//		System.err.println("bodyStr.getBytes.size:"+bodyStr.getBytes("ISO-8859-1").length);
 		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID+ " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
 		return msg;
 	}
@@ -206,7 +204,6 @@ public class Peer implements InterfaceApp {
 		}
 		
 		ChannelMDB.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
-		//System.out.println("SENT --> "+msg);
 		System.out.println("SENT --> "+ msg.split("\r\n")[0]);//PUTCHUNK
 		return 0;
 	}
@@ -273,12 +270,9 @@ public class Peer implements InterfaceApp {
 			CompletionHandler<Integer, ByteBuffer> reader =new CompletionHandler<Integer, ByteBuffer>() {
 				@Override
 				public void completed(Integer result, ByteBuffer buffer) {
-					//System.err.println("result = " + result);
-	
 					buffer.flip();
 					byte[] data = new byte[buffer.limit()];
 					buffer.get(data);
-					//System.out.println(new String(data));
 					buffer.clear();
 					try {
 						backupChunk(numberOfChunk, replicationDegree, data, fileID, filename, isEnhancement);
@@ -313,9 +307,7 @@ public class Peer implements InterfaceApp {
 	public static void backupChunk(int chunkNo, int replicationDegree, byte[] bodyOfTheChunk, String fileID, String fileName, Boolean isEnhancement) throws InterruptedException, UnsupportedEncodingException {
 
 		Chunk chunk = new Chunk(chunkNo, replicationDegree, (long) bodyOfTheChunk.length, Peer.id);
-		//System.out.println("A Guardar file: "+fileID+" CHUNKNO: "+chunk.getID());
 		LocalState.getInstance().saveChunk(fileID, fileName, Peer.id, replicationDegree, chunk);
-		//System.out.println("SAVACHUNK!!!: "+fileID+" CHUNKNO: "+chunk.getID());
 		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id, Peer.id);
 		double version = Peer.protocolVersion; //TODO: isEnhancement
 		if(isEnhancement) {
@@ -355,7 +347,6 @@ public class Peer implements InterfaceApp {
 	public String getFileID(String filename) throws IOException, NoSuchAlgorithmException {
 		Path filePath = Paths.get(filename); //The filename, not FileID
 		BasicFileAttributes attr = Files.readAttributes(filePath, BasicFileAttributes.class);
-		//System.out.println("lastModifiedTime: " + attr.lastModifiedTime());
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
 		byte[] hash = digest.digest((filename + attr.lastModifiedTime()).getBytes(StandardCharsets.UTF_8));
 		return DatatypeConverter.printHexBinary(hash);

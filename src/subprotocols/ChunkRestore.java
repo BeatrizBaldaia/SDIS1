@@ -10,7 +10,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.file.Path;
-import java.util.Random;
 
 import initiator.Peer;
 import message.ChannelMDR;
@@ -52,12 +51,11 @@ public class ChunkRestore implements Runnable {
 		CompletionHandler<Integer, ByteBuffer> reader =new CompletionHandler<Integer, ByteBuffer>() {
 			@Override
 			public void completed(Integer result, ByteBuffer buffer) {
-				//System.err.println("result = " + result);
+
 				String msg=null;
 				buffer.flip();
 				byte[] data = new byte[buffer.limit()];
 				buffer.get(data);
-				//System.out.println(new String(data));
 				buffer.clear();
 				try {
 					msg = createChunkMessage(data);
@@ -93,11 +91,9 @@ public class ChunkRestore implements Runnable {
 			ServerSocket machine = new ServerSocket(0);
 
 			byte[] data  = this.body;
-			System.out.println("ADDRESS: "+InetAddress.getLocalHost().getHostAddress());
 			
 			String address =InetAddress.getLocalHost().getHostAddress()+":"+machine.getLocalPort();
 			this.body = address.getBytes();
-			System.err.println(address);
 			new Thread(() -> {
 				try {
 					Socket socket = machine.accept();

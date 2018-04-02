@@ -16,7 +16,6 @@ public class Deletion implements Runnable {
 	}
 	@Override
 	public void run() {
-		System.err.println("DELECTION PROTOCOL");
 		LocalState.getInstance().deleteFileChunks(fileID);
 		if(this.version == 1.2) { //Enhancement
 			try {

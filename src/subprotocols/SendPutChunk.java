@@ -30,26 +30,20 @@ public class SendPutChunk implements Runnable {
 	}
 	@Override
 	public void run() {
-		//System.out.println("IN RUN SEND PUT CHUNK MESSAGE!");
 		if(LocalState.getInstance().getBackupFiles().get(fileID).desireReplicationDeg(chunkNo)) {
-			//System.out.println("Returnd desired!");
 			return;
 		}
-		//System.out.println("Teste tries");
 		if(tries == 5) {
 			System.err.println("Error: Could not send PUTCHUNK message.");
 			return;
 		}
 		try {
-			//System.out.println("TRY");
 			sendPutChunkMessage(version, senderID, fileID, chunkNo, replicationDeg, body);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 		SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().schedule(this, (long) (Math.pow(2, tries) * 1000) , TimeUnit.MILLISECONDS);
 		tries++;
-		//System.out.println("HERE!");
-		
 	}
 	
 	/**
@@ -65,8 +59,6 @@ public class SendPutChunk implements Runnable {
 	 */
 	public static String createPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
 		String bodyStr = new String(body, "ISO-8859-1"); // for ISO-8859-1 encoding
-//		System.err.println("bodyStr.lenght:"+bodyStr.length());
-//		System.err.println("bodyStr.getBytes.size:"+bodyStr.getBytes("ISO-8859-1").length);
 		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID+ " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
 		return msg;
 	}
@@ -93,7 +85,6 @@ public class SendPutChunk implements Runnable {
 		}
 		
 		ChannelMDB.getInstance().sendMessage(msg.getBytes("ISO-8859-1"));
-		//System.out.println("SENT --> "+msg);
 		System.out.println("SENT --> "+ msg.split("\r\n")[0]);//PUTCHUNK
 		return 0;
 	}

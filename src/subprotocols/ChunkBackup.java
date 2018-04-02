@@ -46,13 +46,11 @@ public class ChunkBackup implements Runnable {
 	public void run() {
 		if((body.length + LocalState.getInstance().getUsedStorage()) <= LocalState.getInstance().getStorageCapacity()) {
 			if(this.version == 1.1) {//enhancement
-				System.err.println("BACKUP ENHANCEMENT");
 				BackupFile file = LocalState.getInstance().getBackupFiles().get(this.fileID);
 				if(file != null) {
 					Chunk chunk = file.getChunks().get(this.chunkNo);
 					if(chunk != null) {
 						if(chunk.desireReplicationDeg()) {
-							System.err.println("NAO FAZER STORE do chunk" + chunkNo + "porque ja temos o rep. deg. pedido");
 							if(LocalState.getInstance().isStoringChunk(fileID, chunkNo)) {
 								try {
 									sendConfirmation();
@@ -100,7 +98,6 @@ public class ChunkBackup implements Runnable {
 
 		Path filePath = Peer.getP().resolve(this.fileID + "_" + this.chunkNo);
 		if(!Files.exists(filePath)) { //NOTE: O CHUNk nao Existe
-			System.out.println("Criar ficheiro: "+filePath);
 			Files.createFile(filePath);
 			AsynchronousFileChannel channel = AsynchronousFileChannel.open(filePath,StandardOpenOption.WRITE);
 			CompletionHandler<Integer, ByteBuffer> writter = new CompletionHandler<Integer, ByteBuffer>() {

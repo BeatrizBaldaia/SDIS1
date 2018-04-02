@@ -135,7 +135,6 @@ public class Chunk {
 		if(peersStoring.contains(peerID)) {
 			peersStoring.remove((Integer) peerID);
 			this.currReplicationDeg--;
-			System.out.println("\tJA NAO ESTOU A GUARDAR O CHUNK "+this.id);
 		}
 		return this;
 	}
@@ -145,7 +144,6 @@ public class Chunk {
 	 * @return
 	 */
 	public boolean desireReplicationDeg() {
-		System.out.println("\n\t>>>>Desired Replication Deg. = "+this.replicationDeg);
 		return this.replicationDeg <= this.currReplicationDeg;
 	}
 
