@@ -48,7 +48,7 @@ public class ChunkRestore implements Runnable {
 	private void sendChunkMessage() throws IOException {
 		Path filePath = Peer.getP().resolve(this.fileID+"_"+this.chunkNo);
 		AsynchronousFileChannel channel = AsynchronousFileChannel.open(filePath);
-		ByteBuffer body = ByteBuffer.allocate(64000);
+		ByteBuffer body = ByteBuffer.allocate(Utils.MAX_LENGTH_CHUNK);
 		CompletionHandler<Integer, ByteBuffer> reader =new CompletionHandler<Integer, ByteBuffer>() {
 			@Override
 			public void completed(Integer result, ByteBuffer buffer) {

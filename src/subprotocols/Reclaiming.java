@@ -11,6 +11,7 @@ import initiator.Peer;
 import message.Parser;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
+import server.Utils;
 
 public class Reclaiming implements Runnable{
 	public double version = 0.0;
@@ -37,7 +38,7 @@ public class Reclaiming implements Runnable{
 			AsynchronousFileChannel channel;
 			try {
 				channel = AsynchronousFileChannel.open(Peer.getP().resolve(fileName));
-				ByteBuffer body = ByteBuffer.allocate(64000);
+				ByteBuffer body = ByteBuffer.allocate(Utils.MAX_LENGTH_CHUNK);
 				CompletionHandler<Integer, ByteBuffer> reader =new CompletionHandler<Integer, ByteBuffer>() {
 					@Override
 					public void completed(Integer result, ByteBuffer buffer) {
@@ -75,7 +76,7 @@ public class Reclaiming implements Runnable{
 			AsynchronousFileChannel channel;
 			try {
 				channel = AsynchronousFileChannel.open(Paths.get(LocalState.getInstance().getBackupFiles().get(fileID).getPathName()));
-				ByteBuffer body = ByteBuffer.allocate(64000);
+				ByteBuffer body = ByteBuffer.allocate(Utils.MAX_LENGTH_CHUNK);
 				CompletionHandler<Integer, ByteBuffer> reader =new CompletionHandler<Integer, ByteBuffer>() {
 					@Override
 					public void completed(Integer result, ByteBuffer buffer) {
@@ -105,7 +106,7 @@ public class Reclaiming implements Runnable{
 					}
 					
 				};
-				channel.read(body, 64000*chunkNo, body, reader);
+				channel.read(body, Utils.MAX_LENGTH_CHUNK*chunkNo, body, reader);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}

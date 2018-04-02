@@ -152,7 +152,7 @@ public class Peer implements InterfaceApp {
 	 * @throws UnsupportedEncodingException 
 	 */
 	public static String createPutChunkMessage(double version, int senderID, String fileID, int chunkNo, int replicationDeg, byte [] body) throws UnsupportedEncodingException {
-		String bodyStr = new String(body, Utils.ENCODING_TYPE); // for ISO-8859-1 encoding
+		String bodyStr = new String(body, Utils.ENCODING_TYPE);
 		String msg = "PUTCHUNK "+ version + " " + senderID + " " + fileID+ " " + chunkNo + " " + replicationDeg + " \r\n\r\n" + bodyStr;
 		return msg;
 	}
@@ -255,18 +255,18 @@ public class Peer implements InterfaceApp {
 	@Override
 	public void backupFile(String filename, Integer replicationDegree, Boolean isEnhancement) throws NoSuchAlgorithmException, IOException, InterruptedException {
 		Path filePath = Paths.get(filename);
-		if(!Files.exists(filePath)) { //NOTE: O ficheiro nao existe
+		if(!Files.exists(filePath)) { 
 			System.out.println("Error: File "+filename+" does not exist: ");
 			return;
 		}
-		Long numberOfChunks = (Math.floorDiv(Files.size(filePath), 64000))+1;
+		Long numberOfChunks = (Math.floorDiv(Files.size(filePath), Utils.MAX_LENGTH_CHUNK))+1;
 		String fileID = this.getFileID(filename);
 		LocalState.getInstance().getBackupFiles().put(fileID, new BackupFile(filename, Peer.id, replicationDegree));
 		int chunkNo = 0;
 		while(chunkNo < numberOfChunks) {
 			
 			AsynchronousFileChannel channel = AsynchronousFileChannel.open(filePath);
-			ByteBuffer body = ByteBuffer.allocate(64000);
+			ByteBuffer body = ByteBuffer.allocate(Utils.MAX_LENGTH_CHUNK);
 			int numberOfChunk = chunkNo;
 			CompletionHandler<Integer, ByteBuffer> reader =new CompletionHandler<Integer, ByteBuffer>() {
 				@Override
@@ -290,9 +290,9 @@ public class Peer implements InterfaceApp {
 				}
 				
 			};
-			channel.read(body, 64000*chunkNo, body, reader);
+			channel.read(body, Utils.MAX_LENGTH_CHUNK*chunkNo, body, reader);
 			chunkNo++;
-		}//TODO: Enhancement backup
+		}
 	}
 	
 	/**
@@ -310,7 +310,7 @@ public class Peer implements InterfaceApp {
 		Chunk chunk = new Chunk(chunkNo, replicationDegree, (long) bodyOfTheChunk.length, Peer.id);
 		LocalState.getInstance().saveChunk(fileID, fileName, Peer.id, replicationDegree, chunk);
 		LocalState.getInstance().decreaseReplicationDegree(fileID, chunk.getID(), Peer.id, Peer.id);
-		double version = Peer.protocolVersion; //TODO: isEnhancement
+		double version = Peer.protocolVersion;
 		if(isEnhancement) {
 			version = 1.1;
 		}
@@ -363,7 +363,7 @@ public class Peer implements InterfaceApp {
 		String fileID = getFileID(filename);
 		Integer chunkNo = 0;
 		long fileSize = (Long) Files.getAttribute(Paths.get(filename), "size");
-		int totalNumChunks = (int) (Math.floorDiv(fileSize, 64000) + 1);//numero total de chunks que o file vai ter
+		int totalNumChunks = (int) (Math.floorDiv(fileSize, Utils.MAX_LENGTH_CHUNK) + 1);//numero total de chunks que o file vai ter
 		for(int i = 0; i < totalNumChunks; i++) {
 			LocalState.getInstance().getBackupFiles().get(fileID).getChunks().get(chunkNo).setRestoreMode(State.RECEIVE);
 			sendGetChunk(fileID, chunkNo,isEnhancement);
