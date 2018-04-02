@@ -13,6 +13,7 @@ import sateInfo.BackupFile;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
 import subprotocols.ChunkBackup;
+import subprotocols.SaveChunkInfo;
 
 public class ChannelMDB {
 	private static ChannelMDB instance = null;
@@ -103,12 +104,11 @@ public class ChannelMDB {
                 	if(parser.parseHeader() != 0) {
                 		System.out.println("Error parsing the message");
                 	}
-                	//System.err.println("Gets to listem!");
                 	if(parser.senderID != myID) { //
 	                	if(parser.messageType.equals("PUTCHUNK")) {
 	                		System.out.println("Recebeu PUTCHUNK para chunk " + parser.chunkNo);
-	                		saveChunkInfo(parser);
-	                		handlePutChunkMsg(parser);
+	                		SaveChunkInfo subprotocol = new SaveChunkInfo(parser.version, Peer.id, parser.senderID, parser.fileID, parser.chunkNo, parser.body, parser.replicationDeg);
+	                    	SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().submit(subprotocol);
 	                	}
                 	}
                 } catch (IOException e) {
@@ -118,35 +118,6 @@ public class ChannelMDB {
             }
         }).start();
     	
-    }
-    
-    /**
-     * Process the PUTCHUNK message
-     * @param parser
-     */
-    public void handlePutChunkMsg(Parser parser) {
-    	Random r = new Random();
-    	ChunkBackup subprotocol = new ChunkBackup(parser.version, Peer.id, parser.senderID, parser.fileID, parser.chunkNo, parser.body, parser.replicationDeg);
-    	SingletonThreadPoolExecutor.getInstance().getThreadPoolExecutor().schedule(subprotocol, (long) r.nextInt(400), TimeUnit.MILLISECONDS);
-    }
-    
-    public void saveChunkInfo(Parser parser) {
-    	BackupFile file = LocalState.getInstance().getBackupFiles().get(parser.fileID);
-		if(file == null) {
-			Chunk chunk = new Chunk(parser.chunkNo, parser.replicationDeg, (long) parser.body.length, myID);
-			LocalState.getInstance().saveChunk(parser.fileID, null, myID, parser.replicationDeg, chunk);
-			LocalState.getInstance().decreaseReplicationDegree(parser.fileID, parser.chunkNo, myID, myID);
-		} else {
-			Chunk chunk = file.getChunks().get(parser.chunkNo);
-			if(chunk == null) {
-				chunk = new Chunk(parser.chunkNo, parser.replicationDeg, (long) parser.body.length, myID);
-				LocalState.getInstance().saveChunk(parser.fileID, null, myID, parser.replicationDeg, chunk);
-				LocalState.getInstance().decreaseReplicationDegree(parser.fileID, parser.chunkNo, myID, myID);
-			} else {
-				chunk.setReplicationDeg(parser.replicationDeg);
-			}
-			chunk.setReclaimMode(Chunk.State.OFF);
-		}
     }
     
     

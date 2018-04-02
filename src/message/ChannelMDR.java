@@ -99,9 +99,9 @@ private static ChannelMDR instance = null;
 					if(parser.parseHeader() != 0) {
 						System.out.println("Error parsing the message");
 					}
-					//System.err.println("Teste");
 					if(parser.senderID != myID) {
 						if(parser.messageType.equals("CHUNK")) {
+							System.out.println("Recebeu do peer " + parser.senderID + " msg CHUNK para file " + parser.fileID + ", chunk " + parser.chunkNo);
 							Chunk chunk = LocalState.getInstance().getBackupFiles().get(parser.fileID).getChunks().get(parser.chunkNo);
 							if(chunk != null) {
 								if(chunk.getRestoreMode() == Chunk.State.ON) {
