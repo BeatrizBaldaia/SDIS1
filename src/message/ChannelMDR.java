@@ -5,13 +5,8 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
-import initiator.Peer;
 import sateInfo.Chunk;
 import sateInfo.LocalState;
-import subprotocols.ChunkBackup;
 import subprotocols.StoreChunk;
 
 public class ChannelMDR {

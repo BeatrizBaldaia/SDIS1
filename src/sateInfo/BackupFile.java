@@ -15,12 +15,12 @@ public class BackupFile {
 	private int serviceID = 0;
 	private int replicationDeg = 0;
 	private Map<Integer,Chunk> chunks = new ConcurrentHashMap<Integer, Chunk>();
-	private Boolean wasDeleted = false;
+	private boolean wasDeleted = false;
 	
 	/**
 	 * @return the wasDeleted
 	 */
-	public Boolean wasDeleted() {
+	public boolean wasDeleted() {
 		return wasDeleted;
 	}
 

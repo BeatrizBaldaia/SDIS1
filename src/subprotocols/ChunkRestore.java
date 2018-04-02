@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.file.Path;
+import java.util.Random;
 
 import initiator.Peer;
 import message.ChannelMDR;
@@ -87,16 +88,16 @@ public class ChunkRestore implements Runnable {
 			
 			this.body = body;
 		if(this.version != 1) { //ENHANCEMENT
-			
-			ServerSocket machine = new ServerSocket(1040);
+//			Random r = new Random();
+//			int port = r.nextInt(100) + 2000;
+			ServerSocket machine = new ServerSocket(0);
+
 			byte[] data  = this.body;
-			//String address = machine.getInetAddress().getHostAddress()+":"+1040;
 			System.out.println("ADDRESS: "+InetAddress.getLocalHost().getHostAddress());
-			String address =InetAddress.getLocalHost().getHostAddress()+":"+1040;
+			
+			String address =InetAddress.getLocalHost().getHostAddress()+":"+machine.getLocalPort();
 			this.body = address.getBytes();
 			System.err.println(address);
-			//System.err.println("Socket address: "+this.body.toString());
-			//System.err.println("Socket address: "+data.toString());
 			new Thread(() -> {
 				try {
 					Socket socket = machine.accept();

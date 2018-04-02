@@ -9,9 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
 import initiator.Peer;
 import message.*;
 import sateInfo.BackupFile;

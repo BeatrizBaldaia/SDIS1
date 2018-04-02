@@ -1,6 +1,45 @@
-# Project 1 - Distributed Backup Service
+# Projeto 1 - Serviço distribuido de Backup
 
-In this project you will develop a distributed backup service for a local area network (LAN). The idea is to use the free disk space of the computers in a LAN for backing up files in other computers in the same LAN. The service is provided by servers in an environment that is assumed cooperative (rather than hostile). Nevertheless, each server retains control over its own disks and, if needed, may reclaim the space it made available for backing up other computers' files.
+Neste projeto foi desenvolvido um serviço de backup distribuído para uma rede local (LAN) usando-se o espaço livre dos computadores que dela fazem parte. O serviço é fornecido por servidores num ambiente que é considerado cooperativo. No entanto, cada servidor retem o controlo sobre os seus próprios discos e, se necessário, pode recuperar o espaço disponibilizado para fazer o backup de ficheiros de outros computadores.
+
+### Correr o programa
+
+Deforma a começar o `rmiregistry`, abra um terminal na pasta bin e introduza o comando:
+```
+$ rmiregistry
+```
+Para começar o peer use os seguintes comandos:
+
+```
+$ javac -d bin/ -cp src src/NonInitiator/Peer.java
+$ java -cp bin NonInitiator.Peer 1 226.0.0.1 8080 226.0.0.2 8081
+```
+Para começar a TestApp use o seguinte comando...
+
+...para fazer backup de um ficheiro:
+```
+$ java -cp bin client.TestApp localhost:1099:peer_1 BACKUP a.png 1
+```
+
+...para pedir de volta um ficheiro ao qual já executou backup:
+```
+$ java -cp bin client.TestApp localhost:1099:peer_1 RECLAIM 0
+```
+
+...para voltar a guardar um ficheiro:
+```
+$ java -cp bin client.TestApp localhost:1099:peer_2 RESTORE a.png
+```
+
+...para apagar um ficheiro:
+```
+$ java -cp bin client.TestApp localhost:1099:peer_2 DELETE a.png
+```
+
+...para ver o estado de um peer:
+```
+$ java -cp bin client.TestApp localhost:1099:peer_2 STATE a.png
+```
 
 javac -d bin/ -cp src src/NonInitiator/Peer.java
 java -cp bin NonInitiator.Peer 1 226.0.0.1 8080 226.0.0.2 8081
